@@ -1,0 +1,6 @@
+flask
+freezegun
+functions-framework
+google-cloud-storage
+Pillow
+requests
