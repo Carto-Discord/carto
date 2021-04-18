@@ -6,3 +6,7 @@ variable "location" {
   default     = "US"
   description = "Location of Storage Buckets"
 }
+
+variable "bot_token" {
+  description = "Discord App Bot Token"
+}
