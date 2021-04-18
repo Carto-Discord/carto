@@ -61,7 +61,7 @@ jobs:
       - name: Test with jest
         run: |
           cd client
-          npm t
+          npm run test:ci
 
       - name: Initialise terraform
         run: |
