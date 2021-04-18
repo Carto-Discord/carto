@@ -6,6 +6,7 @@ type CreateProps = {
   url: string;
   rows: number;
   columns: number;
+  channelId: string;
 };
 
 type CreateResponse = {
@@ -23,6 +24,7 @@ export const createMap = async ({
   url,
   rows,
   columns,
+  channelId,
 }: CreateProps): Promise<CreateResponse> => {
   const storage = new Storage();
   const auth = new GoogleAuth();
@@ -38,6 +40,7 @@ export const createMap = async ({
       url,
       rows,
       columns,
+      channelId,
     }),
   });
 

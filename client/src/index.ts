@@ -50,6 +50,7 @@ client.on("message", async (message) => {
         url,
         rows: Number(rows),
         columns: Number(columns),
+        channelId: message.channel.id,
       });
 
       response.success

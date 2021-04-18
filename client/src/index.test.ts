@@ -43,6 +43,7 @@ describe("Bot", () => {
         content: "!ping",
         channel: {
           send: jest.fn(),
+          id: "4567",
         },
       };
       await onMessage(mockMessage);
@@ -62,6 +63,7 @@ describe("Bot", () => {
           content: "!create",
           channel: {
             send: jest.fn(),
+            id: "4567",
           },
         };
         await onMessage(mockMessage);
@@ -83,6 +85,7 @@ describe("Bot", () => {
           content: "!create url rows cols",
           channel: {
             send: jest.fn(),
+            id: "4567",
           },
         };
         await onMessage(mockMessage);
@@ -105,6 +108,7 @@ describe("Bot", () => {
             content: "!create url 1 2",
             channel: {
               send: jest.fn(),
+              id: "4567",
             },
           };
 
@@ -129,6 +133,7 @@ describe("Bot", () => {
             content: "!create url 1 2",
             channel: {
               send: jest.fn(),
+              id: "4567",
             },
           };
 

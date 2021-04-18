@@ -55,7 +55,12 @@ describe("Create", () => {
       });
 
       it("should download the file and return the name", async () => {
-        const response = await createMap({ url: "url", rows: 1, columns: 2 });
+        const response = await createMap({
+          url: "url",
+          rows: 1,
+          columns: 2,
+          channelId: "1234",
+        });
 
         expect(mockRequest).toBeCalledWith({
           url: "https://trigger.url",
@@ -68,6 +73,7 @@ describe("Create", () => {
             url: "url",
             rows: 1,
             columns: 2,
+            channelId: "1234",
           }),
         });
 
@@ -85,7 +91,12 @@ describe("Create", () => {
       });
 
       it("should return the API error", async () => {
-        const response = await createMap({ url: "url", rows: 1, columns: 2 });
+        const response = await createMap({
+          url: "url",
+          rows: 1,
+          columns: 2,
+          channelId: "1234",
+        });
 
         expect(mockRequest).toBeCalledWith({
           url: "https://trigger.url",
@@ -98,6 +109,7 @@ describe("Create", () => {
             url: "url",
             rows: 1,
             columns: 2,
+            channelId: "1234",
           }),
         });
 
