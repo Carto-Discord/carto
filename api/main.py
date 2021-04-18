@@ -1,7 +1,7 @@
 from datetime import datetime
 import uuid
 
-from flask import abort, jsonify
+from flask import abort, jsonify, make_response
 from map import grid, storage
 
 cloud_storage_bucket = 'carto-map-uploads'
@@ -20,11 +20,11 @@ def function(request):
     method = request.method
     allowed_methods = ['GET', 'POST', 'DELETE']
     if method not in allowed_methods:
-        abort(405)
+        abort(make_response(jsonify(message="Method not allowed"), 405))
 
     request_json = request.get_json(silent=True)
     if request_json is None:
-        abort(400, "JSON could not be serialised")
+        abort(make_response(jsonify(message="JSON could not be serialised"), 400))
 
     if method == 'POST':
         if 'action' in request_json and request_json['action'] == 'create':
@@ -33,13 +33,13 @@ def function(request):
 
             source_file_name = grid.apply_grid(url, rows, columns)
             if source_file_name is None:
-                abort(404, "Url {} could not be found".format(url))
+                abort(make_response(jsonify(message="Url {} could not be found".format(url)), 404))
 
             path = storage.upload_blob(cloud_storage_bucket,
                                        source_file_name,
                                        str(uuid.uuid4()) + '.' + source_file_name.split('.')[-1])
             if path is None:
-                abort(500, "Map could not be created")
+                abort(make_response(jsonify(message="Map could not be created"), 500))
             else:
                 response = {
                     'created': datetime.now().isoformat(),
