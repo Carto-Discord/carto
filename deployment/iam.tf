@@ -1,4 +1,4 @@
-data "google_compute_default_service_account" "default" {}
+data "google_app_engine_default_service_account" "default" {}
 
 resource "google_cloudfunctions_function_iam_member" "invoker" {
   project        = google_cloudfunctions_function.carto_api.project
@@ -6,5 +6,5 @@ resource "google_cloudfunctions_function_iam_member" "invoker" {
   cloud_function = google_cloudfunctions_function.carto_api.name
 
   role   = "roles/cloudfunctions.invoker"
-  member = "serviceAccount:${data.google_compute_default_service_account.default.email}"
+  member = "serviceAccount:${data.google_app_engine_default_service_account.default.email}"
 }
