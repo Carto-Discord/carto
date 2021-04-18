@@ -1,7 +1,7 @@
 resource "google_app_engine_standard_app_version" "app" {
   version_id = "v1"
   service    = "default"
-  runtime    = "node14"
+  runtime    = "nodejs14"
 
   deployment {
     zip {
