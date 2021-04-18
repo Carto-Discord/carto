@@ -71,4 +71,6 @@ jobs:
       - name: Apply terraform
         run: |
           cd deployment
-          terraform apply -auto-approve
+          terraform apply -var="bot_token=$BOT_TOKEN" -auto-approve
+        env:
+          BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
