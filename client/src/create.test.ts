@@ -71,8 +71,8 @@ describe("Create", () => {
           }),
         });
 
-        expect(mockDownload).toBeCalledWith({ destination: "file" });
-        expect(response).toEqual({ success: true, body: "file" });
+        expect(mockDownload).toBeCalledWith({ destination: "/tmp/file" });
+        expect(response).toEqual({ success: true, body: "/tmp/file" });
       });
     });
 

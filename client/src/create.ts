@@ -44,16 +44,17 @@ export const createMap = async ({
   const body = response.data as ResponseData;
   if (response.status === 201) {
     const { fileName } = body;
+    const tempFile = `/tmp/${fileName}`;
     await storage
       .bucket(GCS_BUCKET)
       .file(fileName)
-      .download({ destination: fileName });
+      .download({ destination: tempFile });
 
-    console.log(`gs://${GCS_BUCKET}/${fileName} downloaded to ${fileName}.`);
+    console.log(`gs://${GCS_BUCKET}/${fileName} downloaded to ${tempFile}.`);
 
     return {
       success: true,
-      body: fileName,
+      body: tempFile,
     };
   } else {
     console.warn(
