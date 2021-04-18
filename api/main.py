@@ -38,7 +38,7 @@ def function(request):
 
             file_name = ntpath.basename(source_file_name)
             file = storage.upload_blob(cloud_storage_bucket,
-                                       file_name,
+                                       source_file_name,
                                        str(uuid.uuid4()) + '.' + file_name.split('.')[-1])
             if file is None:
                 abort(make_response(jsonify(message="Map could not be created"), 500))
