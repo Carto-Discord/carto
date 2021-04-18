@@ -11,10 +11,13 @@ def download_image(image_url: str) -> str:
     try:
         response = requests.get(image_url)
         if response.status_code >= 400:
-            logging.log(level=logging.WARN, msg="Url {0} returned status code {1}".format(image_url, response.status_code))
+            logging.log(level=logging.WARN,
+                        msg="Url {0} returned status code {1}".format(image_url, response.status_code))
             return ""
 
         file_name = 'downloaded.' + image_url.split('/')[-1].split('.')[-1]
+        if os.getenv('IS_TEST', 'false') == 'false':
+            file_name = '/tmp/' + file_name
         file = open(file_name, 'wb')
         file.write(response.content)
         file.close()
@@ -82,6 +85,10 @@ def apply_grid(image_url: str, rows: int, cols: int):
             frame_draw.text((x_label, im.size[1] + margin_top / 2 - h / 2), label, font=font, fill=0)
 
         frame.paste(im, (margin_left, 0))
+
+        if os.getenv('IS_TEST', 'false') == 'false':
+            file_name = '/tmp/' + file_name
+
         frame.save(file_name, 'PNG')
 
     delete_image(image_name)

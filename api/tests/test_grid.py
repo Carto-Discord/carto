@@ -5,6 +5,8 @@ from api.map import grid
 
 
 class GridTest(unittest.TestCase):
+    os.environ['IS_TEST'] = 'true'
+
     def test_apply_grid(self):
         url = 'https://i.pinimg.com/736x/ee/85/5d/ee855d7efa22f163fcd6f24560ce7128.jpg'
         grid.apply_grid(url, 28, 20)

@@ -1,4 +1,5 @@
 from datetime import datetime
+import ntpath
 import uuid
 
 from flask import abort, jsonify, make_response
@@ -35,9 +36,10 @@ def function(request):
             if source_file_name is None:
                 abort(make_response(jsonify(message="Url {} could not be found".format(url)), 404))
 
+            file_name = ntpath.basename(source_file_name)
             file = storage.upload_blob(cloud_storage_bucket,
-                                       source_file_name,
-                                       str(uuid.uuid4()) + '.' + source_file_name.split('.')[-1])
+                                       file_name,
+                                       str(uuid.uuid4()) + '.' + file_name.split('.')[-1])
             if file is None:
                 abort(make_response(jsonify(message="Map could not be created"), 500))
             else:
