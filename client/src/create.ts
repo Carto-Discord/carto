@@ -1,4 +1,3 @@
-import { URL } from "url";
 import { Storage } from "@google-cloud/storage";
 import { GoogleAuth } from "google-auth-library";
 import { GCS_BUCKET } from "./constants";
@@ -28,11 +27,6 @@ export const createMap = async ({
   const storage = new Storage();
   const auth = new GoogleAuth();
   const triggerUrl = process.env.HTTP_TRIGGER_URL;
-  const targetAudience = new URL(triggerUrl).origin;
-
-  console.log(
-    `Requesting ${triggerUrl} with target audience ${targetAudience}`
-  );
 
   const client = await auth.getIdTokenClient(triggerUrl);
   const response = await client.request({
