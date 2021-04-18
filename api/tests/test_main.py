@@ -32,7 +32,8 @@ class MainTest(TestCase):
             'action': 'create',
             'url': 'https://mock.url',
             'rows': 42,
-            'columns': 24
+            'columns': 24,
+            'channelId': '1234'
         }
         request = Mock(method='POST', get_json=Mock(return_value=params))
         mock_apply_grid.return_value = None
@@ -49,7 +50,8 @@ class MainTest(TestCase):
             'action': 'create',
             'url': 'https://mock.url',
             'rows': 42,
-            'columns': 24
+            'columns': 24,
+            'channelId': '1234'
         }
         request = Mock(method='POST', get_json=Mock(return_value=params))
         mock_apply_grid.return_value = 'map.png'
@@ -63,12 +65,14 @@ class MainTest(TestCase):
     @freeze_time("2021-04-16")
     @patch('map.grid.apply_grid')
     @patch('map.storage.upload_blob')
-    def test_create_success(self, mock_upload_blob, mock_apply_grid):
+    @patch('map.database.update_channel_map')
+    def test_create_success(self, mock_update_channel_map, mock_upload_blob, mock_apply_grid):
         params = {
             'action': 'create',
             'url': 'https://mock.url',
             'rows': 42,
-            'columns': 24
+            'columns': 24,
+            'channelId': '1234'
         }
         request = Mock(method='POST', get_json=Mock(return_value=params))
         mock_apply_grid.return_value = 'map.png'
@@ -80,3 +84,4 @@ class MainTest(TestCase):
         self.assertEqual(json.loads(response[0].data)['fileName'], 'gcs-file')
         self.assertEqual(json.loads(response[0].data)['created'], '2021-04-16T00:00:00')
         self.assertEqual(response[1], 201)
+        self.assertTrue(mock_update_channel_map.called)

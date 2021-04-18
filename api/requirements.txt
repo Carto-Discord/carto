@@ -1,6 +1,5 @@
 flask
-freezegun
-functions-framework
+google-cloud-firestore
 google-cloud-storage
 Pillow
 requests
