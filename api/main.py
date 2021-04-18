@@ -35,15 +35,15 @@ def function(request):
             if source_file_name is None:
                 abort(make_response(jsonify(message="Url {} could not be found".format(url)), 404))
 
-            path = storage.upload_blob(cloud_storage_bucket,
+            file = storage.upload_blob(cloud_storage_bucket,
                                        source_file_name,
                                        str(uuid.uuid4()) + '.' + source_file_name.split('.')[-1])
-            if path is None:
+            if file is None:
                 abort(make_response(jsonify(message="Map could not be created"), 500))
             else:
                 response = {
                     'created': datetime.now().isoformat(),
-                    'downloadUrl': path
+                    'fileName': file
                 }
                 return (jsonify(response),
                         201,

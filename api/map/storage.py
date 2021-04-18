@@ -21,7 +21,7 @@ def upload_blob(bucket_name, source_file_name, destination_blob_name):
             source_file_name, destination_blob_name
         ))
 
-        return "https://storage.googleapis.com/{0}/{1}".format(bucket.name, blob.name)
+        return blob.name
     except GoogleCloudError as e:
         logging.log(level=logging.ERROR, msg="File {} could not be uploaded to {}. Reason: {}".format(
             source_file_name, destination_blob_name, e

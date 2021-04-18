@@ -72,11 +72,11 @@ class MainTest(TestCase):
         }
         request = Mock(method='POST', get_json=Mock(return_value=params))
         mock_apply_grid.return_value = 'map.png'
-        mock_upload_blob.return_value = 'gcs/path/to/file'
+        mock_upload_blob.return_value = 'gcs-file'
 
         with self.app.app_context():
             response = function(request)
 
-        self.assertEqual(json.loads(response[0].data)['downloadUrl'], 'gcs/path/to/file')
+        self.assertEqual(json.loads(response[0].data)['fileName'], 'gcs-file')
         self.assertEqual(json.loads(response[0].data)['created'], '2021-04-16T00:00:00')
         self.assertEqual(response[1], 201)
