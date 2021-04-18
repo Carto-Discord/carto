@@ -1,7 +1,7 @@
 describe("Create", () => {
   let createMap: Function;
 
-  const mockFetch = jest.fn();
+  const mockRequest = jest.fn();
   const mockDownload = jest.fn();
 
   const mockStorage = {
@@ -9,6 +9,11 @@ describe("Create", () => {
       file: () => ({
         download: mockDownload,
       }),
+    }),
+  };
+  const mockAuth = {
+    getIdTokenClient: jest.fn().mockResolvedValue({
+      request: mockRequest,
     }),
   };
 
@@ -25,7 +30,13 @@ describe("Create", () => {
         }),
       };
     });
-    jest.mock("node-fetch", () => mockFetch);
+    jest.mock("google-auth-library", () => {
+      return {
+        GoogleAuth: jest.fn().mockImplementation(() => {
+          return mockAuth;
+        }),
+      };
+    });
     jest.mock("./constants", () => ({
       GCS_BUCKET: "bucket",
     }));
@@ -37,16 +48,17 @@ describe("Create", () => {
   describe("Create Map", () => {
     describe("given the API response is successful", () => {
       beforeEach(() => {
-        mockFetch.mockResolvedValue({
-          ok: true,
-          json: jest.fn().mockResolvedValue({ fileName: "file" }),
+        mockRequest.mockResolvedValue({
+          status: 201,
+          data: { fileName: "file" },
         });
       });
 
       it("should download the file and return the name", async () => {
         const response = await createMap({ url: "url", rows: 1, columns: 2 });
 
-        expect(mockFetch).toBeCalledWith("https://trigger.url", {
+        expect(mockRequest).toBeCalledWith({
+          url: "https://trigger.url",
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -66,17 +78,17 @@ describe("Create", () => {
 
     describe("given the API response is unsuccessful", () => {
       beforeEach(() => {
-        mockFetch.mockResolvedValue({
-          ok: false,
+        mockRequest.mockResolvedValue({
           status: 400,
-          json: jest.fn().mockResolvedValue({ message: "error" }),
+          data: { message: "error" },
         });
       });
 
       it("should return the API error", async () => {
         const response = await createMap({ url: "url", rows: 1, columns: 2 });
 
-        expect(mockFetch).toBeCalledWith("https://trigger.url", {
+        expect(mockRequest).toBeCalledWith({
+          url: "https://trigger.url",
           method: "POST",
           headers: {
             "Content-Type": "application/json",

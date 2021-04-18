@@ -1,5 +1,6 @@
-import fetch from "node-fetch";
+import { URL } from "url";
 import { Storage } from "@google-cloud/storage";
+import { GoogleAuth } from "google-auth-library";
 import { GCS_BUCKET } from "./constants";
 
 type CreateProps = {
@@ -13,18 +14,31 @@ type CreateResponse = {
   body: string;
 };
 
+type ResponseData = {
+  created: string;
+  fileName?: string;
+  message?: string;
+};
+
 export const createMap = async ({
   url,
   rows,
   columns,
 }: CreateProps): Promise<CreateResponse> => {
   const storage = new Storage();
+  const auth = new GoogleAuth();
+  const triggerUrl = process.env.HTTP_TRIGGER_URL;
+  const targetAudience = new URL(triggerUrl).origin;
 
-  const response = await fetch(process.env.HTTP_TRIGGER_URL, {
+  console.log(
+    `Requesting ${triggerUrl} with target audience ${targetAudience}`
+  );
+
+  const client = await auth.getIdTokenClient(targetAudience);
+  const response = await client.request({
+    url: triggerUrl,
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       action: "create",
       url,
@@ -33,8 +47,8 @@ export const createMap = async ({
     }),
   });
 
-  const body = await response.json();
-  if (response.ok) {
+  const body = response.data as ResponseData;
+  if (response.status === 201) {
     const { fileName } = body;
     await storage
       .bucket(GCS_BUCKET)
