@@ -34,7 +34,7 @@ export const createMap = async ({
     `Requesting ${triggerUrl} with target audience ${targetAudience}`
   );
 
-  const client = await auth.getIdTokenClient(targetAudience);
+  const client = await auth.getIdTokenClient(triggerUrl);
   const response = await client.request({
     url: triggerUrl,
     method: "POST",
