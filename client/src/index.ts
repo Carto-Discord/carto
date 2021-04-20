@@ -3,6 +3,7 @@ import express from "express";
 import path from "path";
 import dotenv from "dotenv";
 import { createMap } from "./create";
+import { getMap } from "./get";
 
 dotenv.config();
 
@@ -61,6 +62,20 @@ client.on("message", async (message) => {
     } else {
       message.channel.send("Create usage: !create <url> <rows> <columns>");
     }
+  }
+
+  if (message.content.startsWith(`${prefix}map`)) {
+    console.log(`Received Map get request: ${message.content}`);
+
+    const response = await getMap({
+      channelId: message.channel.id,
+    });
+
+    response.success
+      ? message.channel.send("Map retrieved", {
+          files: [response.body],
+        })
+      : message.channel.send(response.body);
   }
 
   if (message.content.startsWith(`${prefix}ping`)) message.channel.send("pong");

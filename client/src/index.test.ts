@@ -8,6 +8,7 @@ describe("Bot", () => {
   jest.spyOn(console, "log").mockImplementation(() => {});
 
   const mockCreateMap = jest.fn();
+  const mockGetMap = jest.fn();
 
   beforeEach(() => {
     jest.resetModules();
@@ -23,6 +24,9 @@ describe("Bot", () => {
     jest.mock("express", () => require("jest-express"));
     jest.mock("./create", () => ({
       createMap: mockCreateMap,
+    }));
+    jest.mock("./get", () => ({
+      getMap: mockGetMap,
     }));
 
     process.env.BOT_TOKEN = "bot token";
@@ -149,6 +153,58 @@ describe("Bot", () => {
               files: ["filename"],
             }
           );
+        });
+      });
+    });
+  });
+
+  describe('given a message "!map" is received', () => {
+    describe("gvien the map get is unsuccessful", () => {
+      it("should respond with the API message", async () => {
+        const onMessage: Function = mockClient.on.mock.calls[0][1];
+        const mockMessage = {
+          author: {
+            id: "1234",
+          },
+          content: "!map",
+          channel: {
+            send: jest.fn(),
+            id: "4567",
+          },
+        };
+
+        mockGetMap.mockResolvedValue({
+          success: false,
+          body: "error message",
+        });
+        await onMessage(mockMessage);
+
+        expect(mockMessage.channel.send).toBeCalledWith("error message");
+      });
+    });
+
+    describe("gvien the map creation is successful", () => {
+      it("should respond with the downloaded", async () => {
+        const onMessage: Function = mockClient.on.mock.calls[0][1];
+        const mockMessage = {
+          author: {
+            id: "1234",
+          },
+          content: "!map",
+          channel: {
+            send: jest.fn(),
+            id: "4567",
+          },
+        };
+
+        mockGetMap.mockResolvedValue({
+          success: true,
+          body: "filename",
+        });
+        await onMessage(mockMessage);
+
+        expect(mockMessage.channel.send).toBeCalledWith("Map retrieved", {
+          files: ["filename"],
         });
       });
     });

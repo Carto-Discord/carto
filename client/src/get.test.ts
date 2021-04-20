@@ -1,5 +1,5 @@
-describe("Create", () => {
-  let createMap: Function;
+describe("Get", () => {
+  let getMap: Function;
 
   const mockRequest = jest.fn();
   const mockDownload = jest.fn();
@@ -39,39 +39,29 @@ describe("Create", () => {
     });
     process.env.HTTP_TRIGGER_URL = "https://trigger.url";
 
-    createMap = require("./create").createMap;
+    getMap = require("./get").getMap;
   });
 
-  describe("Create Map", () => {
+  describe("Get Map", () => {
     describe("given the API response is successful", () => {
       beforeEach(() => {
         mockRequest.mockResolvedValue({
-          status: 201,
+          status: 200,
           data: { blob: "file", bucket: "bucket" },
         });
       });
 
       it("should download the file and return the name", async () => {
-        const response = await createMap({
-          url: "url",
-          rows: 1,
-          columns: 2,
+        const response = await getMap({
           channelId: "1234",
         });
 
         expect(mockRequest).toBeCalledWith({
           url: "https://trigger.url",
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            action: "create",
-            url: "url",
-            rows: 1,
-            columns: 2,
+          method: "GET",
+          params: {
             channelId: "1234",
-          }),
+          },
         });
 
         expect(mockDownload).toBeCalledWith({ destination: "/tmp/file" });
@@ -82,32 +72,22 @@ describe("Create", () => {
     describe("given the API response is unsuccessful", () => {
       beforeEach(() => {
         mockRequest.mockResolvedValue({
-          status: 400,
+          status: 404,
           data: { message: "error" },
         });
       });
 
       it("should return the API error", async () => {
-        const response = await createMap({
-          url: "url",
-          rows: 1,
-          columns: 2,
+        const response = await getMap({
           channelId: "1234",
         });
 
         expect(mockRequest).toBeCalledWith({
           url: "https://trigger.url",
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            action: "create",
-            url: "url",
-            rows: 1,
-            columns: 2,
+          method: "GET",
+          params: {
             channelId: "1234",
-          }),
+          },
         });
 
         expect(mockDownload).not.toBeCalled();
