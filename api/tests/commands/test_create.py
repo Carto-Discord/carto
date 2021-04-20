@@ -51,6 +51,7 @@ class CreateTest(unittest.TestCase):
     @patch('api.map.storage.upload_blob')
     @patch('api.map.database.update_channel_map')
     @patch('api.map.database.create_map_info')
+    @patch('api.commands.constants.BUCKET', 'bucket')
     def test_create_success(self, mock_create_map_info, mock_update_channel_map, mock_upload_blob, mock_apply_grid):
         params = {
             'action': 'create',
@@ -65,7 +66,8 @@ class CreateTest(unittest.TestCase):
         with self.app.app_context():
             response = create_new_map(params)
 
-        self.assertEqual(json.loads(response[0].data)['fileName'], 'gcs-file')
+        self.assertEqual(json.loads(response[0].data)['blob'], 'gcs-file')
+        self.assertEqual(json.loads(response[0].data)['bucket'], 'bucket')
         self.assertEqual(json.loads(response[0].data)['created'], '2021-04-16T00:00:00')
         self.assertEqual(response[1], 201)
         mock_update_channel_map.assert_called()

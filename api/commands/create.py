@@ -27,7 +27,8 @@ def create_new_map(request_json):
         database.create_map_info(uuid=map_uuid, url=url, rows=rows, columns=columns)
         response = {
             'created': datetime.now().isoformat(),
-            'fileName': file
+            'blob': file,
+            'bucket': constants.BUCKET
         }
         return (jsonify(response),
                 201,
