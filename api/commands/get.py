@@ -1,6 +1,6 @@
 from flask import abort, jsonify, make_response
-from api.commands import constants
-from api.map import database
+from commands import constants
+from commands.map import database
 
 
 def get_channel_map(request_params):

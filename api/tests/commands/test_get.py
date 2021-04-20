@@ -11,8 +11,8 @@ from api.commands.get import get_channel_map
 class GetTest(unittest.TestCase):
     app = Flask(__name__)
 
-    @patch('api.map.database.get_current_channel_map')
-    @patch('api.commands.constants.BUCKET', 'bucket')
+    @patch('commands.map.database.get_current_channel_map')
+    @patch('commands.constants.BUCKET', 'bucket')
     def test_get_channel_map(self, mock_get_map):
         mock_get_map.return_value = '1234'
 
@@ -22,7 +22,7 @@ class GetTest(unittest.TestCase):
         self.assertEqual(json.loads(response[0].data)['blob'], '1234.png')
         self.assertEqual(json.loads(response[0].data)['bucket'], 'bucket')
 
-    @patch('api.map.database.get_current_channel_map')
+    @patch('commands.map.database.get_current_channel_map')
     def test_get_channel_map_no_uuid(self, mock_get_map):
         mock_get_map.return_value = None
 

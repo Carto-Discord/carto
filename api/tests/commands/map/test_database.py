@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 from mockfirestore import MockFirestore
 
-from api.map import database
+from api.commands.map import database
 
 
 class DatabaseTest(unittest.TestCase):

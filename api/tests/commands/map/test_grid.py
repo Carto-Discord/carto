@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from api.map import grid
+from api.commands.map import grid
 
 
 class GridTest(unittest.TestCase):

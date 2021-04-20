@@ -3,8 +3,8 @@ import ntpath
 import uuid
 
 from flask import abort, jsonify, make_response
-from api.map import grid, storage, database
-from api.commands import constants
+from commands.map import database, grid, storage
+from commands import constants
 
 
 def create_new_map(request_json):
