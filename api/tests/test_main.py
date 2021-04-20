@@ -53,3 +53,12 @@ class MainTest(TestCase):
         with self.app.app_context():
             function(request)
             mock_create.assert_called_with(params)
+
+    @patch('commands.get.get_channel_map')
+    def test_get_map(self, mock_get):
+        params = {'channelId': '1234'}
+
+        request = Mock(method='GET', args=Mock(to_dict=Mock(return_value=params)))
+        with self.app.app_context():
+            function(request)
+            mock_get.assert_called_with(params)

@@ -49,3 +49,19 @@ def create_map_info(uuid, url, rows, columns, tokens=None):
         'columns': columns,
         'tokens': tokens,
     })
+
+
+def get_current_channel_map(channel_id):
+    """
+    Get the current map assigned to this channel ID
+    :param channel_id: The channel to search for
+    :return: The map UUID, or None if it doesn't exist
+    """
+    db = firestore.Client()
+    channel_doc_ref = db.collection(channels_collection).document(channel_id)
+    channel_doc = channel_doc_ref.get()
+
+    if channel_doc.exists:
+        return channel_doc.to_dict()['current']
+    else:
+        return None

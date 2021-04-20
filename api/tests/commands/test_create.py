@@ -9,7 +9,7 @@ from werkzeug.exceptions import HTTPException
 from api.commands.create import create_new_map
 
 
-class CreateCase(unittest.TestCase):
+class CreateTest(unittest.TestCase):
     app = Flask(__name__)
 
     @patch('api.map.grid.apply_grid')

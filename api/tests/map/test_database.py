@@ -63,3 +63,21 @@ class DatabaseTest(unittest.TestCase):
         self.assertEqual(updated['rows'], 2)
         self.assertEqual(updated['columns'], 3)
         self.assertEqual(updated['tokens'], [token])
+
+    @patch('google.cloud.firestore.Client')
+    def test_get_current_channel_map(self, mock_client):
+        mock_client.return_value = self.mock_db
+        self.mock_db.collection('channels').document('1234').set({
+            'current': '4567',
+            'history': []
+        })
+
+        result = database.get_current_channel_map(channel_id='1234')
+        self.assertEqual(result, '4567')
+
+    @patch('google.cloud.firestore.Client')
+    def test_get_current_channel_map_not_exists(self, mock_client):
+        mock_client.return_value = self.mock_db
+
+        result = database.get_current_channel_map(channel_id='1234')
+        self.assertEqual(result, None)

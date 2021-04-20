@@ -1,5 +1,5 @@
 from flask import abort, jsonify, make_response
-from commands import create
+from commands import create, get
 
 cloud_storage_bucket = 'carto-map-uploads'
 
@@ -19,10 +19,14 @@ def function(request):
     if method not in allowed_methods:
         abort(make_response(jsonify(message="Method not allowed"), 405))
 
-    request_json = request.get_json(silent=True)
-    if request_json is None:
-        abort(make_response(jsonify(message="JSON could not be serialised"), 400))
-
     if method == 'POST':
+        request_json = request.get_json(silent=True)
+        if request_json is None:
+            abort(make_response(jsonify(message="JSON could not be serialised"), 400))
+
         if 'action' in request_json and request_json['action'] == 'create':
             return create.create_new_map(request_json)
+
+    if method == 'GET':
+        request_params = request.args.to_dict()
+        return get.get_channel_map(request_params)
