@@ -1,6 +1,7 @@
 from google.cloud import firestore
 
 channels_collection = 'channels'
+maps_collection = 'maps'
 
 
 def update_channel_map(channel_id, new_uuid):
@@ -24,3 +25,27 @@ def update_channel_map(channel_id, new_uuid):
         'current': new_uuid,
         'history': history
     }, merge=True)
+
+
+def create_map_info(uuid, url, rows, columns, tokens=None):
+    """
+    Creates a database entry for the map
+    :param uuid: The Map UUID that corresponds to this entry. It should be the same as the most recent map
+    :param url: URL for the map image
+    :param rows: The number of rows in the grid
+    :param columns: The number of columns in the grid
+    :param tokens: The tokens present on the map. If omitted, this is an empty array
+    :return: The document Write Result
+    """
+    if tokens is None:
+        tokens = []
+    db = firestore.Client()
+    map_doc_ref = db.collection(maps_collection).document(uuid)
+
+    # If this UUID collides with another (unlikely, near impossible), we just overwrite it.
+    return map_doc_ref.set({
+        'url': url,
+        'rows': rows,
+        'columns': columns,
+        'tokens': tokens,
+    })

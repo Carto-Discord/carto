@@ -24,6 +24,7 @@ def create_new_map(request_json):
         abort(make_response(jsonify(message="Map could not be created"), 500))
     else:
         database.update_channel_map(channel_id, map_uuid)
+        database.create_map_info(uuid=map_uuid, url=url, rows=rows, columns=columns)
         response = {
             'created': datetime.now().isoformat(),
             'fileName': file

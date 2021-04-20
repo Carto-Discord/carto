@@ -50,7 +50,8 @@ class CreateCase(unittest.TestCase):
     @patch('api.map.grid.apply_grid')
     @patch('api.map.storage.upload_blob')
     @patch('api.map.database.update_channel_map')
-    def test_create_success(self, mock_update_channel_map, mock_upload_blob, mock_apply_grid):
+    @patch('api.map.database.create_map_info')
+    def test_create_success(self, mock_create_map_info, mock_update_channel_map, mock_upload_blob, mock_apply_grid):
         params = {
             'action': 'create',
             'url': 'https://mock.url',
@@ -67,7 +68,8 @@ class CreateCase(unittest.TestCase):
         self.assertEqual(json.loads(response[0].data)['fileName'], 'gcs-file')
         self.assertEqual(json.loads(response[0].data)['created'], '2021-04-16T00:00:00')
         self.assertEqual(response[1], 201)
-        self.assertTrue(mock_update_channel_map.called)
+        mock_update_channel_map.assert_called()
+        mock_create_map_info.assert_called()
 
 
 if __name__ == '__main__':
