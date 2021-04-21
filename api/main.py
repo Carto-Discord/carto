@@ -1,5 +1,5 @@
 from flask import abort, jsonify, make_response
-from commands import create, get
+from commands import create, get, delete
 
 cloud_storage_bucket = 'carto-map-uploads'
 
@@ -30,3 +30,10 @@ def function(request):
     if method == 'GET':
         request_params = request.args.to_dict()
         return get.get_channel_map(request_params)
+
+    if method == 'DELETE':
+        request_json = request.get_json(silent=True)
+        if request_json is None:
+            abort(make_response(jsonify(message="JSON could not be serialised"), 400))
+
+        return delete.delete_channel_data(request_json)

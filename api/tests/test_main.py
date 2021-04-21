@@ -62,3 +62,12 @@ class MainTest(TestCase):
         with self.app.app_context():
             function(request)
             mock_get.assert_called_with(params)
+
+    @patch('commands.delete.delete_channel_data')
+    def test_delete_channel(self, mock_delete):
+        params = {'channelId': '1234'}
+
+        request = Mock(method='DELETE', get_json=Mock(return_value=params))
+        with self.app.app_context():
+            function(request)
+            mock_delete.assert_called_with(params)

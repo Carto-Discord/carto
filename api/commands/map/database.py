@@ -65,3 +65,17 @@ def get_current_channel_map(channel_id):
         return channel_doc.to_dict()['current']
     else:
         return None
+
+
+def delete_channel_document(channel_id):
+    """
+    Delete the document named after this channel ID
+    :param channel_id: The channel's document to delete
+    :return:
+    """
+    db = firestore.Client()
+    channel_doc_ref = db.collection(channels_collection).document(channel_id)
+    channel_doc = channel_doc_ref.get()
+
+    if channel_doc.exists:
+        channel_doc_ref.delete()

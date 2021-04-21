@@ -81,3 +81,14 @@ class DatabaseTest(unittest.TestCase):
 
         result = database.get_current_channel_map(channel_id='1234')
         self.assertEqual(result, None)
+
+    @patch('google.cloud.firestore.Client')
+    def test_delete_channel_document(self, mock_client):
+        mock_client.return_value = self.mock_db
+        self.mock_db.collection('channels').document('1234').set({
+            'current': '4567',
+            'history': []
+        })
+
+        database.delete_channel_document('1234')
+        self.assertFalse(self.mock_db.collection('channels').document('1234').get().exists)
