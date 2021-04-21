@@ -40,19 +40,26 @@ describe("Bot", () => {
     expect(mockClient.login).toBeCalledWith("bot token");
   });
 
-  describe('given a message "!ping" is received', () => {
-    it("should respond with pong", async () => {
+  describe('given a message "!help" is received', () => {
+    it("should respond to the channel and in DMs", async () => {
       const onMessage: Function = mockClient.on.mock.calls[0][1];
       const mockMessage = {
-        content: "!ping",
+        content: "!help",
+        author: {
+          createDM: jest.fn(),
+        },
         channel: {
           send: jest.fn(),
-          id: "4567",
         },
       };
+      const mockDMSend = jest.fn();
+      mockMessage.author.createDM.mockResolvedValue({ send: mockDMSend });
       await onMessage(mockMessage);
 
-      expect(mockMessage.channel.send).toBeCalledWith("pong");
+      expect(mockMessage.channel.send).toBeCalledWith(
+        "Help instructions have been sent to your DMs"
+      );
+      expect(mockDMSend).toBeCalled();
     });
   });
 

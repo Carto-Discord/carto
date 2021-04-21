@@ -79,8 +79,22 @@ client.on("message", async (message) => {
       : message.channel.send(response.body);
   }
 
-  if (message.content.startsWith(`${prefix}ping`)) message.channel.send("pong");
+  if (message.content.startsWith(`${prefix}help`)) {
+    const channel = await message.author.createDM();
+
+    const helpMessage =
+      "How to use Carto:\n" +
+      "Create a new map\n`!create <public url> <rows> <columns>`\n" +
+      "Show the current channel's map\n`!map`\n" +
+      "**Important Info**\nMap states will be deleted after 30 days. Changing the map in any way will extend this period.\n" +
+      "Deleting a channel will delete all associated maps. The deleter will recieve the final map state as DM.";
+    await channel.send(helpMessage);
+
+    message.channel.send("Help instructions have been sent to your DMs");
+  }
 });
+
+client.on("channelDelete", async (channel) => {});
 
 client.login(process.env.BOT_TOKEN);
 // Server Discord client - END
