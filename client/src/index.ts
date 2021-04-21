@@ -4,6 +4,7 @@ import path from "path";
 import dotenv from "dotenv";
 import { createMap } from "./create";
 import { getMap } from "./get";
+import { deleteChannel } from "./delete";
 
 dotenv.config();
 
@@ -94,7 +95,9 @@ client.on("message", async (message) => {
   }
 });
 
-client.on("channelDelete", async (channel) => {});
+client.on("channelDelete", async (channel) => {
+  await deleteChannel({ channelId: channel.id });
+});
 
 client.login(process.env.BOT_TOKEN);
 // Server Discord client - END

@@ -9,6 +9,7 @@ describe("Bot", () => {
 
   const mockCreateMap = jest.fn();
   const mockGetMap = jest.fn();
+  const mockDeleteChannel = jest.fn();
 
   beforeEach(() => {
     jest.resetModules();
@@ -28,6 +29,9 @@ describe("Bot", () => {
     jest.mock("./get", () => ({
       getMap: mockGetMap,
     }));
+    jest.mock("./delete", () => ({
+      deleteChannel: mockDeleteChannel,
+    }));
 
     process.env.BOT_TOKEN = "bot token";
 
@@ -37,6 +41,7 @@ describe("Bot", () => {
   it("should login and setup client", () => {
     expect(mockClient.once).toBeCalledWith("ready", expect.any(Function));
     expect(mockClient.on).toBeCalledWith("message", expect.any(Function));
+    expect(mockClient.on).toBeCalledWith("channelDelete", expect.any(Function));
     expect(mockClient.login).toBeCalledWith("bot token");
   });
 
@@ -214,6 +219,18 @@ describe("Bot", () => {
           files: ["filename"],
         });
       });
+    });
+  });
+
+  describe("given a channelDelete event is recieved", () => {
+    it("should call the deleteChannel function", async () => {
+      const onChannelDelete: Function = mockClient.on.mock.calls[1][1];
+      const mockChannel = {
+        id: "1234",
+      };
+
+      await onChannelDelete(mockChannel);
+      expect(mockDeleteChannel).toBeCalledWith({ channelId: "1234" });
     });
   });
 });

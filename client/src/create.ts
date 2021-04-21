@@ -33,13 +33,13 @@ export const createMap = async ({
     url: triggerUrl,
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
+    data: {
       action: "create",
       url,
       rows,
       columns,
       channelId,
-    }),
+    },
   });
 
   const body = response.data as ResponseData;

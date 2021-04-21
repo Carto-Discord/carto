@@ -49,13 +49,13 @@ describe("Create", () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
+          data: {
             action: "create",
             url: "url",
             rows: 1,
             columns: 2,
             channelId: "1234",
-          }),
+          },
         });
 
         expect(mockDownloadBlob).toBeCalledWith({
@@ -88,13 +88,13 @@ describe("Create", () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
+          data: {
             action: "create",
             url: "url",
             rows: 1,
             columns: 2,
             channelId: "1234",
-          }),
+          },
         });
 
         expect(mockDownloadBlob).not.toBeCalled();
