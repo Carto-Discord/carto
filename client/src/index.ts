@@ -11,6 +11,7 @@ dotenv.config();
 const app = express();
 
 app.get("/", (_req, res) => {
+  res.setHeader("X-Clacks-Overhead", "GNU Terry Pratchet");
   res.sendFile(path.join(__dirname + "/index.html"));
 });
 
