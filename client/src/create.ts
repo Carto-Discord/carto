@@ -1,5 +1,5 @@
-import { Storage } from "@google-cloud/storage";
-import { GoogleAuth } from "google-auth-library";
+import { createAuthenticatedClient } from "./authentication";
+import { downloadBlob } from "./storage";
 
 type CreateProps = {
   url: string;
@@ -26,11 +26,9 @@ export const createMap = async ({
   columns,
   channelId,
 }: CreateProps): Promise<CreateResponse> => {
-  const storage = new Storage();
-  const auth = new GoogleAuth();
   const triggerUrl = process.env.HTTP_TRIGGER_URL;
 
-  const client = await auth.getIdTokenClient(triggerUrl);
+  const client = await createAuthenticatedClient(triggerUrl);
   const response = await client.request({
     url: triggerUrl,
     method: "POST",
@@ -47,10 +45,7 @@ export const createMap = async ({
   const body = response.data as ResponseData;
   if (response.status === 201) {
     const { blob, bucket } = body;
-    const tempFile = `/tmp/${blob}`;
-    await storage.bucket(bucket).file(blob).download({ destination: tempFile });
-
-    console.log(`gs://${bucket}/${blob} downloaded to ${tempFile}.`);
+    const tempFile = await downloadBlob({ blob, bucket });
 
     return {
       success: true,

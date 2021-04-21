@@ -1,45 +1,29 @@
+import { createAuthenticatedClient } from "./authentication";
+import { downloadBlob } from "./storage";
+import { getMap } from "./get";
+
+jest.mock("./authentication");
+jest.mock("./storage");
+
+const mockCreateAuthenticatedClient = createAuthenticatedClient as jest.MockedFunction<
+  typeof createAuthenticatedClient
+>;
+const mockDownloadBlob = downloadBlob as jest.MockedFunction<
+  typeof downloadBlob
+>;
+
 describe("Get", () => {
-  let getMap: Function;
-
   const mockRequest = jest.fn();
-  const mockDownload = jest.fn();
 
-  const mockStorage = {
-    bucket: () => ({
-      file: () => ({
-        download: mockDownload,
-      }),
-    }),
-  };
-  const mockAuth = {
-    getIdTokenClient: jest.fn().mockResolvedValue({
-      request: mockRequest,
-    }),
-  };
-
-  jest.spyOn(console, "log").mockImplementation(() => {});
   jest.spyOn(console, "warn").mockImplementation(() => {});
 
   beforeEach(() => {
     jest.clearAllMocks();
+    //@ts-ignore
+    mockCreateAuthenticatedClient.mockResolvedValue({ request: mockRequest });
+    mockDownloadBlob.mockResolvedValue("temp file");
 
-    jest.mock("@google-cloud/storage", () => {
-      return {
-        Storage: jest.fn().mockImplementation(() => {
-          return mockStorage;
-        }),
-      };
-    });
-    jest.mock("google-auth-library", () => {
-      return {
-        GoogleAuth: jest.fn().mockImplementation(() => {
-          return mockAuth;
-        }),
-      };
-    });
     process.env.HTTP_TRIGGER_URL = "https://trigger.url";
-
-    getMap = require("./get").getMap;
   });
 
   describe("Get Map", () => {
@@ -64,8 +48,11 @@ describe("Get", () => {
           },
         });
 
-        expect(mockDownload).toBeCalledWith({ destination: "/tmp/file" });
-        expect(response).toEqual({ success: true, body: "/tmp/file" });
+        expect(mockDownloadBlob).toBeCalledWith({
+          blob: "file",
+          bucket: "bucket",
+        });
+        expect(response).toEqual({ success: true, body: "temp file" });
       });
     });
 
@@ -90,7 +77,7 @@ describe("Get", () => {
           },
         });
 
-        expect(mockDownload).not.toBeCalled();
+        expect(mockDownloadBlob).not.toBeCalled();
         expect(response).toEqual({ success: false, body: "error" });
       });
     });
