@@ -43,12 +43,14 @@ def column_string(n):
 
 def find_font_size(text, max_width, max_height):
     font_height = 1
+    font_path = os.path.join(FONT_DIR, "arial.ttf")
+    logging.log(level=logging.DEBUG, msg='Font located at ' + font_path)
 
     try:
-        font = ImageFont.truetype(os.path.join(FONT_DIR, "arial.ttf"), font_height)
+        font = ImageFont.truetype(font_path, font_height)
         while font.getsize(text)[0] < max_width and font.getsize(text)[1] < max_height:
             font_height += 1
-            font = ImageFont.truetype("arial.ttf", font_height)
+            font = ImageFont.truetype(font_path, font_height)
     except OSError as oe:
         logging.log(level=logging.WARN, msg=oe)
         font = ImageFont.load_default()
