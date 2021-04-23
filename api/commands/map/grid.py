@@ -1,10 +1,11 @@
-import math
 import os
 import operator
 import logging
 
 from PIL import Image, ImageDraw, ImageFont
 import requests
+
+from configuration import FONT_DIR
 
 
 def download_image(image_url: str) -> str:
@@ -44,7 +45,7 @@ def find_font_size(text, max_width, max_height):
     font_height = 1
 
     try:
-        font = ImageFont.truetype("arial.ttf", font_height)
+        font = ImageFont.truetype(os.path.join(FONT_DIR, "arial.ttf"), font_height)
         while font.getsize(text)[0] < max_width and font.getsize(text)[1] < max_height:
             font_height += 1
             font = ImageFont.truetype("arial.ttf", font_height)
