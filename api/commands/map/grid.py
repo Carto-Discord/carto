@@ -16,7 +16,8 @@ def download_image(image_url: str) -> str:
                         msg="Url {0} returned status code {1}".format(image_url, response.status_code))
             return ""
 
-        file_name = 'downloaded.' + image_url.split('/')[-1].split('.')[-1]
+        extension = image_url.split('/')[-1].split('.')[-1]
+        file_name = 'downloaded.' + extension[:extension.find('?')]
         if os.getenv('IS_TEST', 'false') == 'false':
             file_name = '/tmp/' + file_name
         file = open(file_name, 'wb')
@@ -64,16 +65,16 @@ def apply_grid(image_url: str, rows: int, cols: int):
         return None
 
     file_name = 'map.png'
-    line_colour = (0xff, 0xff, 0xff)
+    line_colour = (0xff, 0xff, 0xff, 0xaa)
 
-    with Image.open(image_name) as im:
+    with Image.open(image_name).convert('RGBA') as im:
         col_width = im.size[0] / cols
         row_height = im.size[1] / rows
 
         margin_left = int(col_width)
         margin_top = int(row_height)
 
-        frame = Image.new('RGB', tuple(map(operator.add, im.size, (margin_left, margin_top))), (0xff, 0xff, 0xff))
+        frame = Image.new('RGBA', tuple(map(operator.add, im.size, (margin_left, margin_top))), (0xff, 0xff, 0xff))
 
         map_draw = ImageDraw.Draw(im)
         frame_draw = ImageDraw.Draw(frame)
@@ -84,7 +85,7 @@ def apply_grid(image_url: str, rows: int, cols: int):
 
         for i in range(0, rows):
             y = (i + 1) * row_height
-            map_draw.line([0, y, im.size[0], y], line_colour)
+            map_draw.line([0, y, im.size[0], y], fill=line_colour)
 
             label = str(reverse_row_values[i])
             w, h = row_font.getsize(label)
@@ -93,12 +94,12 @@ def apply_grid(image_url: str, rows: int, cols: int):
 
         for j in range(0, cols):
             x = (j + 1) * col_width
-            map_draw.line([x, 0, x, im.size[1]], line_colour)
+            map_draw.line([x, 0, x, im.size[1]], fill=line_colour)
 
             label = column_string(j + 1)
             w, h = col_font.getsize(label)
             x_label = x - (col_width / 2) - (w / 2) + margin_left
-            frame_draw.text((x_label, im.size[1] + margin_left / 2 - h / 2), label, font=col_font, fill=0)
+            frame_draw.text((x_label, im.size[1] + margin_top / 2 - h / 2), label, font=col_font, fill=0)
 
         frame.paste(im, (int(col_width), 0))
 

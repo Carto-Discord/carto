@@ -18,6 +18,10 @@ class GridTest(unittest.TestCase):
         self.assertEqual(grid.column_string(28), 'AB')
         self.assertEqual(grid.column_string(702), 'ZZ')
 
+    def test_find_font_size(self):
+        font = grid.find_font_size('text', max_width=50, max_height=30)
+        self.assertEqual(font.size, 31)
+
 
 if __name__ == '__main__':
     unittest.main()
