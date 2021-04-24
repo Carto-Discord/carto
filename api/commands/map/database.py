@@ -27,30 +27,6 @@ def update_channel_map(channel_id, new_uuid):
     }, merge=True)
 
 
-def create_map_info(uuid, url, rows, columns, tokens=None):
-    """
-    Creates a database entry for the map
-    :param uuid: The Map UUID that corresponds to this entry. It should be the same as the most recent map
-    :param url: URL for the map image
-    :param rows: The number of rows in the grid
-    :param columns: The number of columns in the grid
-    :param tokens: The tokens present on the map. If omitted, this is an empty array
-    :return: The document Write Result
-    """
-    if tokens is None:
-        tokens = []
-    db = firestore.Client()
-    map_doc_ref = db.collection(maps_collection).document(uuid)
-
-    # If this UUID collides with another (unlikely, near impossible), we just overwrite it.
-    return map_doc_ref.set({
-        'url': url,
-        'rows': rows,
-        'columns': columns,
-        'tokens': tokens,
-    })
-
-
 def get_current_channel_map(channel_id):
     """
     Get the current map assigned to this channel ID
@@ -79,3 +55,44 @@ def delete_channel_document(channel_id):
 
     if channel_doc.exists:
         channel_doc_ref.delete()
+
+
+def create_map_info(uuid, url, rows, columns, tokens=None):
+    """
+    Creates a database entry for the map
+    :param uuid: The Map UUID that corresponds to this entry. It should be the same as the most recent map
+    :param url: URL for the map image
+    :param rows: The number of rows in the grid
+    :param columns: The number of columns in the grid
+    :param tokens: The tokens present on the map. If omitted, this is an empty array
+    :return: The document Write Result
+    """
+    if tokens is None:
+        tokens = []
+    db = firestore.Client()
+    map_doc_ref = db.collection(maps_collection).document(uuid)
+
+    # If this UUID collides with another (unlikely, near impossible), we just overwrite it.
+    return map_doc_ref.set({
+        'url': url,
+        'rows': rows,
+        'columns': columns,
+        'tokens': tokens,
+    })
+
+
+def get_map_info(uuid):
+    """
+    Gets a database entry for the given map UUID
+    :param uuid: The Map UUID that corresponds to this entry.
+    :return: The contents of the document as a dict, or an empty dict if the map doesn't exist.
+    """
+
+    db = firestore.Client()
+    map_doc_ref = db.collection(maps_collection).document(uuid)
+    map_doc = map_doc_ref.get()
+
+    if map_doc.exists:
+        return map_doc.to_dict()
+    else:
+        return {}

@@ -1,10 +1,13 @@
 import os
 import operator
 import logging
+import string
+from typing import List
 
 from PIL import Image, ImageDraw, ImageFont
 import requests
 
+from commands.map.Token import Token, size
 from configuration import FONT_DIR
 
 
@@ -35,11 +38,19 @@ def delete_image(file_name: str):
 
 
 def column_string(n):
-    string = ""
+    s = ""
     while n > 0:
         n, remainder = divmod(n - 1, 26)
-        string = chr(65 + remainder) + string
-    return string
+        s = chr(65 + remainder) + s
+    return s
+
+
+def column_number(col):
+    num = 0
+    for c in col:
+        if c in string.ascii_letters:
+            num = num * 26 + (ord(c.upper()) - ord('A')) + 1
+    return num
 
 
 def find_font_size(text, max_width, max_height):
@@ -59,10 +70,13 @@ def find_font_size(text, max_width, max_height):
     return font
 
 
-def apply_grid(image_url: str, rows: int, cols: int):
+def apply_grid(image_url: str, rows: int, cols: int, tokens: List[Token] = None):
     image_name = download_image(image_url)
     if image_name == '':
         return None
+
+    if tokens is None:
+        tokens = []
 
     file_name = 'map.png'
     line_colour = (0xff, 0xff, 0xff, 0xaa)
@@ -100,6 +114,18 @@ def apply_grid(image_url: str, rows: int, cols: int):
             w, h = col_font.getsize(label)
             x_label = x - (col_width / 2) - (w / 2) + margin_left
             frame_draw.text((x_label, im.size[1] + margin_top / 2 - h / 2), label, font=col_font, fill=0)
+
+        for token in tokens:
+            row = token.row
+            col = column_number(token.column)
+
+            x0 = (col - token.size) * col_width
+            x1 = col * col_width
+
+            y0 = im.size[1] - (row * row_height)
+            y1 = y0 + token.size * row_height
+
+            map_draw.ellipse([x0, y0, x1, y1], fill=token.colour)
 
         frame.paste(im, (int(col_width), 0))
 

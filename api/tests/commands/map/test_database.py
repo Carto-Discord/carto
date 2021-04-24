@@ -92,3 +92,29 @@ class DatabaseTest(unittest.TestCase):
 
         database.delete_channel_document('1234')
         self.assertFalse(self.mock_db.collection('channels').document('1234').get().exists)
+
+    @patch('google.cloud.firestore.Client')
+    def test_get_map_exists(self, mock_client):
+        uuid = '1234'
+        self.mock_db.collection('maps').document(uuid).set({
+            'url': 'url',
+            'tokens': [],
+            'rows': 2,
+            'columns': 3
+        })
+        mock_client.return_value = self.mock_db
+
+        map_data = database.get_map_info(uuid)
+
+        self.assertEqual(map_data['url'], 'url')
+        self.assertEqual(map_data['rows'], 2)
+        self.assertEqual(map_data['columns'], 3)
+        self.assertEqual(map_data['tokens'], [])
+
+    @patch('google.cloud.firestore.Client')
+    def test_get_map_not_exists(self, mock_client):
+        mock_client.return_value = self.mock_db
+
+        map_data = database.get_map_info('1234')
+
+        self.assertEqual(map_data, {})
