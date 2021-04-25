@@ -10,9 +10,12 @@ class GridTest(unittest.TestCase):
     def test_apply_grid(self):
         url = 'https://i.pinimg.com/736x/ee/85/5d/ee855d7efa22f163fcd6f24560ce7128.jpg'
         tokens = [
-            Token.Token(name='token', row=11, column='G', colour='#ffffff', size=Token.size['LARGE']),
-            Token.Token(name='token', row=17, column='A', colour='#ffffff', size=Token.size['MEDIUM']),
-            Token.Token(name='token', row=3, column='C', colour='#ffffff', size=Token.size['TINY'])
+            Token.Token(name='atoken', row=11, column='G', colour='white', size=Token.size['LARGE']),
+            Token.Token(name='btoken', row=17, column='A', colour='red', size=Token.size['MEDIUM']),
+            Token.Token(name='ctoken', row=3, column='C', colour='blue', size=Token.size['TINY']),
+            Token.Token(name='dtoken', row=3, column='C', colour='white', size=Token.size['TINY']),
+            Token.Token(name='etoken', row=3, column='C', colour='red', size=Token.size['TINY']),
+            Token.Token(name='ftoken', row=3, column='C', colour='purple', size=Token.size['TINY'])
         ]
         grid.apply_grid(url, 28, 20, tokens=tokens)
         self.assertTrue(os.path.isfile("map.png"))

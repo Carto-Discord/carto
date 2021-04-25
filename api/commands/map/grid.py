@@ -2,7 +2,7 @@ import os
 import operator
 import logging
 import string
-from typing import List
+from typing import List, Tuple
 
 from PIL import Image, ImageDraw, ImageFont
 import requests
@@ -70,6 +70,19 @@ def find_font_size(text, max_width, max_height):
     return font
 
 
+def place_tiny_token(no_on_square: int, coordinates: Tuple[float, float, float, float]):
+    x0, y0, x1, y1 = coordinates
+
+    if no_on_square % 4 == 1:
+        return x0, y0, (x0 + x1) / 2, (y0 + y1) / 2
+    elif no_on_square % 4 == 2:
+        return (x0 + x1) / 2, y0, x1, (y0 + y1) / 2
+    elif no_on_square % 4 == 3:
+        return x0, (y0 + y1) / 2, (x0 + x1) / 2, y1
+    else:
+        return (x0 + x1) / 2, (y0 + y1) / 2, x1, y1
+
+
 def apply_grid(image_url: str, rows: int, cols: int, tokens: List[Token] = None):
     image_name = download_image(image_url)
     if image_name == '':
@@ -102,22 +115,28 @@ def apply_grid(image_url: str, rows: int, cols: int, tokens: List[Token] = None)
             map_draw.line([0, y, im.size[0], y], fill=line_colour)
 
             label = str(reverse_row_values[i])
-            w, h = row_font.getsize(label)
-            y_label = y - (row_height / 2) - (h / 2)
-            frame_draw.text((margin_left / 2 - w / 2, y_label), label, font=row_font, fill=0)
+            y_label = y - (row_height / 2)
+            frame_draw.text((margin_left / 2, y_label), label, font=row_font, fill='black', anchor='mm')
 
         for j in range(0, cols):
             x = (j + 1) * col_width
             map_draw.line([x, 0, x, im.size[1]], fill=line_colour)
 
             label = column_string(j + 1)
-            w, h = col_font.getsize(label)
-            x_label = x - (col_width / 2) - (w / 2) + margin_left
-            frame_draw.text((x_label, im.size[1] + margin_top / 2 - h / 2), label, font=col_font, fill=0)
+            x_label = x - (col_width / 2) + margin_left
+            frame_draw.text((x_label, im.size[1] + margin_top / 2), label, font=col_font, fill='black', anchor='mm')
+
+        # Up to 4 Tiny tokens can occupy a single square, so we need to track how many we have to know where to put them
+        tiny_tokens = {}
 
         for token in tokens:
             row = token.row
             col = column_number(token.column)
+
+            token_text = token.name[:1]
+            token_font = find_font_size(token_text,
+                                        max_width=(col_width * token.size * 0.7),
+                                        max_height=(row_height * token.size * 0.7))
 
             x0 = (col - token.size) * col_width
             x1 = col * col_width
@@ -125,7 +144,28 @@ def apply_grid(image_url: str, rows: int, cols: int, tokens: List[Token] = None)
             y0 = im.size[1] - (row * row_height)
             y1 = y0 + token.size * row_height
 
+            if token.size == size['TINY']:
+                key = '{}{}'.format(token.column, token.row)
+                current = tiny_tokens.get(key, 0)
+                tiny_tokens[key] = current + 1
+
+                x0, y0, x1, y1 = place_tiny_token(tiny_tokens[key], ((col - 1) * col_width,
+                                                                     im.size[1] - (row * row_height),
+                                                                     col * col_width,
+                                                                     im.size[1] - (row * row_height) + row_height))
+
+            tx = ((x0 + x1) / 2)
+            ty = ((y0 + y1) / 2)
+
             map_draw.ellipse([x0, y0, x1, y1], fill=token.colour)
+
+            # Text with border
+            map_draw.text((tx - 1, ty), token_text, font=token_font, fill='black', anchor='mm')
+            map_draw.text((tx + 1, ty), token_text, font=token_font, fill='black', anchor='mm')
+            map_draw.text((tx, ty - 1), token_text, font=token_font, fill='black', anchor='mm')
+            map_draw.text((tx, ty + 1), token_text, font=token_font, fill='black', anchor='mm')
+
+            map_draw.text((tx, ty), token_text, font=token_font, fill='white', anchor='mm')
 
         frame.paste(im, (int(col_width), 0))
 
