@@ -1,5 +1,5 @@
 from flask import abort, jsonify, make_response
-from commands import create, get, delete
+from commands import create, get, delete, token
 
 cloud_storage_bucket = 'carto-map-uploads'
 
@@ -26,6 +26,9 @@ def function(request):
 
         if 'action' in request_json and request_json['action'] == 'create':
             return create.create_new_map(request_json)
+
+        if 'action' in request_json and request_json['action'] == 'addToken':
+            return token.add_token(request_json)
 
     if method == 'GET':
         request_params = request.args.to_dict()
