@@ -15,7 +15,8 @@ class GridTest(unittest.TestCase):
             Token.Token(name='ctoken', row=3, column='C', colour='blue', size=Token.size['TINY']),
             Token.Token(name='dtoken', row=3, column='C', colour='white', size=Token.size['TINY']),
             Token.Token(name='etoken', row=3, column='C', colour='red', size=Token.size['TINY']),
-            Token.Token(name='ftoken', row=3, column='C', colour='purple', size=Token.size['TINY'])
+            Token.Token(name='ftoken', row=3, column='C', colour='purple', size=Token.size['TINY']),
+            Token.Token(name='gtoken', row=3, column='C', colour='purple', size=Token.size['TINY'])
         ]
         grid.apply_grid(url, 28, 20, tokens=tokens)
         self.assertTrue(os.path.isfile("map.png"))
