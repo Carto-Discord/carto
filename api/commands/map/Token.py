@@ -15,3 +15,12 @@ class Token:
         self.column = column
         self.colour = colour
         self.size = size
+
+    def to_dict(self):
+        return {
+            'name': self.name,
+            'row': self.row,
+            'column': self.column,
+            'colour': self.colour,
+            'size': self.size
+        }
