@@ -43,7 +43,7 @@ def add_token(request_json):
     if colour is None:
         colour = tuple(random.choice(range(256), size=3))
 
-    new_token = Token(name=name, row=int(row), column=column, size=token_size, colour=colour)
+    new_token = Token(name=name, row=int(row), column=column, size=size[token_size], colour=colour)
     tokens.append(new_token)
 
     source_file_name = grid.apply_grid(url, rows, columns, tokens)
