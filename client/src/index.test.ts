@@ -10,6 +10,7 @@ describe("Bot", () => {
   const mockCreateMap = jest.fn();
   const mockGetMap = jest.fn();
   const mockDeleteChannel = jest.fn();
+  const mockAddToken = jest.fn();
 
   beforeEach(() => {
     jest.resetModules();
@@ -31,6 +32,9 @@ describe("Bot", () => {
     }));
     jest.mock("./delete", () => ({
       deleteChannel: mockDeleteChannel,
+    }));
+    jest.mock("./token", () => ({
+      addToken: mockAddToken,
     }));
 
     process.env.BOT_TOKEN = "bot token";
@@ -85,7 +89,7 @@ describe("Bot", () => {
         await onMessage(mockMessage);
 
         expect(mockMessage.channel.send).toBeCalledWith(
-          "Create usage: !create <url> <rows> <columns>"
+          "Create usage: `!create <url> <rows> <columns>`"
         );
         expect(mockCreateMap).not.toBeCalled();
       });
@@ -114,7 +118,7 @@ describe("Bot", () => {
     });
 
     describe("given all parameters are valid", () => {
-      describe("gvien the map creation is unsuccessful", () => {
+      describe("given the map creation is unsuccessful", () => {
         it("should respond with the API message", async () => {
           const onMessage: Function = mockClient.on.mock.calls[0][1];
           const mockMessage = {
@@ -138,7 +142,7 @@ describe("Bot", () => {
         });
       });
 
-      describe("gvien the map creation is successful", () => {
+      describe("given the map creation is successful", () => {
         it("should respond with the downloaded", async () => {
           const onMessage: Function = mockClient.on.mock.calls[0][1];
           const mockMessage = {
@@ -161,6 +165,119 @@ describe("Bot", () => {
 
           expect(mockMessage.channel.send).toBeCalledWith(
             "Map created for @user#1234",
+            {
+              files: ["filename"],
+            }
+          );
+        });
+      });
+    });
+  });
+
+  describe('given a message "!token add" is received', () => {
+    describe("given no parameters are provided", () => {
+      it("should send a help message", async () => {
+        const onMessage: Function = mockClient.on.mock.calls[0][1];
+        const mockMessage = {
+          author: {
+            id: "1234",
+          },
+          content: "!token add",
+          channel: {
+            send: jest.fn(),
+            id: "4567",
+          },
+        };
+        await onMessage(mockMessage);
+
+        expect(mockMessage.channel.send).toBeCalledWith(
+          "Add token usage: `!token add <name> <row> <column> <size>`"
+        );
+        expect(mockAddToken).not.toBeCalled();
+      });
+    });
+
+    describe("given the row isn't a number", () => {
+      it("should send an error message", async () => {
+        const onMessage: Function = mockClient.on.mock.calls[0][1];
+        const mockMessage = {
+          author: {
+            id: "1234",
+          },
+          content: "!token add name row col",
+          channel: {
+            send: jest.fn(),
+            id: "4567",
+          },
+        };
+        await onMessage(mockMessage);
+
+        expect(mockMessage.channel.send).toBeCalledWith("Row must be a number");
+        expect(mockAddToken).not.toBeCalled();
+      });
+    });
+
+    describe("given all parameters are valid", () => {
+      describe("given the token addition is unsuccessful", () => {
+        it("should respond with the API message", async () => {
+          const onMessage: Function = mockClient.on.mock.calls[0][1];
+          const mockMessage = {
+            author: {
+              id: "1234",
+            },
+            content: "!token add name 1 A",
+            channel: {
+              send: jest.fn(),
+              id: "4567",
+            },
+          };
+
+          mockAddToken.mockResolvedValue({
+            success: false,
+            body: "error message",
+          });
+          await onMessage(mockMessage);
+
+          expect(mockAddToken).toBeCalledWith({
+            name: "name",
+            row: 1,
+            column: "A",
+            channelId: "4567",
+          });
+          expect(mockMessage.channel.send).toBeCalledWith("error message");
+        });
+      });
+
+      describe("given the token addition is successful", () => {
+        it("should respond with the downloaded image", async () => {
+          const onMessage: Function = mockClient.on.mock.calls[0][1];
+          const mockMessage = {
+            author: {
+              id: "1234",
+              toString: () => "@user#1234",
+            },
+            content: "!token add name 1 A small",
+            channel: {
+              send: jest.fn(),
+              id: "4567",
+            },
+          };
+
+          mockAddToken.mockResolvedValue({
+            success: true,
+            body: "filename",
+          });
+          await onMessage(mockMessage);
+
+          expect(mockAddToken).toBeCalledWith({
+            name: "name",
+            row: 1,
+            column: "A",
+            size: "SMALL",
+            channelId: "4567",
+          });
+          expect(mockMessage.channel.send).toBeCalledWith(
+            "Token name added by @user#1234",
             {
               files: ["filename"],
             }

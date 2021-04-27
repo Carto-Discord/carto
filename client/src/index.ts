@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import { createMap } from "./create";
 import { getMap } from "./get";
 import { deleteChannel } from "./delete";
+import { addToken } from "./token";
 
 dotenv.config();
 
@@ -32,9 +33,7 @@ client.once("ready", () => {
 
 const getParameters = (content: string) => {
   const spaceIndex = content.indexOf(" ");
-  return spaceIndex >= 0
-    ? content.substr(spaceIndex + 1).split(" ")
-    : undefined;
+  return spaceIndex >= 0 ? content.substr(spaceIndex + 1).split(" ") : [];
 };
 
 client.on("message", async (message) => {
@@ -42,28 +41,67 @@ client.on("message", async (message) => {
     console.log(`Received creation request: ${message.content}`);
     const parameters = getParameters(message.content);
 
-    if (parameters?.length === 3) {
-      const [url, rows, columns] = parameters;
-      if (isNaN(+rows) || isNaN(+columns)) {
-        message.channel.send("Rows and Columns must be numbers");
-        return;
-      }
+    const [url, rows, columns] = parameters;
 
-      const response = await createMap({
-        url,
-        rows: Number(rows),
-        columns: Number(columns),
-        channelId: message.channel.id,
-      });
-
-      response.success
-        ? message.channel.send(`Map created for ${message.author.toString()}`, {
-            files: [response.body],
-          })
-        : message.channel.send(response.body);
-    } else {
-      message.channel.send("Create usage: !create <url> <rows> <columns>");
+    if (!url || !rows || !columns) {
+      message.channel.send("Create usage: `!create <url> <rows> <columns>`");
+      return;
     }
+
+    if (isNaN(+rows) || isNaN(+columns)) {
+      message.channel.send("Rows and Columns must be numbers");
+      return;
+    }
+
+    const response = await createMap({
+      url,
+      rows: Number(rows),
+      columns: Number(columns),
+      channelId: message.channel.id,
+    });
+
+    response.success
+      ? message.channel.send(`Map created for ${message.author.toString()}`, {
+          files: [response.body],
+        })
+      : message.channel.send(response.body);
+  }
+
+  if (message.content.startsWith(`${prefix}token add`)) {
+    console.log(`Received token update request: ${message.content}`);
+    const parameters = getParameters(message.content);
+
+    const [_, name, row, column, size, condition] = parameters;
+
+    if (!name || !row || !column) {
+      message.channel.send(
+        "Add token usage: `!token add <name> <row> <column> <size>`"
+      );
+      return;
+    }
+
+    if (isNaN(+row)) {
+      message.channel.send("Row must be a number");
+      return;
+    }
+
+    const response = await addToken({
+      name,
+      row: Number(row),
+      column,
+      size: size?.toUpperCase(),
+      condition,
+      channelId: message.channel.id,
+    });
+
+    response.success
+      ? message.channel.send(
+          `Token ${name} added by ${message.author.toString()}`,
+          {
+            files: [response.body],
+          }
+        )
+      : message.channel.send(response.body);
   }
 
   if (message.content.startsWith(`${prefix}map`)) {
@@ -86,6 +124,7 @@ client.on("message", async (message) => {
     const helpMessage =
       "How to use Carto:\n" +
       "Create a new map\n`!create <public url> <rows> <columns>`\n" +
+      "Add a new token to the map\n`!token add <name> <row> <column> <size>`\n" +
       "Show the current channel's map\n`!map`\n" +
       "**Important Info**\nMap states will be deleted after 30 days. Changing the map in any way will extend this period.\n" +
       "Deleting a channel will delete all associated maps. The deleter will recieve the final map state as DM.";
