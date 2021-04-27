@@ -1,3 +1,5 @@
+import logging
+
 from google.cloud import firestore
 
 channels_collection = 'channels'
@@ -69,6 +71,9 @@ def create_map_info(uuid, url, rows, columns, tokens=None):
     """
     if tokens is None:
         tokens = []
+
+    logging.log(level=logging.DEBUG, msg="Tokens: {}".format(tokens))
+
     db = firestore.Client()
     map_doc_ref = db.collection(maps_collection).document(uuid)
 
