@@ -43,7 +43,8 @@ def add_token(request_json):
         abort(make_response(jsonify(message=message), 400))
 
     if colour is None:
-        colour = tuple(random.choice(range(256), size=3))
+        r = lambda: random.randint(0, 255)
+        colour = '#%02X%02X%02X' % (r(), r(), r())
 
     new_token = Token(name=name, row=int(row), column=column, size=size[token_size], colour=colour)
     tokens.append(new_token)

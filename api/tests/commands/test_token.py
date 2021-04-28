@@ -5,7 +5,6 @@ from unittest.mock import patch
 from flask import Flask
 from werkzeug.exceptions import HTTPException
 
-from api.commands.map.Token import Token
 from api.commands.token import add_token
 
 
