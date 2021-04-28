@@ -60,8 +60,10 @@ describe("Get", () => {
       describe("given the status is less than 500", () => {
         beforeEach(() => {
           mockRequest.mockRejectedValue({
-            status: 404,
-            data: { message: "error" },
+            response: {
+              status: 404,
+              data: { message: "error" },
+            },
           });
         });
 
@@ -86,8 +88,10 @@ describe("Get", () => {
       describe("given the status is 500", () => {
         beforeEach(() => {
           mockRequest.mockRejectedValue({
-            status: 500,
-            data: { message: "error" },
+            response: {
+              status: 500,
+              data: { message: "error" },
+            },
           });
         });
 

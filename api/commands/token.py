@@ -48,7 +48,7 @@ def add_token(request_json):
 
     token_objects = []
     for t in tokens:
-        token = Token(name=t['name'], row=t['row'], column=t['column'], size=t['size'], colour=t['color'])
+        token = Token(name=t['name'], row=t['row'], column=t['column'], size=t['size'], colour=t['colour'])
         token_objects.append(token)
 
     new_token = Token(name=name, row=int(row), column=column, size=size[token_size], colour=colour)

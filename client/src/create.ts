@@ -56,13 +56,15 @@ export const createMap = async ({
   } catch (error) {
     console.log(error);
     console.warn(
-      `Non-ok response received.\n Status: ${error.status}\n Message: ${error.data.message}`
+      `Non-ok response received.\n Status: ${
+        error.response.status
+      }\n Data: ${JSON.stringify(error.response.data)}`
     );
 
-    if (error.status < 500) {
+    if (error.response.status < 500) {
       return {
         success: false,
-        body: error.data.message,
+        body: error.response.data.message,
       };
     } else {
       return {

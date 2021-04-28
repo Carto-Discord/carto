@@ -109,8 +109,10 @@ describe("Create", () => {
       describe("given the status is less than 500", () => {
         beforeEach(() => {
           mockRequest.mockRejectedValue({
-            status: 400,
-            data: { message: "error" },
+            response: {
+              status: 400,
+              data: { message: "error" },
+            },
           });
         });
 
@@ -146,8 +148,10 @@ describe("Create", () => {
       describe("given the status is 500", () => {
         beforeEach(() => {
           mockRequest.mockRejectedValue({
-            status: 500,
-            data: { message: "error" },
+            response: {
+              status: 500,
+              data: { message: "error" },
+            },
           });
         });
 
