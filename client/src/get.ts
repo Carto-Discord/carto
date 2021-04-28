@@ -20,14 +20,15 @@ export const getMap = async ({ channelId }: GetProps): Promise<GetResponse> => {
   const triggerUrl = process.env.HTTP_TRIGGER_URL;
 
   const client = await createAuthenticatedClient(triggerUrl);
-  const response = await client.request({
-    url: triggerUrl,
-    method: "GET",
-    params: { channelId },
-  });
 
-  const body = response.data as ResponseData;
-  if (response.status === 200) {
+  try {
+    const response = await client.request({
+      url: triggerUrl,
+      method: "GET",
+      params: { channelId },
+    });
+
+    const body = response.data as ResponseData;
     const { blob, bucket } = body;
     const tempFile = await downloadBlob({ blob, bucket });
 
@@ -35,14 +36,22 @@ export const getMap = async ({ channelId }: GetProps): Promise<GetResponse> => {
       success: true,
       body: tempFile,
     };
-  } else {
+  } catch (error) {
     console.warn(
-      `Non-ok response received.\n Status: ${response.status}\n Message: ${body.message}`
+      `Non-ok response received.\n Status: ${error.status}\n Message: ${error.data.message}`
     );
 
-    return {
-      success: false,
-      body: body.message,
-    };
+    if (error.status < 500) {
+      return {
+        success: false,
+        body: error.data.message,
+      };
+    } else {
+      return {
+        success: false,
+        body:
+          "A server error occured. Please raise a GitHub issue detailing the problem.",
+      };
+    }
   }
 };

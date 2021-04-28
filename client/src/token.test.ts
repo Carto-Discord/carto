@@ -42,6 +42,7 @@ describe("Create", () => {
             column: "A",
             name: "token",
             channelId: "1234",
+            colour: "red",
           });
 
           expect(mockRequest).toBeCalledWith({
@@ -56,6 +57,7 @@ describe("Create", () => {
               row: 1,
               column: "A",
               size: "MEDIUM",
+              colour: "red",
               channelId: "1234",
             },
           });
@@ -104,75 +106,81 @@ describe("Create", () => {
     });
 
     describe("given the API response is unsuccessful", () => {
-      beforeEach(() => {
-        mockRequest.mockResolvedValue({
-          status: 400,
-          data: { message: "error" },
-        });
-      });
-
-      it("should return the API error", async () => {
-        const response = await addToken({
-          name: "token",
-          row: 1,
-          column: "A",
-          channelId: "1234",
+      describe("given the status is less than 500", () => {
+        beforeEach(() => {
+          mockRequest.mockRejectedValue({
+            status: 400,
+            data: { message: "error" },
+          });
         });
 
-        expect(mockRequest).toBeCalledWith({
-          url: "https://trigger.url",
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          data: {
-            action: "addToken",
+        it("should return the API error", async () => {
+          const response = await addToken({
             name: "token",
             row: 1,
             column: "A",
-            size: "MEDIUM",
             channelId: "1234",
-          },
+          });
+
+          expect(mockRequest).toBeCalledWith({
+            url: "https://trigger.url",
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            data: {
+              action: "addToken",
+              name: "token",
+              row: 1,
+              column: "A",
+              size: "MEDIUM",
+              channelId: "1234",
+            },
+          });
+
+          expect(mockDownloadBlob).not.toBeCalled();
+          expect(response).toEqual({ success: false, body: "error" });
+        });
+      });
+
+      describe("given the status is 500", () => {
+        beforeEach(() => {
+          mockRequest.mockRejectedValue({
+            status: 500,
+            data: { message: "error" },
+          });
         });
 
-        expect(mockDownloadBlob).not.toBeCalled();
-        expect(response).toEqual({ success: false, body: "error" });
-      });
-    });
-
-    describe("given the API response is a failure", () => {
-      beforeEach(() => {
-        mockRequest.mockRejectedValue("Error");
-      });
-
-      it("should return a generic error", async () => {
-        const response = await addToken({
-          name: "token",
-          row: 1,
-          column: "A",
-          channelId: "1234",
-        });
-
-        expect(mockRequest).toBeCalledWith({
-          url: "https://trigger.url",
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          data: {
-            action: "addToken",
+        it("should return the API error", async () => {
+          const response = await addToken({
             name: "token",
             row: 1,
             column: "A",
-            size: "MEDIUM",
             channelId: "1234",
-          },
-        });
+          });
 
-        expect(mockDownloadBlob).not.toBeCalled();
-        expect(response).toEqual({
-          success: false,
-          body: "An unknown error occured.",
+          expect(mockRequest).toBeCalledWith({
+            url: "https://trigger.url",
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            data: {
+              action: "addToken",
+              name: "token",
+              row: 1,
+              column: "A",
+              size: "MEDIUM",
+              channelId: "1234",
+            },
+          });
+
+          expect(mockDownloadBlob).not.toBeCalled();
+          expect(response).toEqual({
+            success: false,
+            body:
+              "A server error occured. Please raise a GitHub issue detailing the problem.",
+          });
         });
       });
     });

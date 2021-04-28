@@ -191,7 +191,7 @@ describe("Bot", () => {
         await onMessage(mockMessage);
 
         expect(mockMessage.channel.send).toBeCalledWith(
-          "Add token usage: `!token add <name> <row> <column> <size>`"
+          "Add token usage: `!token add <name> <row> <column> <colour> <size>`"
         );
         expect(mockAddToken).not.toBeCalled();
       });
@@ -256,7 +256,7 @@ describe("Bot", () => {
               id: "1234",
               toString: () => "@user#1234",
             },
-            content: "!token add name 1 A small",
+            content: "!token add name 1 A red small",
             channel: {
               send: jest.fn(),
               id: "4567",
@@ -274,6 +274,7 @@ describe("Bot", () => {
             row: 1,
             column: "A",
             size: "SMALL",
+            colour: "red",
             channelId: "4567",
           });
           expect(mockMessage.channel.send).toBeCalledWith(

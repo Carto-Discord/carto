@@ -7,6 +7,7 @@ type AddProps = {
   column: string;
   size?: string;
   condition?: string;
+  colour?: string;
   channelId: string;
 };
 
@@ -28,6 +29,7 @@ export const addToken = async ({
   column,
   size = "MEDIUM",
   condition,
+  colour,
   channelId,
 }: AddProps): Promise<TokenResponse> => {
   const triggerUrl = process.env.HTTP_TRIGGER_URL;
@@ -46,35 +48,34 @@ export const addToken = async ({
         column,
         size,
         condition,
+        colour,
         channelId,
       },
     });
 
-    const body = response.data as ResponseData;
-    if (response.status === 201) {
-      const { blob, bucket } = body;
-      const tempFile = await downloadBlob({ blob, bucket });
-
-      return {
-        success: true,
-        body: tempFile,
-      };
-    } else {
-      console.warn(
-        `Non-ok response received.\n Status: ${response.status}\n Message: ${body.message}`
-      );
-
-      return {
-        success: false,
-        body: body.message,
-      };
-    }
-  } catch (error) {
-    console.error(error);
+    const { blob, bucket } = response.data as ResponseData;
+    const tempFile = await downloadBlob({ blob, bucket });
 
     return {
-      success: false,
-      body: "An unknown error occured.",
+      success: true,
+      body: tempFile,
     };
+  } catch (error) {
+    console.warn(
+      `Non-ok response received.\n Status: ${error.status}\n Message: ${error.data.message}`
+    );
+
+    if (error.status < 500) {
+      return {
+        success: false,
+        body: error.data.message,
+      };
+    } else {
+      return {
+        success: false,
+        body:
+          "A server error occured. Please raise a GitHub issue detailing the problem.",
+      };
+    }
   }
 };

@@ -67,38 +67,80 @@ describe("Create", () => {
     });
 
     describe("given the API response is unsuccessful", () => {
-      beforeEach(() => {
-        mockRequest.mockResolvedValue({
-          status: 400,
-          data: { message: "error" },
-        });
-      });
-
-      it("should return the API error", async () => {
-        const response = await createMap({
-          url: "url",
-          rows: 1,
-          columns: 2,
-          channelId: "1234",
+      describe("given the status is less than 500", () => {
+        beforeEach(() => {
+          mockRequest.mockRejectedValue({
+            status: 400,
+            data: { message: "error" },
+          });
         });
 
-        expect(mockRequest).toBeCalledWith({
-          url: "https://trigger.url",
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          data: {
-            action: "create",
+        it("should return the API error", async () => {
+          const response = await createMap({
             url: "url",
             rows: 1,
             columns: 2,
             channelId: "1234",
-          },
+          });
+
+          expect(mockRequest).toBeCalledWith({
+            url: "https://trigger.url",
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            data: {
+              action: "create",
+              url: "url",
+              rows: 1,
+              columns: 2,
+              channelId: "1234",
+            },
+          });
+
+          expect(mockDownloadBlob).not.toBeCalled();
+          expect(response).toEqual({ success: false, body: "error" });
+        });
+      });
+
+      describe("given the status is 500", () => {
+        beforeEach(() => {
+          mockRequest.mockRejectedValue({
+            status: 500,
+            data: { message: "error" },
+          });
         });
 
-        expect(mockDownloadBlob).not.toBeCalled();
-        expect(response).toEqual({ success: false, body: "error" });
+        it("should return the API error", async () => {
+          const response = await createMap({
+            url: "url",
+            rows: 1,
+            columns: 2,
+            channelId: "1234",
+          });
+
+          expect(mockRequest).toBeCalledWith({
+            url: "https://trigger.url",
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            data: {
+              action: "create",
+              url: "url",
+              rows: 1,
+              columns: 2,
+              channelId: "1234",
+            },
+          });
+
+          expect(mockDownloadBlob).not.toBeCalled();
+          expect(response).toEqual({
+            success: false,
+            body:
+              "A server error occured. Please raise a GitHub issue detailing the problem.",
+          });
+        });
       });
     });
   });

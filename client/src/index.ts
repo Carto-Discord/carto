@@ -71,11 +71,11 @@ client.on("message", async (message) => {
     console.log(`Received token update request: ${message.content}`);
     const parameters = getParameters(message.content);
 
-    const [_, name, row, column, size, condition] = parameters;
+    const [_, name, row, column, colour, size, condition] = parameters;
 
     if (!name || !row || !column) {
       message.channel.send(
-        "Add token usage: `!token add <name> <row> <column> <size>`"
+        "Add token usage: `!token add <name> <row> <column> <colour> <size>`"
       );
       return;
     }
@@ -91,6 +91,7 @@ client.on("message", async (message) => {
       column,
       size: size?.toUpperCase(),
       condition,
+      colour,
       channelId: message.channel.id,
     });
 
@@ -122,9 +123,9 @@ client.on("message", async (message) => {
     const channel = await message.author.createDM();
 
     const helpMessage =
-      "How to use Carto:\n" +
+      "How to use Carto - Default values are in brackets:\n" +
       "Create a new map\n`!create <public url> <rows> <columns>`\n" +
-      "Add a new token to the map\n`!token add <name> <row> <column> <size>`\n" +
+      "Add a new token to the map\n`!token add <name> <row> <column> <colour (random)> <size (Medium)>`\n" +
       "Show the current channel's map\n`!map`\n" +
       "**Important Info**\nMap states will be deleted after 30 days. Changing the map in any way will extend this period.\n" +
       "Deleting a channel will delete all associated maps. The deleter will recieve the final map state as DM.";
