@@ -46,14 +46,19 @@ def add_token(request_json):
         r = lambda: random.randint(0, 255)
         colour = '#%02X%02X%02X' % (r(), r(), r())
 
+    token_objects = []
+    for t in tokens:
+        token = Token(name=t['name'], row=t['row'], column=t['column'], size=t['size'], colour=t['color'])
+        token_objects.append(token)
+
     new_token = Token(name=name, row=int(row), column=column, size=size[token_size], colour=colour)
-    tokens.append(new_token)
+    token_objects.append(new_token)
 
     print("Tokens")
-    for t in tokens:
+    for t in token_objects:
         print(t.to_dict())
 
-    source_file_name = grid.apply_grid(url, rows, columns, tokens)
+    source_file_name = grid.apply_grid(url, rows, columns, token_objects)
 
     if source_file_name is None:
         message = "Url {} could not be found".format(url)
@@ -73,7 +78,7 @@ def add_token(request_json):
     else:
         database.update_channel_map(channel_id, map_uuid)
         database.create_map_info(uuid=map_uuid, url=url, rows=rows, columns=columns,
-                                 tokens=[t.to_dict() for t in tokens])
+                                 tokens=[t.to_dict() for t in token_objects])
         response = {
             'created': datetime.now().isoformat(),
             'blob': file,
