@@ -32,8 +32,9 @@ export const addToken = async ({
 }: AddProps): Promise<TokenResponse> => {
   const triggerUrl = process.env.HTTP_TRIGGER_URL;
 
+  const client = await createAuthenticatedClient(triggerUrl);
+
   try {
-    const client = await createAuthenticatedClient(triggerUrl);
     const response = await client.request({
       url: triggerUrl,
       method: "POST",
@@ -68,7 +69,12 @@ export const addToken = async ({
         body: body.message,
       };
     }
-  } catch (e) {
-    console.warn(e);
+  } catch (error) {
+    console.error(error);
+
+    return {
+      success: false,
+      body: "An unknown error occured.",
+    };
   }
 };

@@ -139,5 +139,42 @@ describe("Create", () => {
         expect(response).toEqual({ success: false, body: "error" });
       });
     });
+
+    describe("given the API response is a failure", () => {
+      beforeEach(() => {
+        mockRequest.mockRejectedValue("Error");
+      });
+
+      it("should return a generic error", async () => {
+        const response = await addToken({
+          name: "token",
+          row: 1,
+          column: "A",
+          channelId: "1234",
+        });
+
+        expect(mockRequest).toBeCalledWith({
+          url: "https://trigger.url",
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          data: {
+            action: "addToken",
+            name: "token",
+            row: 1,
+            column: "A",
+            size: "MEDIUM",
+            channelId: "1234",
+          },
+        });
+
+        expect(mockDownloadBlob).not.toBeCalled();
+        expect(response).toEqual({
+          success: false,
+          body: "An unknown error occured.",
+        });
+      });
+    });
   });
 });
