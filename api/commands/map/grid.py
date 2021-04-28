@@ -138,11 +138,11 @@ def apply_grid(image_url: str, rows: int, cols: int, tokens: List[Token] = None)
                                         max_width=(col_width * token.size * 0.7),
                                         max_height=(row_height * token.size * 0.7))
 
-            x0 = (col - token.size) * col_width
-            x1 = col * col_width
+            x0 = (col - 1) * col_width
+            x1 = (col - 1 + token.size) * col_width
 
-            y0 = im.size[1] - (row * row_height)
-            y1 = y0 + token.size * row_height
+            y1 = im.size[1] - ((row - 1) * row_height)
+            y0 = y1 - token.size * row_height
 
             if token.size == size['TINY']:
                 key = '{}{}'.format(token.column, token.row)
