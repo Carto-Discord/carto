@@ -37,6 +37,7 @@ export const getMap = async ({ channelId }: GetProps): Promise<GetResponse> => {
       body: tempFile,
     };
   } catch (error) {
+    console.log(error);
     console.warn(
       `Non-ok response received.\n Status: ${error.status}\n Message: ${error.data.message}`
     );
