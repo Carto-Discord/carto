@@ -1,4 +1,5 @@
 from datetime import datetime
+import logging
 import ntpath
 import uuid
 
@@ -44,6 +45,7 @@ def add_token(request_json):
         colour = tuple(random.choice(range(256), size=3))
 
     new_token = Token(name=name, row=int(row), column=column, size=size[token_size], colour=colour)
+    logging.log(level=logging.INFO, msg="New Token: {}".format(new_token.to_dict()))
     tokens.append(new_token.to_dict())
 
     source_file_name = grid.apply_grid(url, rows, columns, tokens)

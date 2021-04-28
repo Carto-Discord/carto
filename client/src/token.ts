@@ -32,39 +32,43 @@ export const addToken = async ({
 }: AddProps): Promise<TokenResponse> => {
   const triggerUrl = process.env.HTTP_TRIGGER_URL;
 
-  const client = await createAuthenticatedClient(triggerUrl);
-  const response = await client.request({
-    url: triggerUrl,
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    data: {
-      action: "addToken",
-      name,
-      row,
-      column,
-      size,
-      condition,
-      channelId,
-    },
-  });
+  try {
+    const client = await createAuthenticatedClient(triggerUrl);
+    const response = await client.request({
+      url: triggerUrl,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: {
+        action: "addToken",
+        name,
+        row,
+        column,
+        size,
+        condition,
+        channelId,
+      },
+    });
 
-  const body = response.data as ResponseData;
-  if (response.status === 201) {
-    const { blob, bucket } = body;
-    const tempFile = await downloadBlob({ blob, bucket });
+    const body = response.data as ResponseData;
+    if (response.status === 201) {
+      const { blob, bucket } = body;
+      const tempFile = await downloadBlob({ blob, bucket });
 
-    return {
-      success: true,
-      body: tempFile,
-    };
-  } else {
-    console.warn(
-      `Non-ok response received.\n Status: ${response.status}\n Message: ${body.message}`
-    );
+      return {
+        success: true,
+        body: tempFile,
+      };
+    } else {
+      console.warn(
+        `Non-ok response received.\n Status: ${response.status}\n Message: ${body.message}`
+      );
 
-    return {
-      success: false,
-      body: body.message,
-    };
+      return {
+        success: false,
+        body: body.message,
+      };
+    }
+  } catch (e) {
+    console.warn(e);
   }
 };
