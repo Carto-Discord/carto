@@ -5,6 +5,7 @@ from unittest.mock import patch
 from flask import Flask
 from werkzeug.exceptions import HTTPException
 
+from api.commands.map.Token import Token
 from api.commands.token import add_token
 
 
@@ -166,15 +167,17 @@ class TokenTest(unittest.TestCase):
     @patch('commands.map.storage.upload_blob')
     @patch('commands.map.database.update_channel_map')
     @patch('commands.map.database.create_map_info')
+    @patch('uuid.uuid4')
     @patch('commands.constants.BUCKET', 'bucket')
-    def test_successful_creation(self, mock_create, mock_update, mock_upload, mock_apply_grid, mock_map_info,
+    def test_successful_creation(self, mock_uuid, mock_create, mock_update, mock_upload, mock_apply_grid, mock_map_info,
                                  mock_get_map):
         request = {
             'channelId': '1234',
             'name': 'token',
             'row': '4',
             'column': 'C',
-            'size': 'MEDIUM'
+            'size': 'MEDIUM',
+            'colour': 'red'
         }
 
         mock_get_map.return_value = '4567'
@@ -186,12 +189,19 @@ class TokenTest(unittest.TestCase):
         }
         mock_apply_grid.return_value = 'map.png'
         mock_upload.return_value = 'gcs-file'
+        mock_uuid.return_value = '1234-5678'
 
         with self.app.app_context():
             response = add_token(request)
 
         mock_update.assert_called_once()
-        mock_create.assert_called_once()
+        mock_create.assert_called_with(uuid='1234-5678', url='url', rows=5, columns=5, tokens=[{
+            'name': 'token',
+            'row': 4,
+            'column': 'C',
+            'colour': 'red',
+            'size': 1
+        }])
 
         self.assertEqual(json.loads(response[0].data)['blob'], 'gcs-file')
         self.assertEqual(json.loads(response[0].data)['bucket'], 'bucket')
