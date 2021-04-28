@@ -72,7 +72,7 @@ def create_map_info(uuid, url, rows, columns, tokens=None):
     if tokens is None:
         tokens = []
 
-    logging.log(level=logging.INFO, msg="Tokens: {}".format(tokens))
+    print("Uploading Tokens: {}".format(tokens))
 
     db = firestore.Client()
     map_doc_ref = db.collection(maps_collection).document(uuid)
