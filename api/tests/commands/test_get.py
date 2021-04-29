@@ -8,12 +8,13 @@ from werkzeug.exceptions import HTTPException
 from api.commands.get import get_channel_map
 
 
+@patch('logs.Logger.log')
 class GetTest(unittest.TestCase):
     app = Flask(__name__)
 
     @patch('commands.map.database.get_current_channel_map')
     @patch('commands.constants.BUCKET', 'bucket')
-    def test_get_channel_map(self, mock_get_map):
+    def test_get_channel_map(self, mock_get_map, mock_log):
         mock_get_map.return_value = '1234'
 
         with self.app.app_context():
@@ -23,7 +24,7 @@ class GetTest(unittest.TestCase):
         self.assertEqual(json.loads(response[0].data)['bucket'], 'bucket')
 
     @patch('commands.map.database.get_current_channel_map')
-    def test_get_channel_map_no_uuid(self, mock_get_map):
+    def test_get_channel_map_no_uuid(self, mock_get_map, mock_log):
         mock_get_map.return_value = None
 
         with self.app.app_context():
@@ -31,7 +32,7 @@ class GetTest(unittest.TestCase):
                 get_channel_map({'channelId': '4567'})
                 self.assertEqual(http_error.exception.code, 404)
 
-    def test_get_channel_map_no_id(self):
+    def test_get_channel_map_no_id(self, mock_log):
         with self.app.app_context():
             with self.assertRaises(HTTPException) as http_error:
                 get_channel_map({})

@@ -1,5 +1,6 @@
 from flask import abort, jsonify, make_response
 from commands import create, get, delete, token
+from logs import Logger
 
 cloud_storage_bucket = 'carto-map-uploads'
 
@@ -14,7 +15,11 @@ def function(request):
         Response object using `make_response`
         <https://flask.palletsprojects.com/en/1.1.x/api/#flask.make_response>.
     """
+    Logger.setup(request.headers.get('function-execution-id'))
+
     method = request.method
+    Logger.log("Received method {}".format(method), severity='DEBUG')
+
     allowed_methods = ['GET', 'POST', 'DELETE']
     if method not in allowed_methods:
         abort(make_response(jsonify(message="Method not allowed"), 405))
