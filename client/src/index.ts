@@ -5,7 +5,7 @@ import dotenv from "dotenv";
 import { createMap } from "./create";
 import { getMap } from "./get";
 import { deleteChannel } from "./delete";
-import { addToken } from "./token";
+import { addToken, moveToken } from "./token";
 
 dotenv.config();
 
@@ -98,6 +98,41 @@ client.on("message", async (message) => {
     response.success
       ? message.channel.send(
           `Token ${name} added by ${message.author.toString()}`,
+          {
+            files: [response.body],
+          }
+        )
+      : message.channel.send(response.body);
+  }
+
+  if (message.content.startsWith(`${prefix}token move`)) {
+    console.log(`Received token move request: ${message.content}`);
+    const parameters = getParameters(message.content);
+
+    const [_, name, row, column] = parameters;
+
+    if (!name || !row || !column) {
+      message.channel.send(
+        "Move token usage: `!token move <name> <row> <column>`"
+      );
+      return;
+    }
+
+    if (isNaN(+row)) {
+      message.channel.send("Row must be a number");
+      return;
+    }
+
+    const response = await moveToken({
+      name,
+      row: Number(row),
+      column,
+      channelId: message.channel.id,
+    });
+
+    response.success
+      ? message.channel.send(
+          `Token ${name} moved by ${message.author.toString()}`,
           {
             files: [response.body],
           }

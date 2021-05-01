@@ -11,6 +11,7 @@ describe("Bot", () => {
   const mockGetMap = jest.fn();
   const mockDeleteChannel = jest.fn();
   const mockAddToken = jest.fn();
+  const mockMoveToken = jest.fn();
 
   beforeEach(() => {
     jest.resetModules();
@@ -35,6 +36,7 @@ describe("Bot", () => {
     }));
     jest.mock("./token", () => ({
       addToken: mockAddToken,
+      moveToken: mockMoveToken,
     }));
 
     process.env.BOT_TOKEN = "bot token";
@@ -279,6 +281,118 @@ describe("Bot", () => {
           });
           expect(mockMessage.channel.send).toBeCalledWith(
             "Token name added by @user#1234",
+            {
+              files: ["filename"],
+            }
+          );
+        });
+      });
+    });
+  });
+
+  describe('given a message "!token move" is received', () => {
+    describe("given no parameters are provided", () => {
+      it("should send a help message", async () => {
+        const onMessage: Function = mockClient.on.mock.calls[0][1];
+        const mockMessage = {
+          author: {
+            id: "1234",
+          },
+          content: "!token move",
+          channel: {
+            send: jest.fn(),
+            id: "4567",
+          },
+        };
+        await onMessage(mockMessage);
+
+        expect(mockMessage.channel.send).toBeCalledWith(
+          "Move token usage: `!token move <name> <row> <column>`"
+        );
+        expect(mockMoveToken).not.toBeCalled();
+      });
+    });
+
+    describe("given the row isn't a number", () => {
+      it("should send an error message", async () => {
+        const onMessage: Function = mockClient.on.mock.calls[0][1];
+        const mockMessage = {
+          author: {
+            id: "1234",
+          },
+          content: "!token move name row col",
+          channel: {
+            send: jest.fn(),
+            id: "4567",
+          },
+        };
+        await onMessage(mockMessage);
+
+        expect(mockMessage.channel.send).toBeCalledWith("Row must be a number");
+        expect(mockMoveToken).not.toBeCalled();
+      });
+    });
+
+    describe("given all parameters are valid", () => {
+      describe("given the token move is unsuccessful", () => {
+        it("should respond with the API message", async () => {
+          const onMessage: Function = mockClient.on.mock.calls[0][1];
+          const mockMessage = {
+            author: {
+              id: "1234",
+            },
+            content: "!token move name 1 A",
+            channel: {
+              send: jest.fn(),
+              id: "4567",
+            },
+          };
+
+          mockMoveToken.mockResolvedValue({
+            success: false,
+            body: "error message",
+          });
+          await onMessage(mockMessage);
+
+          expect(mockMoveToken).toBeCalledWith({
+            name: "name",
+            row: 1,
+            column: "A",
+            channelId: "4567",
+          });
+          expect(mockMessage.channel.send).toBeCalledWith("error message");
+        });
+      });
+
+      describe("given the token move is successful", () => {
+        it("should respond with the downloaded image", async () => {
+          const onMessage: Function = mockClient.on.mock.calls[0][1];
+          const mockMessage = {
+            author: {
+              id: "1234",
+              toString: () => "@user#1234",
+            },
+            content: "!token move name 1 A",
+            channel: {
+              send: jest.fn(),
+              id: "4567",
+            },
+          };
+
+          mockMoveToken.mockResolvedValue({
+            success: true,
+            body: "filename",
+          });
+          await onMessage(mockMessage);
+
+          expect(mockMoveToken).toBeCalledWith({
+            name: "name",
+            row: 1,
+            column: "A",
+            channelId: "4567",
+          });
+          expect(mockMessage.channel.send).toBeCalledWith(
+            "Token name moved by @user#1234",
             {
               files: ["filename"],
             }
