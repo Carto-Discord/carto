@@ -19,7 +19,6 @@ class MainTest(TestCase):
                 function(request)
                 self.assertEqual(http_error.exception.code, 405)
 
-        mock_log.assert_called()
         mock_setup.assert_called()
 
     def test_invalid_json(self, mock_log, mock_setup):

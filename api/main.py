@@ -18,7 +18,6 @@ def function(request):
     Logger.setup(request.headers.get('function-execution-id'))
 
     method = request.method
-    Logger.log("Received method {}".format(method), severity='DEBUG')
 
     allowed_methods = ['GET', 'POST', 'DELETE']
     if method not in allowed_methods:
@@ -29,6 +28,8 @@ def function(request):
         if request_json is None:
             abort(make_response(jsonify(message="JSON could not be serialised"), 400))
 
+        Logger.log("Received POST with JSON {}".format(request_json), severity='DEBUG')
+
         if 'action' in request_json and request_json['action'] == 'create':
             return create.create_new_map(request_json)
 
@@ -37,11 +38,15 @@ def function(request):
 
     if method == 'GET':
         request_params = request.args.to_dict()
+        Logger.log("Received GET with Parameters {}".format(request_params), severity='DEBUG')
+
         return get.get_channel_map(request_params)
 
     if method == 'DELETE':
         request_json = request.get_json(silent=True)
         if request_json is None:
             abort(make_response(jsonify(message="JSON could not be serialised"), 400))
+
+        Logger.log("Received DELETE with JSON {}".format(request_json), severity='DEBUG')
 
         return delete.delete_channel_data(request_json)
