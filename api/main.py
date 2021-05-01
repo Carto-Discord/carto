@@ -36,6 +36,9 @@ def function(request):
         if 'action' in request_json and request_json['action'] == 'addToken':
             return token.add_token(request_json)
 
+        if 'action' in request_json and request_json['action'] == 'moveToken':
+            return token.move_token(request_json)
+
     if method == 'GET':
         request_params = request.args.to_dict()
         Logger.log("Received GET with Parameters {}".format(request_params), severity='DEBUG')

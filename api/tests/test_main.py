@@ -75,6 +75,21 @@ class MainTest(TestCase):
             function(request)
             mock_add_token.assert_called_with(params)
 
+    @patch('commands.token.move_token')
+    def test_action_move_token(self, mock_move_token, mock_log, mock_setup):
+        params = {
+            'action': 'moveToken',
+            'name': 'token name',
+            'row': 42,
+            'column': 24,
+            'channelId': '1234'
+        }
+
+        request = Mock(method='POST', get_json=Mock(return_value=params))
+        with self.app.app_context():
+            function(request)
+            mock_move_token.assert_called_with(params)
+
     @patch('commands.get.get_channel_map')
     def test_get_map(self, mock_get, mock_log, mock_setup):
         params = {'channelId': '1234'}
