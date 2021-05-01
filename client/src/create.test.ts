@@ -1,15 +1,15 @@
 import { createAuthenticatedClient } from "./authentication";
-import { downloadBlob } from "./storage";
+import { handleRequest } from "./requestHandler";
 import { createMap } from "./create";
 
 jest.mock("./authentication");
-jest.mock("./storage");
+jest.mock("./requestHandler");
 
 const mockCreateAuthenticatedClient = createAuthenticatedClient as jest.MockedFunction<
   typeof createAuthenticatedClient
 >;
-const mockDownloadBlob = downloadBlob as jest.MockedFunction<
-  typeof downloadBlob
+const mockHandleRequest = handleRequest as jest.MockedFunction<
+  typeof handleRequest
 >;
 
 describe("Create", () => {
@@ -21,130 +21,35 @@ describe("Create", () => {
     jest.clearAllMocks();
     //@ts-ignore
     mockCreateAuthenticatedClient.mockResolvedValue({ request: mockRequest });
-    mockDownloadBlob.mockResolvedValue("temp file");
 
     process.env.HTTP_TRIGGER_URL = "https://trigger.url";
   });
 
   describe("Create Map", () => {
-    describe("given the API response is successful", () => {
-      beforeEach(() => {
-        mockRequest.mockResolvedValue({
-          status: 201,
-          data: { blob: "file", bucket: "bucket" },
-        });
+    it("should call handleRequest with the appropriate request", async () => {
+      await createMap({
+        url: "url",
+        rows: 1,
+        columns: 2,
+        channelId: "1234",
       });
 
-      it("should download the file and return the name", async () => {
-        const response = await createMap({
+      expect(mockHandleRequest).toBeCalledTimes(1);
+      await mockHandleRequest.mock.calls[0][0]();
+
+      expect(mockRequest).toBeCalledWith({
+        url: "https://trigger.url",
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        data: {
+          action: "create",
           url: "url",
           rows: 1,
           columns: 2,
           channelId: "1234",
-        });
-
-        expect(mockRequest).toBeCalledWith({
-          url: "https://trigger.url",
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          data: {
-            action: "create",
-            url: "url",
-            rows: 1,
-            columns: 2,
-            channelId: "1234",
-          },
-        });
-
-        expect(mockDownloadBlob).toBeCalledWith({
-          blob: "file",
-          bucket: "bucket",
-        });
-        expect(response).toEqual({ success: true, body: "temp file" });
-      });
-    });
-
-    describe("given the API response is unsuccessful", () => {
-      describe("given the status is less than 500", () => {
-        beforeEach(() => {
-          mockRequest.mockRejectedValue({
-            response: {
-              status: 400,
-              data: { message: "error" },
-            },
-          });
-        });
-
-        it("should return the API error", async () => {
-          const response = await createMap({
-            url: "url",
-            rows: 1,
-            columns: 2,
-            channelId: "1234",
-          });
-
-          expect(mockRequest).toBeCalledWith({
-            url: "https://trigger.url",
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            data: {
-              action: "create",
-              url: "url",
-              rows: 1,
-              columns: 2,
-              channelId: "1234",
-            },
-          });
-
-          expect(mockDownloadBlob).not.toBeCalled();
-          expect(response).toEqual({ success: false, body: "error" });
-        });
-      });
-
-      describe("given the status is 500", () => {
-        beforeEach(() => {
-          mockRequest.mockRejectedValue({
-            response: {
-              status: 500,
-              data: { message: "error" },
-            },
-          });
-        });
-
-        it("should return the API error", async () => {
-          const response = await createMap({
-            url: "url",
-            rows: 1,
-            columns: 2,
-            channelId: "1234",
-          });
-
-          expect(mockRequest).toBeCalledWith({
-            url: "https://trigger.url",
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            data: {
-              action: "create",
-              url: "url",
-              rows: 1,
-              columns: 2,
-              channelId: "1234",
-            },
-          });
-
-          expect(mockDownloadBlob).not.toBeCalled();
-          expect(response).toEqual({
-            success: false,
-            body:
-              "A server error occured. Please raise a GitHub issue detailing the problem.",
-          });
-        });
+        },
       });
     });
   });

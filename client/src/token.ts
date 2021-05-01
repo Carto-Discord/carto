@@ -1,5 +1,5 @@
 import { createAuthenticatedClient } from "./authentication";
-import { downloadBlob } from "./storage";
+import { handleRequest } from "./requestHandler";
 
 type AddProps = {
   name: string;
@@ -11,16 +11,11 @@ type AddProps = {
   channelId: string;
 };
 
-type TokenResponse = {
-  success: boolean;
-  body: string;
-};
-
-type ResponseData = {
-  created: string;
-  blob?: string;
-  bucket?: string;
-  message?: string;
+type MoveProps = {
+  name: string;
+  row: number;
+  column: string;
+  channelId: string;
 };
 
 export const addToken = async ({
@@ -31,13 +26,12 @@ export const addToken = async ({
   condition,
   colour,
   channelId,
-}: AddProps): Promise<TokenResponse> => {
+}: AddProps) => {
   const triggerUrl = process.env.HTTP_TRIGGER_URL;
-
   const client = await createAuthenticatedClient(triggerUrl);
 
-  try {
-    const response = await client.request({
+  return handleRequest(() =>
+    client.request({
       url: triggerUrl,
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -51,34 +45,31 @@ export const addToken = async ({
         colour,
         channelId,
       },
-    });
+    })
+  );
+};
 
-    const { blob, bucket } = response.data as ResponseData;
-    const tempFile = await downloadBlob({ blob, bucket });
+export const moveToken = async ({
+  name,
+  row,
+  column,
+  channelId,
+}: MoveProps) => {
+  const triggerUrl = process.env.HTTP_TRIGGER_URL;
+  const client = await createAuthenticatedClient(triggerUrl);
 
-    return {
-      success: true,
-      body: tempFile,
-    };
-  } catch (error) {
-    console.log(error);
-    console.warn(
-      `Non-ok response received.\n Status: ${
-        error.response.status
-      }\n Data: ${JSON.stringify(error.response.data)}`
-    );
-
-    if (error.response.status < 500) {
-      return {
-        success: false,
-        body: error.response.data.message,
-      };
-    } else {
-      return {
-        success: false,
-        body:
-          "A server error occured. Please raise a GitHub issue detailing the problem.",
-      };
-    }
-  }
+  return handleRequest(() =>
+    client.request({
+      url: triggerUrl,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: {
+        action: "moveToken",
+        name,
+        row,
+        column,
+        channelId,
+      },
+    })
+  );
 };

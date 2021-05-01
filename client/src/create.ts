@@ -1,4 +1,5 @@
 import { createAuthenticatedClient } from "./authentication";
+import { handleRequest } from "./requestHandler";
 import { downloadBlob } from "./storage";
 
 type CreateProps = {
@@ -8,30 +9,17 @@ type CreateProps = {
   channelId: string;
 };
 
-type CreateResponse = {
-  success: boolean;
-  body: string;
-};
-
-type ResponseData = {
-  created: string;
-  blob?: string;
-  bucket?: string;
-  message?: string;
-};
-
 export const createMap = async ({
   url,
   rows,
   columns,
   channelId,
-}: CreateProps): Promise<CreateResponse> => {
+}: CreateProps) => {
   const triggerUrl = process.env.HTTP_TRIGGER_URL;
-
   const client = await createAuthenticatedClient(triggerUrl);
 
-  try {
-    const response = await client.request({
+  return handleRequest(() =>
+    client.request({
       url: triggerUrl,
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -42,36 +30,6 @@ export const createMap = async ({
         columns,
         channelId,
       },
-    });
-
-    const body = response.data as ResponseData;
-
-    const { blob, bucket } = body;
-    const tempFile = await downloadBlob({ blob, bucket });
-
-    return {
-      success: true,
-      body: tempFile,
-    };
-  } catch (error) {
-    console.log(error);
-    console.warn(
-      `Non-ok response received.\n Status: ${
-        error.response.status
-      }\n Data: ${JSON.stringify(error.response.data)}`
-    );
-
-    if (error.response.status < 500) {
-      return {
-        success: false,
-        body: error.response.data.message,
-      };
-    } else {
-      return {
-        success: false,
-        body:
-          "A server error occured. Please raise a GitHub issue detailing the problem.",
-      };
-    }
-  }
+    })
+  );
 };
