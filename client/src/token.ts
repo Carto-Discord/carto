@@ -18,6 +18,11 @@ type MoveProps = {
   channelId: string;
 };
 
+type DeleteProps = {
+  name: string;
+  channelId: string;
+};
+
 export const addToken = async ({
   name,
   row,
@@ -68,6 +73,24 @@ export const moveToken = async ({
         name,
         row,
         column,
+        channelId,
+      },
+    })
+  );
+};
+
+export const deleteToken = async ({ name, channelId }: DeleteProps) => {
+  const triggerUrl = process.env.HTTP_TRIGGER_URL;
+  const client = await createAuthenticatedClient(triggerUrl);
+
+  return handleRequest(() =>
+    client.request({
+      url: triggerUrl,
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      data: {
+        action: "deleteToken",
+        name,
         channelId,
       },
     })

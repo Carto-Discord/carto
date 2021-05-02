@@ -12,6 +12,7 @@ describe("Bot", () => {
   const mockDeleteChannel = jest.fn();
   const mockAddToken = jest.fn();
   const mockMoveToken = jest.fn();
+  const mockDeleteToken = jest.fn();
 
   beforeEach(() => {
     jest.resetModules();
@@ -37,6 +38,7 @@ describe("Bot", () => {
     jest.mock("./token", () => ({
       addToken: mockAddToken,
       moveToken: mockMoveToken,
+      deleteToken: mockDeleteToken,
     }));
 
     process.env.BOT_TOKEN = "bot token";
@@ -393,6 +395,94 @@ describe("Bot", () => {
           });
           expect(mockMessage.channel.send).toBeCalledWith(
             "Token name moved by @user#1234",
+            {
+              files: ["filename"],
+            }
+          );
+        });
+      });
+    });
+  });
+
+  describe('given a message "!token delete" is received', () => {
+    describe("given no parameters are provided", () => {
+      it("should send a help message", async () => {
+        const onMessage: Function = mockClient.on.mock.calls[0][1];
+        const mockMessage = {
+          author: {
+            id: "1234",
+          },
+          content: "!token delete",
+          channel: {
+            send: jest.fn(),
+            id: "4567",
+          },
+        };
+        await onMessage(mockMessage);
+
+        expect(mockMessage.channel.send).toBeCalledWith(
+          "Delete token usage: `!token delete <name>`"
+        );
+        expect(mockMoveToken).not.toBeCalled();
+      });
+    });
+
+    describe("given all parameters are valid", () => {
+      describe("given the token deletion is unsuccessful", () => {
+        it("should respond with the API message", async () => {
+          const onMessage: Function = mockClient.on.mock.calls[0][1];
+          const mockMessage = {
+            author: {
+              id: "1234",
+            },
+            content: "!token delete name",
+            channel: {
+              send: jest.fn(),
+              id: "4567",
+            },
+          };
+
+          mockDeleteToken.mockResolvedValue({
+            success: false,
+            body: "error message",
+          });
+          await onMessage(mockMessage);
+
+          expect(mockDeleteToken).toBeCalledWith({
+            name: "name",
+            channelId: "4567",
+          });
+          expect(mockMessage.channel.send).toBeCalledWith("error message");
+        });
+      });
+
+      describe("given the token deletion is successful", () => {
+        it("should respond with the downloaded image", async () => {
+          const onMessage: Function = mockClient.on.mock.calls[0][1];
+          const mockMessage = {
+            author: {
+              id: "1234",
+              toString: () => "@user#1234",
+            },
+            content: "!token delete name",
+            channel: {
+              send: jest.fn(),
+              id: "4567",
+            },
+          };
+
+          mockDeleteToken.mockResolvedValue({
+            success: true,
+            body: "filename",
+          });
+          await onMessage(mockMessage);
+
+          expect(mockDeleteToken).toBeCalledWith({
+            name: "name",
+            channelId: "4567",
+          });
+          expect(mockMessage.channel.send).toBeCalledWith(
+            "Token name deleted by @user#1234",
             {
               files: ["filename"],
             }

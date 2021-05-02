@@ -5,7 +5,7 @@ import dotenv from "dotenv";
 import { createMap } from "./create";
 import { getMap } from "./get";
 import { deleteChannel } from "./delete";
-import { addToken, moveToken } from "./token";
+import { addToken, deleteToken, moveToken } from "./token";
 
 dotenv.config();
 
@@ -133,6 +133,32 @@ client.on("message", async (message) => {
     response.success
       ? message.channel.send(
           `Token ${name} moved by ${message.author.toString()}`,
+          {
+            files: [response.body],
+          }
+        )
+      : message.channel.send(response.body);
+  }
+
+  if (message.content.startsWith(`${prefix}token delete`)) {
+    console.log(`Received token deletion request: ${message.content}`);
+    const parameters = getParameters(message.content);
+
+    const [_, name] = parameters;
+
+    if (!name) {
+      message.channel.send("Delete token usage: `!token delete <name>`");
+      return;
+    }
+
+    const response = await deleteToken({
+      name,
+      channelId: message.channel.id,
+    });
+
+    response.success
+      ? message.channel.send(
+          `Token ${name} deleted by ${message.author.toString()}`,
           {
             files: [response.body],
           }

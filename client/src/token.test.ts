@@ -1,6 +1,6 @@
 import { createAuthenticatedClient } from "./authentication";
 import { handleRequest } from "./requestHandler";
-import { addToken, moveToken } from "./token";
+import { addToken, deleteToken, moveToken } from "./token";
 
 jest.mock("./authentication");
 jest.mock("./requestHandler");
@@ -113,6 +113,31 @@ describe("Token", () => {
           name: "token",
           row: 1,
           column: "A",
+          channelId: "1234",
+        },
+      });
+    });
+  });
+
+  describe("Delete Token", () => {
+    it("should call handleRequest with the appropriate request", async () => {
+      await deleteToken({
+        name: "token",
+        channelId: "1234",
+      });
+
+      expect(mockHandleRequest).toBeCalledTimes(1);
+      await mockHandleRequest.mock.calls[0][0]();
+
+      expect(mockRequest).toBeCalledWith({
+        url: "https://trigger.url",
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        data: {
+          action: "deleteToken",
+          name: "token",
           channelId: "1234",
         },
       });
