@@ -20,22 +20,48 @@ describe("Handle Request", () => {
   });
 
   describe("given the request is successful", () => {
-    beforeEach(() => {
-      mockRequest.mockResolvedValue({
-        status: 201,
-        data: { blob: "file", bucket: "bucket" },
+    describe("given no message is received", () => {
+      beforeEach(() => {
+        mockRequest.mockResolvedValue({
+          status: 201,
+          data: { blob: "file", bucket: "bucket" },
+        });
+      });
+
+      it("should download the file and return the name", async () => {
+        const response = await handleRequest(mockRequest);
+
+        expect(mockRequest).toBeCalled();
+        expect(mockDownloadBlob).toBeCalledWith({
+          blob: "file",
+          bucket: "bucket",
+        });
+        expect(response).toEqual({ success: true, body: "temp file" });
       });
     });
 
-    it("should download the file and return the name", async () => {
-      const response = await handleRequest(mockRequest);
-
-      expect(mockRequest).toBeCalled();
-      expect(mockDownloadBlob).toBeCalledWith({
-        blob: "file",
-        bucket: "bucket",
+    describe("given a message is received", () => {
+      beforeEach(() => {
+        mockRequest.mockResolvedValue({
+          status: 201,
+          data: { blob: "file", bucket: "bucket", message: "hello" },
+        });
       });
-      expect(response).toEqual({ success: true, body: "temp file" });
+
+      it("should download the file and return the name with the message", async () => {
+        const response = await handleRequest(mockRequest);
+
+        expect(mockRequest).toBeCalled();
+        expect(mockDownloadBlob).toBeCalledWith({
+          blob: "file",
+          bucket: "bucket",
+        });
+        expect(response).toEqual({
+          success: true,
+          body: "temp file",
+          message: "hello",
+        });
+      });
     });
   });
 

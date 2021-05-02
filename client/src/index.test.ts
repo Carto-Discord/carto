@@ -518,7 +518,10 @@ describe("Bot", () => {
     });
 
     describe("gvien the map creation is successful", () => {
-      it("should respond with the downloaded", async () => {
+      const mockSendResponse = { channel: { send: jest.fn() } };
+      const mockSend = jest.fn().mockResolvedValue(mockSendResponse);
+
+      it("should respond with the downloaded image", async () => {
         const onMessage: Function = mockClient.on.mock.calls[0][1];
         const mockMessage = {
           author: {
@@ -526,7 +529,7 @@ describe("Bot", () => {
           },
           content: "!map",
           channel: {
-            send: jest.fn(),
+            send: mockSend,
             id: "4567",
           },
         };
@@ -539,6 +542,34 @@ describe("Bot", () => {
 
         expect(mockMessage.channel.send).toBeCalledWith("Map retrieved", {
           files: ["filename"],
+        });
+      });
+
+      describe("given a message is present on the response", () => {
+        it("should respond with the downloaded image and message", async () => {
+          const onMessage: Function = mockClient.on.mock.calls[0][1];
+          const mockMessage = {
+            author: {
+              id: "1234",
+            },
+            content: "!map",
+            channel: {
+              send: mockSend,
+              id: "4567",
+            },
+          };
+
+          mockGetMap.mockResolvedValue({
+            success: true,
+            body: "filename",
+            message: "hello",
+          });
+          await onMessage(mockMessage);
+
+          expect(mockMessage.channel.send).toBeCalledWith("Map retrieved", {
+            files: ["filename"],
+          });
+          expect(mockSendResponse.channel.send).toBeCalledWith("hello");
         });
       });
     });

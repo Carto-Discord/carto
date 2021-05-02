@@ -174,9 +174,13 @@ client.on("message", async (message) => {
     });
 
     response.success
-      ? message.channel.send("Map retrieved", {
-          files: [response.body],
-        })
+      ? message.channel
+          .send("Map retrieved", {
+            files: [response.body],
+          })
+          .then((message) => {
+            response.message && message.channel.send(response.message);
+          })
       : message.channel.send(response.body);
   }
 

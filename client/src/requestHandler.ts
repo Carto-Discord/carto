@@ -10,6 +10,7 @@ type ResponseData = {
 
 type TokenResponse = {
   success: boolean;
+  message?: string;
   body: string;
 };
 
@@ -19,12 +20,13 @@ export const handleRequest = async (
   try {
     const response = await request();
 
-    const { blob, bucket } = response.data as ResponseData;
+    const { blob, bucket, message } = response.data as ResponseData;
     const tempFile = await downloadBlob({ blob, bucket });
 
     return {
       success: true,
       body: tempFile,
+      message,
     };
   } catch (error) {
     console.warn(
