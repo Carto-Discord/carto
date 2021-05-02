@@ -52,4 +52,7 @@ def function(request):
 
         Logger.log("Received DELETE with JSON {}".format(request_json), severity='DEBUG')
 
+        if 'action' in request_json and request_json['action'] == 'deleteToken':
+            return token.delete_token(request_json)
+
         return delete.delete_channel_data(request_json)

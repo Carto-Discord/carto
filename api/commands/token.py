@@ -123,3 +123,26 @@ def move_token(request_json):
             break
 
     return create_new_grid(url, rows, columns, tokens, channel_id)
+
+
+def delete_token(request_json):
+    keys = ['channelId', 'name']
+    channel_id, name = [request_json.get(key) for key in keys]
+
+    channel_map_data = validate_map_data(channel_id)
+
+    keys = ['url', 'rows', 'columns', 'tokens']
+    url, rows, columns, tokens = [channel_map_data.get(key) for key in keys]
+
+    tokens = convert_to_tokens(tokens)
+
+    if name not in [t.name for t in tokens]:
+        message = "Token {} not found in map. Token names are case sensitive, so try again or add it using !token add"
+        abort(make_response(jsonify(message=message), 404))
+
+    for i, token in enumerate(tokens):
+        if token.name == name:
+            tokens.remove(token)
+            break
+
+    return create_new_grid(url, rows, columns, tokens, channel_id)

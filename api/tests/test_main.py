@@ -99,6 +99,19 @@ class MainTest(TestCase):
             function(request)
             mock_get.assert_called_with(params)
 
+    @patch('commands.token.delete_token')
+    def test_action_delete_token(self, mock_delete_token, mock_log, mock_setup):
+        params = {
+            'action': 'deleteToken',
+            'name': 'token name',
+            'channelId': '1234'
+        }
+
+        request = Mock(method='DELETE', get_json=Mock(return_value=params))
+        with self.app.app_context():
+            function(request)
+            mock_delete_token.assert_called_with(params)
+
     @patch('commands.delete.delete_channel_data')
     def test_delete_channel(self, mock_delete, mock_log, mock_setup):
         params = {'channelId': '1234'}
