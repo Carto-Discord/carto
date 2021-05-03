@@ -1,5 +1,5 @@
 import { GaxiosPromise } from "gaxios";
-import { downloadBlob } from "./storage";
+import { downloadBlob } from "./utils/storage";
 
 type ResponseData = {
   created: string;

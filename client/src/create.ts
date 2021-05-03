@@ -1,6 +1,5 @@
-import { createAuthenticatedClient } from "./authentication";
-import { handleRequest } from "./requestHandler";
-import { downloadBlob } from "./storage";
+import { createAuthenticatedClient } from "./utils/authentication";
+import { handleRequest } from "./utils/requestHandler";
 
 type CreateProps = {
   url: string;

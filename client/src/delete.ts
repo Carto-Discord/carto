@@ -1,5 +1,5 @@
-import { createAuthenticatedClient } from "./authentication";
-import { handleRequest } from "./requestHandler";
+import { createAuthenticatedClient } from "./utils/authentication";
+import { handleRequest } from "./utils/requestHandler";
 
 type DeleteProps = {
   channelId: string;
