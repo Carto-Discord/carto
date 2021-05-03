@@ -1,7 +1,7 @@
 import { createAuthenticatedClient } from "./utils/authentication";
 import { handleRequest } from "./utils/requestHandler";
 
-type CreateProps = {
+export type CreateProps = {
   url: string;
   rows: number;
   columns: number;

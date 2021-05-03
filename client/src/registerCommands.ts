@@ -3,18 +3,19 @@ import {
   DiscordInteractions,
   PartialApplicationCommand,
 } from "slash-commands";
+import { CommandGroup, SubCommand } from "./types";
 
 const command: PartialApplicationCommand = {
   name: "carto",
   description: "Create and update maps within this channel",
   options: [
     {
-      name: "map",
+      name: CommandGroup.MAP,
       description: "Map commands",
       type: ApplicationCommandOptionType.SUB_COMMAND_GROUP,
       options: [
         {
-          name: "create",
+          name: SubCommand.MAP_CREATE,
           description: "Create a new map",
           type: ApplicationCommandOptionType.SUB_COMMAND,
           options: [
@@ -39,19 +40,19 @@ const command: PartialApplicationCommand = {
           ],
         },
         {
-          name: "get",
+          name: SubCommand.MAP_GET,
           description: "Get the map in its current state",
           type: ApplicationCommandOptionType.SUB_COMMAND,
         },
       ],
     },
     {
-      name: "token",
+      name: CommandGroup.TOKEN,
       description: "Create or update tokens on an existing map",
       type: ApplicationCommandOptionType.SUB_COMMAND_GROUP,
       options: [
         {
-          name: "add",
+          name: SubCommand.TOKEN_ADD,
           description: "Add a token to the map",
           type: ApplicationCommandOptionType.SUB_COMMAND,
           options: [
@@ -114,7 +115,7 @@ const command: PartialApplicationCommand = {
           ],
         },
         {
-          name: "move",
+          name: SubCommand.TOKEN_MOVE,
           description: "Move a token on the map",
           type: ApplicationCommandOptionType.SUB_COMMAND,
           options: [
@@ -139,7 +140,7 @@ const command: PartialApplicationCommand = {
           ],
         },
         {
-          name: "delete",
+          name: SubCommand.TOKEN_DELETE,
           description: "Remove a token from the map",
           type: ApplicationCommandOptionType.SUB_COMMAND,
           options: [
