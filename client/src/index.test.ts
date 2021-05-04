@@ -1,589 +1,673 @@
-describe("Bot", () => {
-  const mockClient = {
-    once: jest.fn(),
-    on: jest.fn(),
-    login: jest.fn(),
-  };
+import { Request, Response } from "express";
+import { WebhookClient } from "discord.js";
+import { createMap } from "./create";
+import { getMap } from "./get";
+import { addToken, deleteToken, moveToken } from "./token";
+import { validateRequest } from "./utils/validation";
+import { slashFunction } from ".";
+import { InteractionResponseType, InteractionType } from "slash-commands";
 
-  jest.spyOn(console, "log").mockImplementation(() => {});
+jest.mock("discord.js");
+jest.mock("./create");
+jest.mock("./get");
+jest.mock("./delete");
+jest.mock("./token");
+jest.mock("./utils/validation");
 
-  const mockCreateMap = jest.fn();
-  const mockGetMap = jest.fn();
-  const mockDeleteChannel = jest.fn();
-  const mockAddToken = jest.fn();
-  const mockMoveToken = jest.fn();
-  const mockDeleteToken = jest.fn();
+const mockWebhookClient = WebhookClient as jest.MockedClass<
+  typeof WebhookClient
+>;
+const mockCreateMap = createMap as jest.MockedFunction<typeof createMap>;
+const mockGetMap = getMap as jest.MockedFunction<typeof getMap>;
+const mockAddToken = addToken as jest.MockedFunction<typeof addToken>;
+const mockDeleteToken = deleteToken as jest.MockedFunction<typeof deleteToken>;
+const mockMoveToken = moveToken as jest.MockedFunction<typeof moveToken>;
+const mockValidateRequest = validateRequest as jest.MockedFunction<
+  typeof validateRequest
+>;
+
+describe("Slash Function", () => {
+  const mockEnd = jest.fn();
+  const mockJson = jest.fn().mockReturnValue({ end: mockEnd });
+  const mockResponse = ({
+    status: jest.fn().mockReturnValue({ end: mockEnd, json: mockJson }),
+  } as unknown) as Response;
+
+  jest.spyOn(console, "log").mockImplementation(jest.fn());
 
   beforeEach(() => {
-    jest.resetModules();
     jest.clearAllMocks();
 
-    jest.mock("discord.js", () => {
-      return {
-        Client: jest.fn().mockImplementation(() => {
-          return mockClient;
-        }),
-      };
-    });
-    jest.mock("express", () => require("jest-express"));
-    jest.mock("./create", () => ({
-      createMap: mockCreateMap,
-    }));
-    jest.mock("./get", () => ({
-      getMap: mockGetMap,
-    }));
-    jest.mock("./delete", () => ({
-      deleteChannel: mockDeleteChannel,
-    }));
-    jest.mock("./token", () => ({
-      addToken: mockAddToken,
-      moveToken: mockMoveToken,
-      deleteToken: mockDeleteToken,
-    }));
-
     process.env.BOT_TOKEN = "bot token";
-
-    require(".");
   });
 
-  it("should login and setup client", () => {
-    expect(mockClient.once).toBeCalledWith("ready", expect.any(Function));
-    expect(mockClient.on).toBeCalledWith("message", expect.any(Function));
-    expect(mockClient.on).toBeCalledWith("channelDelete", expect.any(Function));
-    expect(mockClient.login).toBeCalledWith("bot token");
-  });
+  describe("given the request cannot be validated", () => {
+    beforeEach(() => {
+      mockValidateRequest.mockReturnValue(false);
+    });
 
-  describe('given a message "!help" is received', () => {
-    it("should respond to the channel and in DMs", async () => {
-      const onMessage: Function = mockClient.on.mock.calls[0][1];
-      const mockMessage = {
-        content: "!help",
-        author: {
-          createDM: jest.fn(),
-        },
-        channel: {
-          send: jest.fn(),
-        },
-      };
-      const mockDMSend = jest.fn();
-      mockMessage.author.createDM.mockResolvedValue({ send: mockDMSend });
-      await onMessage(mockMessage);
+    it("should return a 401 response", async () => {
+      await slashFunction({} as Request, mockResponse);
 
-      expect(mockMessage.channel.send).toBeCalledWith(
-        "Help instructions have been sent to your DMs"
-      );
-      expect(mockDMSend).toBeCalled();
+      expect(mockResponse.status).toBeCalledWith(401);
+      expect(mockEnd).toBeCalledWith("invalid request signature");
+      expect(mockWebhookClient).not.toBeCalled();
     });
   });
 
-  describe('given a message "!create" is received', () => {
-    describe("given no parameters are provided", () => {
-      it("should send a help message", async () => {
-        const onMessage: Function = mockClient.on.mock.calls[0][1];
-        const mockMessage = {
-          author: {
-            id: "1234",
-          },
-          content: "!create",
-          channel: {
-            send: jest.fn(),
-            id: "4567",
-          },
-        };
-        await onMessage(mockMessage);
+  describe("given the request is valid", () => {
+    beforeEach(() => {
+      mockValidateRequest.mockReturnValue(true);
+    });
 
-        expect(mockMessage.channel.send).toBeCalledWith(
-          "Create usage: `!create <url> <rows> <columns>`"
+    describe("given a method type other than POST is sent", () => {
+      it("should return a 405 response", async () => {
+        await slashFunction(
+          { body: { type: InteractionType.PING }, method: "GET" } as Request,
+          mockResponse
         );
-        expect(mockCreateMap).not.toBeCalled();
+
+        expect(mockResponse.status).toBeCalledWith(405);
+        expect(mockWebhookClient).not.toBeCalled();
       });
     });
 
-    describe("given the rows and columns aren't numbers", () => {
-      it("should send an error message", async () => {
-        const onMessage: Function = mockClient.on.mock.calls[0][1];
-        const mockMessage = {
-          author: {
-            id: "1234",
-          },
-          content: "!create url rows cols",
-          channel: {
-            send: jest.fn(),
-            id: "4567",
-          },
-        };
-        await onMessage(mockMessage);
-
-        expect(mockMessage.channel.send).toBeCalledWith(
-          "Rows and Columns must be numbers"
+    describe("given a body type of PING is sent", () => {
+      it("should return a 200 response with a type of PONG", async () => {
+        await slashFunction(
+          { body: { type: InteractionType.PING }, method: "POST" } as Request,
+          mockResponse
         );
-        expect(mockCreateMap).not.toBeCalled();
+
+        expect(mockResponse.status).toBeCalledWith(200);
+        expect(mockJson).toBeCalledWith({ type: InteractionResponseType.PONG });
+        expect(mockWebhookClient).not.toBeCalled();
       });
     });
 
-    describe("given all parameters are valid", () => {
-      describe("given the map creation is unsuccessful", () => {
-        it("should respond with the API message", async () => {
-          const onMessage: Function = mockClient.on.mock.calls[0][1];
-          const mockMessage = {
-            author: {
-              id: "1234",
+    describe("given an unknown command is recieved", () => {
+      it("should end without doing anything", async () => {
+        await slashFunction(
+          {
+            body: {
+              type: InteractionType.APPLICATION_COMMAND,
+              data: {
+                name: "unknown",
+                id: "1234",
+                token: "mockToken",
+                channelId: "mockChannel",
+              },
             },
-            content: "!create url 1 2",
-            channel: {
-              send: jest.fn(),
-              id: "4567",
-            },
-          };
+            method: "POST",
+          } as Request,
+          mockResponse
+        );
 
-          mockCreateMap.mockResolvedValue({
-            success: false,
-            body: "error message",
+        expect(mockResponse.status).toBeCalledWith(200);
+        expect(mockWebhookClient.mock.instances[0].send).not.toBeCalled();
+      });
+    });
+
+    describe("given a map command is received", () => {
+      describe("given a create subcommand is received", () => {
+        describe("given the create response fails", () => {
+          beforeEach(() => {
+            mockCreateMap.mockResolvedValue({
+              success: false,
+              body: "error",
+            });
           });
-          await onMessage(mockMessage);
 
-          expect(mockMessage.channel.send).toBeCalledWith("error message");
+          it("should send a message back to the channel", async () => {
+            await slashFunction(
+              {
+                body: {
+                  type: InteractionType.APPLICATION_COMMAND,
+                  data: {
+                    name: "map",
+                    id: "1234",
+                    token: "mockToken",
+                    channelId: "mockChannel",
+                    options: [
+                      {
+                        name: "create",
+                        options: [
+                          {
+                            name: "url",
+                            value: "some.url",
+                          },
+                          {
+                            name: "rows",
+                            value: 3,
+                          },
+                          {
+                            name: "columns",
+                            value: 5,
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                },
+                method: "POST",
+              } as Request,
+              mockResponse
+            );
+
+            expect(mockWebhookClient.mock.instances[0].send).toBeCalledWith(
+              "error"
+            );
+          });
+        });
+
+        describe("given the create response succeeds", () => {
+          beforeEach(() => {
+            mockCreateMap.mockResolvedValue({
+              success: true,
+              body: "file",
+            });
+          });
+
+          it("should send a message back to the channel", async () => {
+            await slashFunction(
+              {
+                body: {
+                  type: InteractionType.APPLICATION_COMMAND,
+                  id: "1234",
+                  token: "mockToken",
+                  channelId: "mockChannel",
+                  data: {
+                    name: "map",
+                    options: [
+                      {
+                        name: "create",
+                        options: [
+                          {
+                            name: "url",
+                            value: "some.url",
+                          },
+                          {
+                            name: "rows",
+                            value: 3,
+                          },
+                          {
+                            name: "columns",
+                            value: 5,
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                },
+                method: "POST",
+              } as Request,
+              mockResponse
+            );
+
+            expect(mockCreateMap).toBeCalledWith({
+              url: "some.url",
+              rows: 3,
+              columns: 5,
+              channelId: "mockChannel",
+            });
+            expect(
+              mockWebhookClient.mock.instances[0].send
+            ).toBeCalledWith("Map created", { files: ["file"] });
+          });
         });
       });
 
-      describe("given the map creation is successful", () => {
-        it("should respond with the downloaded", async () => {
-          const onMessage: Function = mockClient.on.mock.calls[0][1];
-          const mockMessage = {
-            author: {
-              id: "1234",
-              toString: () => "@user#1234",
-            },
-            content: "!create url 1 2",
-            channel: {
-              send: jest.fn(),
-              id: "4567",
-            },
-          };
-
-          mockCreateMap.mockResolvedValue({
-            success: true,
-            body: "filename",
+      describe("given a get subcommand is received", () => {
+        describe("given the get response fails", () => {
+          beforeEach(() => {
+            mockGetMap.mockResolvedValue({
+              success: false,
+              body: "error",
+            });
           });
-          await onMessage(mockMessage);
 
-          expect(mockMessage.channel.send).toBeCalledWith(
-            "Map created for @user#1234",
+          it("should send a message back to the channel", async () => {
+            await slashFunction(
+              {
+                body: {
+                  type: InteractionType.APPLICATION_COMMAND,
+                  data: {
+                    name: "map",
+                    id: "1234",
+                    token: "mockToken",
+                    channelId: "mockChannel",
+                    options: [
+                      {
+                        name: "get",
+                        options: [],
+                      },
+                    ],
+                  },
+                },
+                method: "POST",
+              } as Request,
+              mockResponse
+            );
+
+            expect(mockWebhookClient.mock.instances[0].send).toBeCalledWith(
+              "error"
+            );
+          });
+        });
+
+        describe("given the get response succeeds", () => {
+          beforeEach(() => {
+            mockGetMap.mockResolvedValue({
+              success: true,
+              body: "file",
+            });
+          });
+
+          it("should send a message back to the channel", async () => {
+            await slashFunction(
+              {
+                body: {
+                  type: InteractionType.APPLICATION_COMMAND,
+                  id: "1234",
+                  token: "mockToken",
+                  channelId: "mockChannel",
+                  data: {
+                    name: "map",
+                    options: [
+                      {
+                        name: "get",
+                        options: [],
+                      },
+                    ],
+                  },
+                },
+                method: "POST",
+              } as Request,
+              mockResponse
+            );
+
+            expect(mockGetMap).toBeCalledWith({
+              channelId: "mockChannel",
+            });
+            expect(
+              mockWebhookClient.mock.instances[0].send
+            ).toBeCalledWith("Map retrieved", { files: ["file"] });
+          });
+        });
+      });
+
+      describe("given an unknown subcommand is received", () => {
+        it("should do nothing", async () => {
+          await slashFunction(
             {
-              files: ["filename"],
-            }
+              body: {
+                type: InteractionType.APPLICATION_COMMAND,
+                data: {
+                  name: "map",
+                  id: "1234",
+                  token: "mockToken",
+                  channelId: "mockChannel",
+                  options: [
+                    {
+                      name: "unknown",
+                      options: [],
+                    },
+                  ],
+                },
+              },
+              method: "POST",
+            } as Request,
+            mockResponse
           );
+
+          expect(mockWebhookClient.mock.instances[0].send).not.toBeCalled();
         });
       });
     });
-  });
 
-  describe('given a message "!token add" is received', () => {
-    describe("given no parameters are provided", () => {
-      it("should send a help message", async () => {
-        const onMessage: Function = mockClient.on.mock.calls[0][1];
-        const mockMessage = {
-          author: {
-            id: "1234",
-          },
-          content: "!token add",
-          channel: {
-            send: jest.fn(),
-            id: "4567",
-          },
-        };
-        await onMessage(mockMessage);
-
-        expect(mockMessage.channel.send).toBeCalledWith(
-          "Add token usage: `!token add <name> <row> <column> <colour> <size>`"
-        );
-        expect(mockAddToken).not.toBeCalled();
-      });
-    });
-
-    describe("given the row isn't a number", () => {
-      it("should send an error message", async () => {
-        const onMessage: Function = mockClient.on.mock.calls[0][1];
-        const mockMessage = {
-          author: {
-            id: "1234",
-          },
-          content: "!token add name row col",
-          channel: {
-            send: jest.fn(),
-            id: "4567",
-          },
-        };
-        await onMessage(mockMessage);
-
-        expect(mockMessage.channel.send).toBeCalledWith("Row must be a number");
-        expect(mockAddToken).not.toBeCalled();
-      });
-    });
-
-    describe("given all parameters are valid", () => {
-      describe("given the token addition is unsuccessful", () => {
-        it("should respond with the API message", async () => {
-          const onMessage: Function = mockClient.on.mock.calls[0][1];
-          const mockMessage = {
-            author: {
-              id: "1234",
-            },
-            content: "!token add name 1 A",
-            channel: {
-              send: jest.fn(),
-              id: "4567",
-            },
-          };
-
-          mockAddToken.mockResolvedValue({
-            success: false,
-            body: "error message",
+    describe("given a token command is received", () => {
+      describe("given an add subcommand is received", () => {
+        describe("given the add response fails", () => {
+          beforeEach(() => {
+            mockAddToken.mockResolvedValue({
+              success: false,
+              body: "error",
+            });
           });
-          await onMessage(mockMessage);
 
-          expect(mockAddToken).toBeCalledWith({
-            name: "name",
-            row: 1,
-            column: "A",
-            channelId: "4567",
+          it("should send a message back to the channel", async () => {
+            await slashFunction(
+              {
+                body: {
+                  type: InteractionType.APPLICATION_COMMAND,
+                  data: {
+                    name: "token",
+                    id: "1234",
+                    token: "mockToken",
+                    channelId: "mockChannel",
+                    options: [
+                      {
+                        name: "add",
+                        options: [
+                          {
+                            name: "name",
+                            value: "token name",
+                          },
+                          {
+                            name: "row",
+                            value: 3,
+                          },
+                          {
+                            name: "column",
+                            value: "AA",
+                          },
+                          {
+                            name: "colour",
+                            value: "red",
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                },
+                method: "POST",
+              } as Request,
+              mockResponse
+            );
+
+            expect(mockWebhookClient.mock.instances[0].send).toBeCalledWith(
+              "error"
+            );
           });
-          expect(mockMessage.channel.send).toBeCalledWith("error message");
+        });
+
+        describe("given the add response succeeds", () => {
+          beforeEach(() => {
+            mockAddToken.mockResolvedValue({
+              success: true,
+              body: "file",
+            });
+          });
+
+          it("should send a message back to the channel", async () => {
+            await slashFunction(
+              {
+                body: {
+                  type: InteractionType.APPLICATION_COMMAND,
+                  data: {
+                    name: "token",
+                    options: [
+                      {
+                        name: "add",
+                        options: [
+                          {
+                            name: "name",
+                            value: "token name",
+                          },
+                          {
+                            name: "row",
+                            value: 3,
+                          },
+                          {
+                            name: "column",
+                            value: "AA",
+                          },
+                          {
+                            name: "colour",
+                            value: "red",
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                  id: "1234",
+                  token: "mockToken",
+                  channelId: "mockChannel",
+                },
+                method: "POST",
+              } as Request,
+              mockResponse
+            );
+
+            expect(mockAddToken).toBeCalledWith({
+              name: "token name",
+              row: 3,
+              column: "AA",
+              colour: "red",
+              channelId: "mockChannel",
+            });
+            expect(
+              mockWebhookClient.mock.instances[0].send
+            ).toBeCalledWith("Token token name added", { files: ["file"] });
+          });
         });
       });
 
-      describe("given the token addition is successful", () => {
-        it("should respond with the downloaded image", async () => {
-          const onMessage: Function = mockClient.on.mock.calls[0][1];
-          const mockMessage = {
-            author: {
-              id: "1234",
-              toString: () => "@user#1234",
-            },
-            content: "!token add name 1 A red small",
-            channel: {
-              send: jest.fn(),
-              id: "4567",
-            },
-          };
-
-          mockAddToken.mockResolvedValue({
-            success: true,
-            body: "filename",
+      describe("given an move subcommand is received", () => {
+        describe("given the move response fails", () => {
+          beforeEach(() => {
+            mockMoveToken.mockResolvedValue({
+              success: false,
+              body: "error",
+            });
           });
-          await onMessage(mockMessage);
 
-          expect(mockAddToken).toBeCalledWith({
-            name: "name",
-            row: 1,
-            column: "A",
-            size: "SMALL",
-            colour: "red",
-            channelId: "4567",
+          it("should send a message back to the channel", async () => {
+            await slashFunction(
+              {
+                body: {
+                  type: InteractionType.APPLICATION_COMMAND,
+                  data: {
+                    name: "token",
+                    id: "1234",
+                    token: "mockToken",
+                    channelId: "mockChannel",
+                    options: [
+                      {
+                        name: "move",
+                        options: [
+                          {
+                            name: "name",
+                            value: "token name",
+                          },
+                          {
+                            name: "row",
+                            value: 3,
+                          },
+                          {
+                            name: "column",
+                            value: "AA",
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                },
+                method: "POST",
+              } as Request,
+              mockResponse
+            );
+
+            expect(mockWebhookClient.mock.instances[0].send).toBeCalledWith(
+              "error"
+            );
           });
-          expect(mockMessage.channel.send).toBeCalledWith(
-            "Token name added by @user#1234",
+        });
+
+        describe("given the move response succeeds", () => {
+          beforeEach(() => {
+            mockMoveToken.mockResolvedValue({
+              success: true,
+              body: "file",
+            });
+          });
+
+          it("should send a message back to the channel", async () => {
+            await slashFunction(
+              {
+                body: {
+                  type: InteractionType.APPLICATION_COMMAND,
+                  data: {
+                    name: "token",
+                    options: [
+                      {
+                        name: "move",
+                        options: [
+                          {
+                            name: "name",
+                            value: "token name",
+                          },
+                          {
+                            name: "row",
+                            value: 3,
+                          },
+                          {
+                            name: "column",
+                            value: "AA",
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                  id: "1234",
+                  token: "mockToken",
+                  channelId: "mockChannel",
+                },
+                method: "POST",
+              } as Request,
+              mockResponse
+            );
+
+            expect(mockMoveToken).toBeCalledWith({
+              name: "token name",
+              row: 3,
+              column: "AA",
+              channelId: "mockChannel",
+            });
+            expect(
+              mockWebhookClient.mock.instances[0].send
+            ).toBeCalledWith("Token token name moved", { files: ["file"] });
+          });
+        });
+      });
+
+      describe("given an delete subcommand is received", () => {
+        describe("given the delete response fails", () => {
+          beforeEach(() => {
+            mockDeleteToken.mockResolvedValue({
+              success: false,
+              body: "error",
+            });
+          });
+
+          it("should send a message back to the channel", async () => {
+            await slashFunction(
+              {
+                body: {
+                  type: InteractionType.APPLICATION_COMMAND,
+                  data: {
+                    name: "token",
+                    id: "1234",
+                    token: "mockToken",
+                    channelId: "mockChannel",
+                    options: [
+                      {
+                        name: "delete",
+                        options: [
+                          {
+                            name: "name",
+                            value: "token name",
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                },
+                method: "POST",
+              } as Request,
+              mockResponse
+            );
+
+            expect(mockWebhookClient.mock.instances[0].send).toBeCalledWith(
+              "error"
+            );
+          });
+        });
+
+        describe("given the delete response succeeds", () => {
+          beforeEach(() => {
+            mockDeleteToken.mockResolvedValue({
+              success: true,
+              body: "file",
+            });
+          });
+
+          it("should send a message back to the channel", async () => {
+            await slashFunction(
+              {
+                body: {
+                  type: InteractionType.APPLICATION_COMMAND,
+                  data: {
+                    name: "token",
+                    options: [
+                      {
+                        name: "delete",
+                        options: [
+                          {
+                            name: "name",
+                            value: "token name",
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                  id: "1234",
+                  token: "mockToken",
+                  channelId: "mockChannel",
+                },
+                method: "POST",
+              } as Request,
+              mockResponse
+            );
+
+            expect(mockDeleteToken).toBeCalledWith({
+              name: "token name",
+              channelId: "mockChannel",
+            });
+            expect(
+              mockWebhookClient.mock.instances[0].send
+            ).toBeCalledWith("Token token name deleted", { files: ["file"] });
+          });
+        });
+      });
+
+      describe("given an unknown subcommand is received", () => {
+        it("should do nothing", async () => {
+          await slashFunction(
             {
-              files: ["filename"],
-            }
+              body: {
+                type: InteractionType.APPLICATION_COMMAND,
+                data: {
+                  name: "token",
+                  id: "1234",
+                  token: "mockToken",
+                  channelId: "mockChannel",
+                  options: [
+                    {
+                      name: "unknown",
+                      options: [],
+                    },
+                  ],
+                },
+              },
+              method: "POST",
+            } as Request,
+            mockResponse
           );
+
+          expect(mockWebhookClient.mock.instances[0].send).not.toBeCalled();
         });
       });
-    });
-  });
-
-  describe('given a message "!token move" is received', () => {
-    describe("given no parameters are provided", () => {
-      it("should send a help message", async () => {
-        const onMessage: Function = mockClient.on.mock.calls[0][1];
-        const mockMessage = {
-          author: {
-            id: "1234",
-          },
-          content: "!token move",
-          channel: {
-            send: jest.fn(),
-            id: "4567",
-          },
-        };
-        await onMessage(mockMessage);
-
-        expect(mockMessage.channel.send).toBeCalledWith(
-          "Move token usage: `!token move <name> <row> <column>`"
-        );
-        expect(mockMoveToken).not.toBeCalled();
-      });
-    });
-
-    describe("given the row isn't a number", () => {
-      it("should send an error message", async () => {
-        const onMessage: Function = mockClient.on.mock.calls[0][1];
-        const mockMessage = {
-          author: {
-            id: "1234",
-          },
-          content: "!token move name row col",
-          channel: {
-            send: jest.fn(),
-            id: "4567",
-          },
-        };
-        await onMessage(mockMessage);
-
-        expect(mockMessage.channel.send).toBeCalledWith("Row must be a number");
-        expect(mockMoveToken).not.toBeCalled();
-      });
-    });
-
-    describe("given all parameters are valid", () => {
-      describe("given the token move is unsuccessful", () => {
-        it("should respond with the API message", async () => {
-          const onMessage: Function = mockClient.on.mock.calls[0][1];
-          const mockMessage = {
-            author: {
-              id: "1234",
-            },
-            content: "!token move name 1 A",
-            channel: {
-              send: jest.fn(),
-              id: "4567",
-            },
-          };
-
-          mockMoveToken.mockResolvedValue({
-            success: false,
-            body: "error message",
-          });
-          await onMessage(mockMessage);
-
-          expect(mockMoveToken).toBeCalledWith({
-            name: "name",
-            row: 1,
-            column: "A",
-            channelId: "4567",
-          });
-          expect(mockMessage.channel.send).toBeCalledWith("error message");
-        });
-      });
-
-      describe("given the token move is successful", () => {
-        it("should respond with the downloaded image", async () => {
-          const onMessage: Function = mockClient.on.mock.calls[0][1];
-          const mockMessage = {
-            author: {
-              id: "1234",
-              toString: () => "@user#1234",
-            },
-            content: "!token move name 1 A",
-            channel: {
-              send: jest.fn(),
-              id: "4567",
-            },
-          };
-
-          mockMoveToken.mockResolvedValue({
-            success: true,
-            body: "filename",
-          });
-          await onMessage(mockMessage);
-
-          expect(mockMoveToken).toBeCalledWith({
-            name: "name",
-            row: 1,
-            column: "A",
-            channelId: "4567",
-          });
-          expect(mockMessage.channel.send).toBeCalledWith(
-            "Token name moved by @user#1234",
-            {
-              files: ["filename"],
-            }
-          );
-        });
-      });
-    });
-  });
-
-  describe('given a message "!token delete" is received', () => {
-    describe("given no parameters are provided", () => {
-      it("should send a help message", async () => {
-        const onMessage: Function = mockClient.on.mock.calls[0][1];
-        const mockMessage = {
-          author: {
-            id: "1234",
-          },
-          content: "!token delete",
-          channel: {
-            send: jest.fn(),
-            id: "4567",
-          },
-        };
-        await onMessage(mockMessage);
-
-        expect(mockMessage.channel.send).toBeCalledWith(
-          "Delete token usage: `!token delete <name>`"
-        );
-        expect(mockMoveToken).not.toBeCalled();
-      });
-    });
-
-    describe("given all parameters are valid", () => {
-      describe("given the token deletion is unsuccessful", () => {
-        it("should respond with the API message", async () => {
-          const onMessage: Function = mockClient.on.mock.calls[0][1];
-          const mockMessage = {
-            author: {
-              id: "1234",
-            },
-            content: "!token delete name",
-            channel: {
-              send: jest.fn(),
-              id: "4567",
-            },
-          };
-
-          mockDeleteToken.mockResolvedValue({
-            success: false,
-            body: "error message",
-          });
-          await onMessage(mockMessage);
-
-          expect(mockDeleteToken).toBeCalledWith({
-            name: "name",
-            channelId: "4567",
-          });
-          expect(mockMessage.channel.send).toBeCalledWith("error message");
-        });
-      });
-
-      describe("given the token deletion is successful", () => {
-        it("should respond with the downloaded image", async () => {
-          const onMessage: Function = mockClient.on.mock.calls[0][1];
-          const mockMessage = {
-            author: {
-              id: "1234",
-              toString: () => "@user#1234",
-            },
-            content: "!token delete name",
-            channel: {
-              send: jest.fn(),
-              id: "4567",
-            },
-          };
-
-          mockDeleteToken.mockResolvedValue({
-            success: true,
-            body: "filename",
-          });
-          await onMessage(mockMessage);
-
-          expect(mockDeleteToken).toBeCalledWith({
-            name: "name",
-            channelId: "4567",
-          });
-          expect(mockMessage.channel.send).toBeCalledWith(
-            "Token name deleted by @user#1234",
-            {
-              files: ["filename"],
-            }
-          );
-        });
-      });
-    });
-  });
-
-  describe('given a message "!map" is received', () => {
-    describe("gvien the map get is unsuccessful", () => {
-      it("should respond with the API message", async () => {
-        const onMessage: Function = mockClient.on.mock.calls[0][1];
-        const mockMessage = {
-          author: {
-            id: "1234",
-          },
-          content: "!map",
-          channel: {
-            send: jest.fn(),
-            id: "4567",
-          },
-        };
-
-        mockGetMap.mockResolvedValue({
-          success: false,
-          body: "error message",
-        });
-        await onMessage(mockMessage);
-
-        expect(mockMessage.channel.send).toBeCalledWith("error message");
-      });
-    });
-
-    describe("gvien the map creation is successful", () => {
-      const mockSendResponse = { channel: { send: jest.fn() } };
-      const mockSend = jest.fn().mockResolvedValue(mockSendResponse);
-
-      it("should respond with the downloaded image", async () => {
-        const onMessage: Function = mockClient.on.mock.calls[0][1];
-        const mockMessage = {
-          author: {
-            id: "1234",
-          },
-          content: "!map",
-          channel: {
-            send: mockSend,
-            id: "4567",
-          },
-        };
-
-        mockGetMap.mockResolvedValue({
-          success: true,
-          body: "filename",
-        });
-        await onMessage(mockMessage);
-
-        expect(mockMessage.channel.send).toBeCalledWith("Map retrieved", {
-          files: ["filename"],
-        });
-      });
-
-      describe("given a message is present on the response", () => {
-        it("should respond with the downloaded image and message", async () => {
-          const onMessage: Function = mockClient.on.mock.calls[0][1];
-          const mockMessage = {
-            author: {
-              id: "1234",
-            },
-            content: "!map",
-            channel: {
-              send: mockSend,
-              id: "4567",
-            },
-          };
-
-          mockGetMap.mockResolvedValue({
-            success: true,
-            body: "filename",
-            message: "hello",
-          });
-          await onMessage(mockMessage);
-
-          expect(mockMessage.channel.send).toBeCalledWith("Map retrieved", {
-            files: ["filename"],
-          });
-          expect(mockSendResponse.channel.send).toBeCalledWith("hello");
-        });
-      });
-    });
-  });
-
-  describe("given a channelDelete event is recieved", () => {
-    it("should call the deleteChannel function", async () => {
-      const onChannelDelete: Function = mockClient.on.mock.calls[1][1];
-      const mockChannel = {
-        id: "1234",
-      };
-
-      await onChannelDelete(mockChannel);
-      expect(mockDeleteChannel).toBeCalledWith({ channelId: "1234" });
     });
   });
 });

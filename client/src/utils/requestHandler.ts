@@ -1,5 +1,5 @@
 import { GaxiosPromise } from "gaxios";
-import { downloadBlob } from "./utils/storage";
+import { downloadBlob } from "./storage";
 
 type ResponseData = {
   created: string;
@@ -8,7 +8,7 @@ type ResponseData = {
   message?: string;
 };
 
-type TokenResponse = {
+export type TokenResponse = {
   success: boolean;
   message?: string;
   body: string;

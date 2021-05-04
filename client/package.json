@@ -10,6 +10,7 @@
     "start": "functions-framework --source=build/src/ --target=slashFunction",
     "test": "jest --watch",
     "test:ci": "jest",
+    "test:coverage": "jest --collectCoverage",
     "watch": "concurrently \"tsc -w\" \"nodemon --watch ./build/ --exec npm run start\""
   },
   "author": "Tohaker",
@@ -30,7 +31,6 @@
     "concurrently": "^6.0.2",
     "copyfiles": "^2.4.1",
     "jest": "^26.6.3",
-    "jest-express": "^1.12.0",
     "nodemon": "^2.0.7",
     "rimraf": "^3.0.2",
     "ts-jest": "^26.5.4"

@@ -1,4 +1,4 @@
-import Discord, { WebhookClient } from "discord.js";
+import { WebhookClient } from "discord.js";
 import {
   ApplicationCommandInteractionDataOption,
   InteractionResponseType,
@@ -18,6 +18,7 @@ import {
 } from "./token";
 import { validateRequest } from "./utils/validation";
 import { CommandGroup, SubCommand, CommandOptions } from "./types";
+import { TokenResponse } from "./utils/requestHandler";
 
 const extractParameters = <T extends CommandOptions>(
   command: ApplicationCommandInteractionDataOption
@@ -35,6 +36,8 @@ const handleMapCommands = async (
   channelId: string,
   client: WebhookClient
 ) => {
+  let response: TokenResponse;
+
   // We can be confident that each subcommand will have the correct parameters,
   // as this is type checked by Discord before reaching here.
   switch (command.name) {
@@ -42,7 +45,7 @@ const handleMapCommands = async (
       console.log("Received creation request");
       const { url, rows, columns } = extractParameters<CreateProps>(command);
 
-      let response = await createMap({
+      response = await createMap({
         url,
         rows,
         columns,
@@ -50,7 +53,7 @@ const handleMapCommands = async (
       });
 
       response.success
-        ? client.send(`Map created`, {
+        ? client.send("Map created", {
             files: [response.body],
           })
         : client.send(response.body);
@@ -61,7 +64,7 @@ const handleMapCommands = async (
       response = await getMap({ channelId });
 
       response.success
-        ? client.send(`Map retrieved`, {
+        ? client.send("Map retrieved", {
             files: [response.body],
           })
         : client.send(response.body);
@@ -77,16 +80,19 @@ const handleTokenCommands = async (
   channelId: string,
   client: WebhookClient
 ) => {
+  let response: TokenResponse;
+  let name, row, column, colour, size;
+
   // We can be confident that each subcommand will have the correct parameters,
   // as this is type checked by Discord before reaching here.
   switch (command.name) {
     case SubCommand.TOKEN_ADD:
       console.log("Received token creation request");
-      let { name, row, column, colour, size } = extractParameters<AddProps>(
+      ({ name, row, column, colour, size } = extractParameters<AddProps>(
         command
-      );
+      ));
 
-      let response = await addToken({
+      response = await addToken({
         name,
         row,
         column,
@@ -132,7 +138,11 @@ const handleTokenCommands = async (
 };
 
 export const slashFunction: HttpFunction = async (req, res) => {
-  validateRequest(req, res);
+  const isVerified = validateRequest(req);
+
+  if (!isVerified) {
+    return res.status(401).end("invalid request signature");
+  }
 
   if (req.method !== "POST") {
     res.status(405).end();
@@ -149,7 +159,7 @@ export const slashFunction: HttpFunction = async (req, res) => {
   const commandGroup = body.data;
   const { channelId, id, token } = body;
 
-  const client = new Discord.WebhookClient(id, token);
+  const client = new WebhookClient(id, token);
 
   switch (commandGroup.name) {
     case CommandGroup.MAP:
