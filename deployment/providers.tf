@@ -1,11 +1,11 @@
 provider "google" {
-  project = "carto-discord"
+  project = "carto-bot"
   region  = "us-central1"
 }
 
 terraform {
   backend "gcs" {
-    bucket = "carto-discord-tfstate"
-    prefix = "carto-discord"
+    bucket = "carto-bot-tfstate"
+    prefix = "carto-bot"
   }
 }
