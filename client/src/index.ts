@@ -1,4 +1,8 @@
-import { WebhookClient } from "discord.js";
+import FormData from "form-data";
+import fs from "fs";
+import { Snowflake } from "discord.js";
+import dotenv from "dotenv";
+import fetch from "node-fetch";
 import {
   ApplicationCommandInteractionDataOption,
   InteractionResponseType,
@@ -20,6 +24,36 @@ import { validateRequest } from "./utils/validation";
 import { CommandGroup, SubCommand, CommandOptions } from "./types";
 import { TokenResponse } from "./utils/requestHandler";
 
+dotenv.config();
+
+type UpdatedResponse = {
+  fileName?: string;
+  message: string;
+};
+
+type CommandProps = {
+  command: ApplicationCommandInteractionDataOption;
+  channelId: string;
+  respond: (response: UpdatedResponse) => void;
+};
+
+const updateResponse = (applicationId: string, interactionToken: string) => ({
+  fileName,
+  message,
+}: UpdatedResponse) => {
+  const formData = new FormData();
+  fileName && formData.append("file", fs.createReadStream(fileName));
+  formData.append("comment", message);
+
+  fetch(
+    `https://discord.com/api/v8/webhooks/${applicationId}/${interactionToken}/messages/@original`,
+    {
+      method: "PATCH",
+      body: formData,
+    }
+  );
+};
+
 const extractParameters = <T extends CommandOptions>(
   command: ApplicationCommandInteractionDataOption
 ) => {
@@ -31,11 +65,11 @@ const extractParameters = <T extends CommandOptions>(
   }
 };
 
-const handleMapCommands = async (
-  command: ApplicationCommandInteractionDataOption,
-  channelId: string,
-  client: WebhookClient
-) => {
+const handleMapCommands = async ({
+  command,
+  channelId,
+  respond,
+}: CommandProps) => {
   let response: TokenResponse;
 
   // We can be confident that each subcommand will have the correct parameters,
@@ -53,10 +87,8 @@ const handleMapCommands = async (
       });
 
       response.success
-        ? client.send("Map created", {
-            files: [response.body],
-          })
-        : client.send(response.body);
+        ? respond({ fileName: response.body, message: "Map created" })
+        : respond({ message: response.body });
       break;
 
     case SubCommand.MAP_GET:
@@ -64,10 +96,8 @@ const handleMapCommands = async (
       response = await getMap({ channelId });
 
       response.success
-        ? client.send("Map retrieved", {
-            files: [response.body],
-          })
-        : client.send(response.body);
+        ? respond({ fileName: response.body, message: "Map retrieved" })
+        : respond({ message: response.body });
       break;
 
     default:
@@ -75,11 +105,11 @@ const handleMapCommands = async (
   }
 };
 
-const handleTokenCommands = async (
-  command: ApplicationCommandInteractionDataOption,
-  channelId: string,
-  client: WebhookClient
-) => {
+const handleTokenCommands = async ({
+  command,
+  channelId,
+  respond,
+}: CommandProps) => {
   let response: TokenResponse;
   let name, row, column, colour, size;
 
@@ -102,10 +132,11 @@ const handleTokenCommands = async (
       });
 
       response.success
-        ? client.send(`Token ${name} added`, {
-            files: [response.body],
+        ? respond({
+            fileName: response.body,
+            message: `Token ${name} added to ${column}${row}`,
           })
-        : client.send(response.body);
+        : respond({ message: response.body });
       break;
 
     case SubCommand.TOKEN_MOVE:
@@ -114,10 +145,11 @@ const handleTokenCommands = async (
       response = await moveToken({ name, row, column, channelId });
 
       response.success
-        ? client.send(`Token ${name} moved`, {
-            files: [response.body],
+        ? respond({
+            fileName: response.body,
+            message: `Token ${name} moved to ${column}${row}`,
           })
-        : client.send(response.body);
+        : respond({ message: response.body });
       break;
 
     case SubCommand.TOKEN_DELETE:
@@ -126,10 +158,11 @@ const handleTokenCommands = async (
       response = await deleteToken({ name, channelId });
 
       response.success
-        ? client.send(`Token ${name} deleted`, {
-            files: [response.body],
+        ? respond({
+            fileName: response.body,
+            message: `Token ${name} deleted`,
           })
-        : client.send(response.body);
+        : respond({ message: response.body });
       break;
 
     default:
@@ -150,29 +183,49 @@ export const slashFunction: HttpFunction = async (req, res) => {
   }
 
   const body: Interaction = req.body;
+  console.log(JSON.stringify(body));
 
   if (body.type === InteractionType.PING) {
     res.status(200).json({ type: InteractionResponseType.PONG }).end();
     return;
   }
 
-  const commandGroup = body.data;
-  const { channelId, id, token } = body;
+  const commandGroup = body.data.options[0];
 
-  const client = new WebhookClient(id, token);
-
-  switch (commandGroup.name) {
-    case CommandGroup.MAP:
-      await handleMapCommands(commandGroup.options[0], channelId, client);
-      break;
-
-    case CommandGroup.TOKEN:
-      await handleTokenCommands(commandGroup.options[0], channelId, client);
-      break;
-
-    default:
-      break;
+  let channel_id: Snowflake, application_id: string, token: string;
+  if ("channel_id" in body) {
+    ({ channel_id, application_id, token } = body);
   }
 
-  res.status(200).end();
+  const respond = updateResponse(application_id, token);
+
+  res
+    .status(200)
+    .json({
+      type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+    })
+    .end();
+
+  if ("options" in commandGroup) {
+    switch (commandGroup.name) {
+      case CommandGroup.MAP:
+        await handleMapCommands({
+          command: commandGroup.options[0],
+          channelId: channel_id,
+          respond,
+        });
+        break;
+
+      case CommandGroup.TOKEN:
+        await handleTokenCommands({
+          command: commandGroup.options[0],
+          channelId: channel_id,
+          respond,
+        });
+        break;
+
+      default:
+        break;
+    }
+  }
 };

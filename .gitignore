@@ -9,3 +9,5 @@ coverage
 
 *.png
 *.zip
+*.env
+*.json

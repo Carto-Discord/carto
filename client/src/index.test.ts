@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
-import { WebhookClient } from "discord.js";
+import FormData from "form-data";
+import fs, { ReadStream } from "fs";
+import fetch from "node-fetch";
 import { createMap } from "./create";
 import { getMap } from "./get";
 import { addToken, deleteToken, moveToken } from "./token";
@@ -7,16 +9,21 @@ import { validateRequest } from "./utils/validation";
 import { slashFunction } from ".";
 import { InteractionResponseType, InteractionType } from "slash-commands";
 
-jest.mock("discord.js");
+jest.mock("form-data", () => {
+  return jest.fn().mockImplementation(() => ({ append: jest.fn() }));
+});
+jest.mock("fs");
+jest.mock("node-fetch");
 jest.mock("./create");
 jest.mock("./get");
 jest.mock("./delete");
 jest.mock("./token");
 jest.mock("./utils/validation");
 
-const mockWebhookClient = WebhookClient as jest.MockedClass<
-  typeof WebhookClient
+const mockCreateReadStream = fs.createReadStream as jest.MockedFunction<
+  typeof fs.createReadStream
 >;
+const mockFetch = fetch as jest.MockedFunction<typeof fetch>;
 const mockCreateMap = createMap as jest.MockedFunction<typeof createMap>;
 const mockGetMap = getMap as jest.MockedFunction<typeof getMap>;
 const mockAddToken = addToken as jest.MockedFunction<typeof addToken>;
@@ -27,6 +34,9 @@ const mockValidateRequest = validateRequest as jest.MockedFunction<
 >;
 
 describe("Slash Function", () => {
+  mockCreateReadStream.mockReturnValue(
+    ("file stream" as unknown) as ReadStream
+  );
   const mockEnd = jest.fn();
   const mockJson = jest.fn().mockReturnValue({ end: mockEnd });
   const mockResponse = ({
@@ -51,7 +61,7 @@ describe("Slash Function", () => {
 
       expect(mockResponse.status).toBeCalledWith(401);
       expect(mockEnd).toBeCalledWith("invalid request signature");
-      expect(mockWebhookClient).not.toBeCalled();
+      expect(mockResponse.status).not.toBeCalledWith(200);
     });
   });
 
@@ -68,7 +78,7 @@ describe("Slash Function", () => {
         );
 
         expect(mockResponse.status).toBeCalledWith(405);
-        expect(mockWebhookClient).not.toBeCalled();
+        expect(mockResponse.status).not.toBeCalledWith(200);
       });
     });
 
@@ -81,7 +91,9 @@ describe("Slash Function", () => {
 
         expect(mockResponse.status).toBeCalledWith(200);
         expect(mockJson).toBeCalledWith({ type: InteractionResponseType.PONG });
-        expect(mockWebhookClient).not.toBeCalled();
+        expect(mockJson).not.toBeCalledWith({
+          type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+        });
       });
     });
 
@@ -92,10 +104,15 @@ describe("Slash Function", () => {
             body: {
               type: InteractionType.APPLICATION_COMMAND,
               data: {
-                name: "unknown",
+                name: "carto",
                 id: "1234",
                 token: "mockToken",
-                channelId: "mockChannel",
+                channel_id: "mockChannel",
+                options: [
+                  {
+                    name: "unknown",
+                  },
+                ],
               },
             },
             method: "POST",
@@ -104,7 +121,7 @@ describe("Slash Function", () => {
         );
 
         expect(mockResponse.status).toBeCalledWith(200);
-        expect(mockWebhookClient.mock.instances[0].send).not.toBeCalled();
+        expect(mockFetch).not.toBeCalled();
       });
     });
 
@@ -123,26 +140,31 @@ describe("Slash Function", () => {
               {
                 body: {
                   type: InteractionType.APPLICATION_COMMAND,
+                  application_id: "1234",
+                  token: "mockToken",
+                  channel_id: "mockChannel",
                   data: {
-                    name: "map",
-                    id: "1234",
-                    token: "mockToken",
-                    channelId: "mockChannel",
+                    name: "carto",
                     options: [
                       {
-                        name: "create",
+                        name: "map",
                         options: [
                           {
-                            name: "url",
-                            value: "some.url",
-                          },
-                          {
-                            name: "rows",
-                            value: 3,
-                          },
-                          {
-                            name: "columns",
-                            value: 5,
+                            name: "create",
+                            options: [
+                              {
+                                name: "url",
+                                value: "some.url",
+                              },
+                              {
+                                name: "rows",
+                                value: 3,
+                              },
+                              {
+                                name: "columns",
+                                value: 5,
+                              },
+                            ],
                           },
                         ],
                       },
@@ -154,8 +176,12 @@ describe("Slash Function", () => {
               mockResponse
             );
 
-            expect(mockWebhookClient.mock.instances[0].send).toBeCalledWith(
-              "error"
+            expect(mockFetch).toBeCalledWith(
+              `https://discord.com/api/v8/webhooks/1234/mockToken/messages/@original`,
+              {
+                method: "PATCH",
+                body: { append: expect.any(Function) },
+              }
             );
           });
         });
@@ -173,26 +199,31 @@ describe("Slash Function", () => {
               {
                 body: {
                   type: InteractionType.APPLICATION_COMMAND,
-                  id: "1234",
+                  application_id: "1234",
                   token: "mockToken",
-                  channelId: "mockChannel",
+                  channel_id: "mockChannel",
                   data: {
-                    name: "map",
+                    name: "carto",
                     options: [
                       {
-                        name: "create",
+                        name: "map",
                         options: [
                           {
-                            name: "url",
-                            value: "some.url",
-                          },
-                          {
-                            name: "rows",
-                            value: 3,
-                          },
-                          {
-                            name: "columns",
-                            value: 5,
+                            name: "create",
+                            options: [
+                              {
+                                name: "url",
+                                value: "some.url",
+                              },
+                              {
+                                name: "rows",
+                                value: 3,
+                              },
+                              {
+                                name: "columns",
+                                value: 5,
+                              },
+                            ],
                           },
                         ],
                       },
@@ -210,9 +241,14 @@ describe("Slash Function", () => {
               columns: 5,
               channelId: "mockChannel",
             });
-            expect(
-              mockWebhookClient.mock.instances[0].send
-            ).toBeCalledWith("Map created", { files: ["file"] });
+            expect(mockCreateReadStream).toBeCalledWith("file");
+            expect(mockFetch).toBeCalledWith(
+              `https://discord.com/api/v8/webhooks/1234/mockToken/messages/@original`,
+              {
+                method: "PATCH",
+                body: { append: expect.any(Function) },
+              }
+            );
           });
         });
       });
@@ -231,15 +267,20 @@ describe("Slash Function", () => {
               {
                 body: {
                   type: InteractionType.APPLICATION_COMMAND,
+                  application_id: "1234",
+                  token: "mockToken",
+                  channel_id: "mockChannel",
                   data: {
-                    name: "map",
-                    id: "1234",
-                    token: "mockToken",
-                    channelId: "mockChannel",
+                    name: "carto",
                     options: [
                       {
-                        name: "get",
-                        options: [],
+                        name: "map",
+                        options: [
+                          {
+                            name: "get",
+                            options: [],
+                          },
+                        ],
                       },
                     ],
                   },
@@ -249,8 +290,12 @@ describe("Slash Function", () => {
               mockResponse
             );
 
-            expect(mockWebhookClient.mock.instances[0].send).toBeCalledWith(
-              "error"
+            expect(mockFetch).toBeCalledWith(
+              `https://discord.com/api/v8/webhooks/1234/mockToken/messages/@original`,
+              {
+                method: "PATCH",
+                body: { append: expect.any(Function) },
+              }
             );
           });
         });
@@ -268,15 +313,20 @@ describe("Slash Function", () => {
               {
                 body: {
                   type: InteractionType.APPLICATION_COMMAND,
-                  id: "1234",
+                  application_id: "1234",
                   token: "mockToken",
-                  channelId: "mockChannel",
+                  channel_id: "mockChannel",
                   data: {
-                    name: "map",
+                    name: "carto",
                     options: [
                       {
-                        name: "get",
-                        options: [],
+                        name: "map",
+                        options: [
+                          {
+                            name: "get",
+                            options: [],
+                          },
+                        ],
                       },
                     ],
                   },
@@ -289,9 +339,14 @@ describe("Slash Function", () => {
             expect(mockGetMap).toBeCalledWith({
               channelId: "mockChannel",
             });
-            expect(
-              mockWebhookClient.mock.instances[0].send
-            ).toBeCalledWith("Map retrieved", { files: ["file"] });
+            expect(mockCreateReadStream).toBeCalledWith("file");
+            expect(mockFetch).toBeCalledWith(
+              `https://discord.com/api/v8/webhooks/1234/mockToken/messages/@original`,
+              {
+                method: "PATCH",
+                body: { append: expect.any(Function) },
+              }
+            );
           });
         });
       });
@@ -302,15 +357,20 @@ describe("Slash Function", () => {
             {
               body: {
                 type: InteractionType.APPLICATION_COMMAND,
+                application_id: "1234",
+                token: "mockToken",
+                channel_id: "mockChannel",
                 data: {
-                  name: "map",
-                  id: "1234",
-                  token: "mockToken",
-                  channelId: "mockChannel",
+                  name: "carto",
                   options: [
                     {
-                      name: "unknown",
-                      options: [],
+                      name: "map",
+                      options: [
+                        {
+                          name: "unknown",
+                          options: [],
+                        },
+                      ],
                     },
                   ],
                 },
@@ -320,7 +380,7 @@ describe("Slash Function", () => {
             mockResponse
           );
 
-          expect(mockWebhookClient.mock.instances[0].send).not.toBeCalled();
+          expect(mockFetch).not.toBeCalled();
         });
       });
     });
@@ -340,30 +400,35 @@ describe("Slash Function", () => {
               {
                 body: {
                   type: InteractionType.APPLICATION_COMMAND,
+                  application_id: "1234",
+                  token: "mockToken",
+                  channel_id: "mockChannel",
                   data: {
-                    name: "token",
-                    id: "1234",
-                    token: "mockToken",
-                    channelId: "mockChannel",
+                    name: "carto",
                     options: [
                       {
-                        name: "add",
+                        name: "token",
                         options: [
                           {
-                            name: "name",
-                            value: "token name",
-                          },
-                          {
-                            name: "row",
-                            value: 3,
-                          },
-                          {
-                            name: "column",
-                            value: "AA",
-                          },
-                          {
-                            name: "colour",
-                            value: "red",
+                            name: "add",
+                            options: [
+                              {
+                                name: "name",
+                                value: "token name",
+                              },
+                              {
+                                name: "row",
+                                value: 3,
+                              },
+                              {
+                                name: "column",
+                                value: "AA",
+                              },
+                              {
+                                name: "colour",
+                                value: "red",
+                              },
+                            ],
                           },
                         ],
                       },
@@ -375,8 +440,12 @@ describe("Slash Function", () => {
               mockResponse
             );
 
-            expect(mockWebhookClient.mock.instances[0].send).toBeCalledWith(
-              "error"
+            expect(mockFetch).toBeCalledWith(
+              `https://discord.com/api/v8/webhooks/1234/mockToken/messages/@original`,
+              {
+                method: "PATCH",
+                body: { append: expect.any(Function) },
+              }
             );
           });
         });
@@ -395,34 +464,39 @@ describe("Slash Function", () => {
                 body: {
                   type: InteractionType.APPLICATION_COMMAND,
                   data: {
-                    name: "token",
+                    name: "carto",
                     options: [
                       {
-                        name: "add",
+                        name: "token",
                         options: [
                           {
-                            name: "name",
-                            value: "token name",
-                          },
-                          {
-                            name: "row",
-                            value: 3,
-                          },
-                          {
-                            name: "column",
-                            value: "AA",
-                          },
-                          {
-                            name: "colour",
-                            value: "red",
+                            name: "add",
+                            options: [
+                              {
+                                name: "name",
+                                value: "token name",
+                              },
+                              {
+                                name: "row",
+                                value: 3,
+                              },
+                              {
+                                name: "column",
+                                value: "AA",
+                              },
+                              {
+                                name: "colour",
+                                value: "red",
+                              },
+                            ],
                           },
                         ],
                       },
                     ],
                   },
-                  id: "1234",
+                  application_id: "1234",
                   token: "mockToken",
-                  channelId: "mockChannel",
+                  channel_id: "mockChannel",
                 },
                 method: "POST",
               } as Request,
@@ -436,9 +510,14 @@ describe("Slash Function", () => {
               colour: "red",
               channelId: "mockChannel",
             });
-            expect(
-              mockWebhookClient.mock.instances[0].send
-            ).toBeCalledWith("Token token name added", { files: ["file"] });
+            expect(mockCreateReadStream).toBeCalledWith("file");
+            expect(mockFetch).toBeCalledWith(
+              `https://discord.com/api/v8/webhooks/1234/mockToken/messages/@original`,
+              {
+                method: "PATCH",
+                body: { append: expect.any(Function) },
+              }
+            );
           });
         });
       });
@@ -457,26 +536,31 @@ describe("Slash Function", () => {
               {
                 body: {
                   type: InteractionType.APPLICATION_COMMAND,
+                  application_id: "1234",
+                  token: "mockToken",
+                  channel_id: "mockChannel",
                   data: {
-                    name: "token",
-                    id: "1234",
-                    token: "mockToken",
-                    channelId: "mockChannel",
+                    name: "carto",
                     options: [
                       {
-                        name: "move",
+                        name: "token",
                         options: [
                           {
-                            name: "name",
-                            value: "token name",
-                          },
-                          {
-                            name: "row",
-                            value: 3,
-                          },
-                          {
-                            name: "column",
-                            value: "AA",
+                            name: "move",
+                            options: [
+                              {
+                                name: "name",
+                                value: "token name",
+                              },
+                              {
+                                name: "row",
+                                value: 3,
+                              },
+                              {
+                                name: "column",
+                                value: "AA",
+                              },
+                            ],
                           },
                         ],
                       },
@@ -488,8 +572,12 @@ describe("Slash Function", () => {
               mockResponse
             );
 
-            expect(mockWebhookClient.mock.instances[0].send).toBeCalledWith(
-              "error"
+            expect(mockFetch).toBeCalledWith(
+              `https://discord.com/api/v8/webhooks/1234/mockToken/messages/@original`,
+              {
+                method: "PATCH",
+                body: { append: expect.any(Function) },
+              }
             );
           });
         });
@@ -508,30 +596,35 @@ describe("Slash Function", () => {
                 body: {
                   type: InteractionType.APPLICATION_COMMAND,
                   data: {
-                    name: "token",
+                    name: "carto",
                     options: [
                       {
-                        name: "move",
+                        name: "token",
                         options: [
                           {
-                            name: "name",
-                            value: "token name",
-                          },
-                          {
-                            name: "row",
-                            value: 3,
-                          },
-                          {
-                            name: "column",
-                            value: "AA",
+                            name: "move",
+                            options: [
+                              {
+                                name: "name",
+                                value: "token name",
+                              },
+                              {
+                                name: "row",
+                                value: 3,
+                              },
+                              {
+                                name: "column",
+                                value: "AA",
+                              },
+                            ],
                           },
                         ],
                       },
                     ],
                   },
-                  id: "1234",
+                  application_id: "1234",
                   token: "mockToken",
-                  channelId: "mockChannel",
+                  channel_id: "mockChannel",
                 },
                 method: "POST",
               } as Request,
@@ -544,9 +637,14 @@ describe("Slash Function", () => {
               column: "AA",
               channelId: "mockChannel",
             });
-            expect(
-              mockWebhookClient.mock.instances[0].send
-            ).toBeCalledWith("Token token name moved", { files: ["file"] });
+            expect(mockCreateReadStream).toBeCalledWith("file");
+            expect(mockFetch).toBeCalledWith(
+              `https://discord.com/api/v8/webhooks/1234/mockToken/messages/@original`,
+              {
+                method: "PATCH",
+                body: { append: expect.any(Function) },
+              }
+            );
           });
         });
       });
@@ -565,18 +663,23 @@ describe("Slash Function", () => {
               {
                 body: {
                   type: InteractionType.APPLICATION_COMMAND,
+                  application_id: "1234",
+                  token: "mockToken",
+                  channel_id: "mockChannel",
                   data: {
-                    name: "token",
-                    id: "1234",
-                    token: "mockToken",
-                    channelId: "mockChannel",
+                    name: "carto",
                     options: [
                       {
-                        name: "delete",
+                        name: "token",
                         options: [
                           {
-                            name: "name",
-                            value: "token name",
+                            name: "delete",
+                            options: [
+                              {
+                                name: "name",
+                                value: "token name",
+                              },
+                            ],
                           },
                         ],
                       },
@@ -588,8 +691,12 @@ describe("Slash Function", () => {
               mockResponse
             );
 
-            expect(mockWebhookClient.mock.instances[0].send).toBeCalledWith(
-              "error"
+            expect(mockFetch).toBeCalledWith(
+              `https://discord.com/api/v8/webhooks/1234/mockToken/messages/@original`,
+              {
+                method: "PATCH",
+                body: { append: expect.any(Function) },
+              }
             );
           });
         });
@@ -607,23 +714,28 @@ describe("Slash Function", () => {
               {
                 body: {
                   type: InteractionType.APPLICATION_COMMAND,
+                  application_id: "1234",
+                  token: "mockToken",
+                  channel_id: "mockChannel",
                   data: {
-                    name: "token",
+                    name: "carto",
                     options: [
                       {
-                        name: "delete",
+                        name: "token",
                         options: [
                           {
-                            name: "name",
-                            value: "token name",
+                            name: "delete",
+                            options: [
+                              {
+                                name: "name",
+                                value: "token name",
+                              },
+                            ],
                           },
                         ],
                       },
                     ],
                   },
-                  id: "1234",
-                  token: "mockToken",
-                  channelId: "mockChannel",
                 },
                 method: "POST",
               } as Request,
@@ -634,9 +746,14 @@ describe("Slash Function", () => {
               name: "token name",
               channelId: "mockChannel",
             });
-            expect(
-              mockWebhookClient.mock.instances[0].send
-            ).toBeCalledWith("Token token name deleted", { files: ["file"] });
+            expect(mockCreateReadStream).toBeCalledWith("file");
+            expect(mockFetch).toBeCalledWith(
+              `https://discord.com/api/v8/webhooks/1234/mockToken/messages/@original`,
+              {
+                method: "PATCH",
+                body: { append: expect.any(Function) },
+              }
+            );
           });
         });
       });
@@ -647,15 +764,20 @@ describe("Slash Function", () => {
             {
               body: {
                 type: InteractionType.APPLICATION_COMMAND,
+                id: "1234",
+                token: "mockToken",
+                channel_id: "mockChannel",
                 data: {
-                  name: "token",
-                  id: "1234",
-                  token: "mockToken",
-                  channelId: "mockChannel",
+                  name: "carto",
                   options: [
                     {
-                      name: "unknown",
-                      options: [],
+                      name: "token",
+                      options: [
+                        {
+                          name: "unknown",
+                          options: [],
+                        },
+                      ],
                     },
                   ],
                 },
@@ -665,7 +787,7 @@ describe("Slash Function", () => {
             mockResponse
           );
 
-          expect(mockWebhookClient.mock.instances[0].send).not.toBeCalled();
+          expect(mockFetch).not.toBeCalled();
         });
       });
     });
