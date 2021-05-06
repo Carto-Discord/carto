@@ -183,7 +183,6 @@ export const slashFunction: HttpFunction = async (req, res) => {
   }
 
   const body: Interaction = req.body;
-  console.log(JSON.stringify(body));
 
   if (body.type === InteractionType.PING) {
     res.status(200).json({ type: InteractionResponseType.PONG }).end();

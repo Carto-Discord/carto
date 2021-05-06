@@ -62,7 +62,7 @@ jobs:
       - name: Test with jest
         run: |
           cd client
-          npm run test:ci
+          npm run test:coverage
 
       - name: Initialise terraform
         run: |
@@ -72,6 +72,6 @@ jobs:
       - name: Apply terraform
         run: |
           cd deployment
-          terraform apply -var="bot_token=$BOT_TOKEN" -auto-approve
+          terraform apply -var="public_key=$PUBLIC_KEY" -auto-approve
         env:
-          BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          PUBLIC_KEY: ${{ secrets.PUBLIC_KEY }}
