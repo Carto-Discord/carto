@@ -8,7 +8,7 @@ type ResponseData = {
   message?: string;
 };
 
-type TokenResponse = {
+export type TokenResponse = {
   success: boolean;
   message?: string;
   body: string;

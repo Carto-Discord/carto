@@ -1,7 +1,7 @@
-import { createAuthenticatedClient } from "./authentication";
-import { handleRequest } from "./requestHandler";
+import { createAuthenticatedClient } from "./utils/authentication";
+import { handleRequest } from "./utils/requestHandler";
 
-type AddProps = {
+export type AddProps = {
   name: string;
   row: number;
   column: string;
@@ -11,14 +11,14 @@ type AddProps = {
   channelId: string;
 };
 
-type MoveProps = {
+export type MoveProps = {
   name: string;
   row: number;
   column: string;
   channelId: string;
 };
 
-type DeleteProps = {
+export type DeleteProps = {
   name: string;
   channelId: string;
 };

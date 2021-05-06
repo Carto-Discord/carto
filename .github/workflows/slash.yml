@@ -1,0 +1,36 @@
+name: Command Registration
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      APPLICATION_ID: { { secrets.APPLICATION_ID } }
+      BOT_TOKEN: { { secrets.BOT_TOKEN } }
+      PUBLIC_KEY: { { secrets.PUBLIC_KEY } }
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Node.JS 14
+        uses: actions/setup-node@v2
+        with:
+          node-version: "14"
+
+      - name: Install node depedencies
+        run: |
+          cd client
+          npm ci
+
+      - name: Build node application
+        run: |
+          cd client
+          npm run build
+
+      - name: Register Slash Commands
+        run: |
+          cd client
+          npm run register

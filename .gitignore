@@ -5,6 +5,9 @@ venv
 node_modules
 package
 build
+coverage
 
 *.png
 *.zip
+*.env
+*.json

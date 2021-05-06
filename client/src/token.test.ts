@@ -1,9 +1,9 @@
-import { createAuthenticatedClient } from "./authentication";
-import { handleRequest } from "./requestHandler";
+import { createAuthenticatedClient } from "./utils/authentication";
+import { handleRequest } from "./utils/requestHandler";
 import { addToken, deleteToken, moveToken } from "./token";
 
-jest.mock("./authentication");
-jest.mock("./requestHandler");
+jest.mock("./utils/authentication");
+jest.mock("./utils/requestHandler");
 
 const mockCreateAuthenticatedClient = createAuthenticatedClient as jest.MockedFunction<
   typeof createAuthenticatedClient

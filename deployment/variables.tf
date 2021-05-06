@@ -7,6 +7,6 @@ variable "location" {
   description = "Location of Storage Buckets"
 }
 
-variable "bot_token" {
-  description = "Discord App Bot Token"
+variable "public_key" {
+  description = "Discord App Public Key"
 }

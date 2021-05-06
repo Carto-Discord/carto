@@ -3,30 +3,39 @@
   "version": "0.1.0",
   "scripts": {
     "prebuild": "rimraf build/",
-    "postbuild": "copyfiles src/**/*.html build/",
+    "postbuild": "copyfiles .env build/",
     "build": "tsc",
     "build:package": "copyfiles build/**/* package.json package-lock.json package",
-    "start": "node build/src/index.js",
+    "register": "node -r dotenv/config ./build/src/registerCommands.js",
+    "start": "functions-framework --source=build/src/ --target=slashFunction",
     "test": "jest --watch",
-    "test:ci": "jest"
+    "test:ci": "jest",
+    "test:coverage": "jest --collectCoverage",
+    "watch": "concurrently \"tsc -w\" \"nodemon --watch ./build/ --exec npm run start\""
   },
   "author": "Tohaker",
   "license": "ISC",
   "dependencies": {
+    "@google-cloud/functions-framework": "^1.7.1",
     "@google-cloud/storage": "^5.8.3",
     "discord.js": "^12.5.3",
-    "dotenv": "^8.2.0",
-    "express": "^4.17.1",
+    "dotenv": "^9.0.0",
+    "form-data": "^4.0.0",
     "google-auth-library": "^7.0.4",
+    "node-fetch": "^2.6.1",
+    "slash-commands": "^1.4.0",
+    "tweetnacl": "^1.0.3",
     "typescript": "^4.2.3"
   },
   "devDependencies": {
     "@types/express": "^4.17.11",
     "@types/jest": "^26.0.22",
     "@types/node": "^14.14.37",
+    "@types/node-fetch": "^2.5.10",
+    "concurrently": "^6.0.2",
     "copyfiles": "^2.4.1",
     "jest": "^26.6.3",
-    "jest-express": "^1.12.0",
+    "nodemon": "^2.0.7",
     "rimraf": "^3.0.2",
     "ts-jest": "^26.5.4"
   }

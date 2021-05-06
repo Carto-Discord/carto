@@ -8,3 +8,19 @@ resource "google_cloudfunctions_function" "carto_api" {
   trigger_http          = true
   entry_point           = "function"
 }
+
+resource "google_cloudfunctions_function" "carto_client" {
+  name    = "${var.app_name}-client"
+  runtime = "nodejs14"
+
+  available_memory_mb   = 128
+  source_archive_bucket = google_storage_bucket.code_archives.name
+  source_archive_object = google_storage_bucket_object.client_archive.name
+  trigger_http          = true
+  entry_point           = "slashFunction"
+
+  environment_variables = {
+    PUBLIC_KEY        = var.public_key
+    HTTP_TRIGGER_URL  = google_cloudfunctions_function.carto_api.https_trigger_url
+  }
+}
