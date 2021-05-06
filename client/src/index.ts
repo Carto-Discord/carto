@@ -43,7 +43,7 @@ const updateResponse = (applicationId: string, interactionToken: string) => ({
 }: UpdatedResponse) => {
   const formData = new FormData();
   fileName && formData.append("file", fs.createReadStream(fileName));
-  formData.append("comment", message);
+  formData.append("content", message);
 
   fetch(
     `https://discord.com/api/v8/webhooks/${applicationId}/${interactionToken}/messages/@original`,
