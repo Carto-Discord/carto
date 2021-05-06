@@ -20,9 +20,9 @@ import {
   MoveProps,
   moveToken,
 } from "./token";
-import { validateRequest } from "./utils/validation";
+import { validateRequest } from "./validation";
 import { CommandGroup, SubCommand, CommandOptions } from "./types";
-import { TokenResponse } from "./utils/requestHandler";
+import { TokenResponse } from "./requestHandler";
 
 dotenv.config();
 

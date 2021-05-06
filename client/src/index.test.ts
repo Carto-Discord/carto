@@ -1,11 +1,10 @@
 import { Request, Response } from "express";
-import FormData from "form-data";
 import fs, { ReadStream } from "fs";
 import fetch from "node-fetch";
 import { createMap } from "./create";
 import { getMap } from "./get";
 import { addToken, deleteToken, moveToken } from "./token";
-import { validateRequest } from "./utils/validation";
+import { validateRequest } from "./validation";
 import { slashFunction } from ".";
 import { InteractionResponseType, InteractionType } from "slash-commands";
 
@@ -18,7 +17,7 @@ jest.mock("./create");
 jest.mock("./get");
 jest.mock("./delete");
 jest.mock("./token");
-jest.mock("./utils/validation");
+jest.mock("./validation");
 
 const mockCreateReadStream = fs.createReadStream as jest.MockedFunction<
   typeof fs.createReadStream

@@ -1,5 +1,5 @@
-import { createAuthenticatedClient } from "./utils/authentication";
-import { handleRequest } from "./utils/requestHandler";
+import { createAuthenticatedClient } from "./authentication";
+import { handleRequest } from "./requestHandler";
 
 export type CreateProps = {
   url: string;
