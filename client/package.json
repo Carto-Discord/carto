@@ -1,7 +1,7 @@
 {
   "name": "carto-client",
   "version": "0.1.0",
-  "main": "src/index.js",
+  "main": "build/src/index.js",
   "scripts": {
     "prebuild": "rimraf build/",
     "postbuild": "copyfiles .env build/",
