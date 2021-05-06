@@ -1,5 +1,5 @@
 variable "app_name" {
-  default = "carto"
+  default = "carto-bot"
 }
 
 variable "location" {
