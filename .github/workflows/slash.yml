@@ -9,9 +9,9 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-      APPLICATION_ID: {{ secrets.APPLICATION_ID }}
-      BOT_TOKEN: {{ secrets.BOT_TOKEN }}
-      PUBLIC_KEY: {{ secrets.PUBLIC_KEY }}
+      APPLICATION_ID: { { secrets.APPLICATION_ID } }
+      BOT_TOKEN: { { secrets.BOT_TOKEN } }
+      PUBLIC_KEY: { { secrets.PUBLIC_KEY } }
     steps:
       - uses: actions/checkout@v2
 
@@ -31,6 +31,6 @@ jobs:
           npm run build
 
       - name: Register Slash Commands
-		run: |
-		  cd client
-		  npm run register
+        run: |
+          cd client
+          npm run register
