@@ -15,3 +15,9 @@ resource "google_cloudfunctions_function_iam_member" "client_invoker" {
   role   = "roles/cloudfunctions.invoker"
   member = "allUsers"
 }
+
+resource "google_storage_default_object_access_control" "public_rule" {
+  bucket = google_storage_bucket.map_storage.name
+  role   = "READER"
+  entity = "allUsers"
+}

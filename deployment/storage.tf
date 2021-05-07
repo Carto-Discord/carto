@@ -11,9 +11,10 @@ data "archive_file" "client_zip" {
 }
 
 resource "google_storage_bucket" "map_storage" {
-  name          = "${var.app_name}-map-uploads"
-  location      = var.location
-  force_destroy = true
+  name                        = "${var.app_name}-map-uploads"
+  location                    = var.location
+  force_destroy               = true
+  uniform_bucket_level_access = true
 
   lifecycle_rule {
     action {
