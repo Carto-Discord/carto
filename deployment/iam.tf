@@ -18,6 +18,6 @@ resource "google_cloudfunctions_function_iam_member" "client_invoker" {
 
 resource "google_storage_bucket_iam_member" "public_rule" {
   bucket = google_storage_bucket.map_storage.name
-  role   = "roles/storage.reader"
+  role   = "roles/storage.objectViewer"
   member = "allUsers"
 }
