@@ -215,13 +215,6 @@ export const slashFunction: HttpFunction = async (req, res) => {
 
   const respond = updateResponse(application_id, token);
 
-  res
-    .status(200)
-    .json({
-      type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
-    })
-    .end();
-
   if ("options" in commandGroup) {
     switch (commandGroup.name) {
       case CommandGroup.MAP:
@@ -244,4 +237,11 @@ export const slashFunction: HttpFunction = async (req, res) => {
         break;
     }
   }
+
+  res
+    .status(200)
+    .json({
+      type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+    })
+    .end();
 };
