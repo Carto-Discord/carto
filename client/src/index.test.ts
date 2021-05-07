@@ -181,6 +181,9 @@ describe("Slash Function", () => {
               `https://discord.com/api/v8/webhooks/1234/mockToken/messages/@original`,
               {
                 method: "PATCH",
+                headers: {
+                  "Content-Type": "application/json",
+                },
                 body: JSON.stringify({ content: "error" }),
               }
             );
@@ -246,12 +249,15 @@ describe("Slash Function", () => {
               `https://discord.com/api/v8/webhooks/1234/mockToken/messages/@original`,
               {
                 method: "PATCH",
+                headers: {
+                  "Content-Type": "application/json",
+                },
                 body: JSON.stringify({
                   embeds: [
                     {
                       ...mockEmbed,
                       title: "Map created",
-                      url: "file",
+                      image: { url: "file" },
                     },
                   ],
                 }),
@@ -302,6 +308,9 @@ describe("Slash Function", () => {
               `https://discord.com/api/v8/webhooks/1234/mockToken/messages/@original`,
               {
                 method: "PATCH",
+                headers: {
+                  "Content-Type": "application/json",
+                },
                 body: JSON.stringify({ content: "error" }),
               }
             );
@@ -351,12 +360,15 @@ describe("Slash Function", () => {
               `https://discord.com/api/v8/webhooks/1234/mockToken/messages/@original`,
               {
                 method: "PATCH",
+                headers: {
+                  "Content-Type": "application/json",
+                },
                 body: JSON.stringify({
                   embeds: [
                     {
                       ...mockEmbed,
                       title: "Map retrieved",
-                      url: "file",
+                      image: { url: "file" },
                     },
                   ],
                 }),
@@ -459,6 +471,9 @@ describe("Slash Function", () => {
               `https://discord.com/api/v8/webhooks/1234/mockToken/messages/@original`,
               {
                 method: "PATCH",
+                headers: {
+                  "Content-Type": "application/json",
+                },
                 body: JSON.stringify({ content: "error" }),
               }
             );
@@ -529,12 +544,15 @@ describe("Slash Function", () => {
               `https://discord.com/api/v8/webhooks/1234/mockToken/messages/@original`,
               {
                 method: "PATCH",
+                headers: {
+                  "Content-Type": "application/json",
+                },
                 body: JSON.stringify({
                   embeds: [
                     {
                       ...mockEmbed,
                       title: "Token token name added to AA3",
-                      url: "file",
+                      image: { url: "file" },
                     },
                   ],
                 }),
@@ -598,6 +616,9 @@ describe("Slash Function", () => {
               `https://discord.com/api/v8/webhooks/1234/mockToken/messages/@original`,
               {
                 method: "PATCH",
+                headers: {
+                  "Content-Type": "application/json",
+                },
                 body: JSON.stringify({ content: "error" }),
               }
             );
@@ -663,12 +684,15 @@ describe("Slash Function", () => {
               `https://discord.com/api/v8/webhooks/1234/mockToken/messages/@original`,
               {
                 method: "PATCH",
+                headers: {
+                  "Content-Type": "application/json",
+                },
                 body: JSON.stringify({
                   embeds: [
                     {
                       ...mockEmbed,
                       title: "Token token name moved to AA3",
-                      url: "file",
+                      image: { url: "file" },
                     },
                   ],
                 }),
@@ -724,6 +748,9 @@ describe("Slash Function", () => {
               `https://discord.com/api/v8/webhooks/1234/mockToken/messages/@original`,
               {
                 method: "PATCH",
+                headers: {
+                  "Content-Type": "application/json",
+                },
                 body: JSON.stringify({
                   content: "error",
                 }),
@@ -781,12 +808,15 @@ describe("Slash Function", () => {
               `https://discord.com/api/v8/webhooks/1234/mockToken/messages/@original`,
               {
                 method: "PATCH",
+                headers: {
+                  "Content-Type": "application/json",
+                },
                 body: JSON.stringify({
                   embeds: [
                     {
                       ...mockEmbed,
                       title: "Token token name deleted",
-                      url: "file",
+                      image: { url: "file" },
                     },
                   ],
                 }),

@@ -40,17 +40,23 @@ const updateResponse = (applicationId: string, interactionToken: string) => ({
   content,
 }: UpdatedResponse) => {
   const embeds = messageEmbed && [messageEmbed.toJSON()];
-
-  fetch(
-    `https://discord.com/api/v8/webhooks/${applicationId}/${interactionToken}/messages/@original`,
-    {
-      method: "PATCH",
-      body: JSON.stringify({
-        embeds,
-        content,
-      }),
-    }
-  );
+  try {
+    fetch(
+      `https://discord.com/api/v8/webhooks/${applicationId}/${interactionToken}/messages/@original`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          embeds,
+          content,
+        }),
+      }
+    );
+  } catch (e) {
+    console.warn(e);
+  }
 };
 
 const extractParameters = <T extends CommandOptions>(
@@ -88,7 +94,7 @@ const handleMapCommands = async ({
 
       response.success
         ? respond({
-            messageEmbed: embed.setTitle("Map created").setURL(response.body),
+            messageEmbed: embed.setTitle("Map created").setImage(response.body),
           })
         : respond({ content: response.body });
 
@@ -100,7 +106,9 @@ const handleMapCommands = async ({
 
       response.success
         ? respond({
-            messageEmbed: embed.setTitle("Map retrieved").setURL(response.body),
+            messageEmbed: embed
+              .setTitle("Map retrieved")
+              .setImage(response.body),
           })
         : respond({ content: response.body });
       break;
@@ -141,7 +149,7 @@ const handleTokenCommands = async ({
         ? respond({
             messageEmbed: embed
               .setTitle(`Token ${name} added to ${column}${row}`)
-              .setURL(response.body),
+              .setImage(response.body),
           })
         : respond({ content: response.body });
       break;
@@ -155,7 +163,7 @@ const handleTokenCommands = async ({
         ? respond({
             messageEmbed: embed
               .setTitle(`Token ${name} moved to ${column}${row}`)
-              .setURL(response.body),
+              .setImage(response.body),
           })
         : respond({ content: response.body });
       break;
@@ -169,7 +177,7 @@ const handleTokenCommands = async ({
         ? respond({
             messageEmbed: embed
               .setTitle(`Token ${name} deleted`)
-              .setURL(response.body),
+              .setImage(response.body),
           })
         : respond({ content: response.body });
       break;
