@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import fetch from "node-fetch";
 import { createMap } from "./create";
 import { getMap } from "./get";
 import { addToken, deleteToken, moveToken } from "./token";
@@ -7,14 +6,12 @@ import { validateRequest } from "./validation";
 import { slashFunction } from ".";
 import { InteractionResponseType, InteractionType } from "slash-commands";
 
-jest.mock("node-fetch");
 jest.mock("./create");
 jest.mock("./get");
 jest.mock("./delete");
 jest.mock("./token");
 jest.mock("./validation");
 
-const mockFetch = fetch as jest.MockedFunction<typeof fetch>;
 const mockCreateMap = createMap as jest.MockedFunction<typeof createMap>;
 const mockGetMap = getMap as jest.MockedFunction<typeof getMap>;
 const mockAddToken = addToken as jest.MockedFunction<typeof addToken>;
@@ -93,7 +90,7 @@ describe("Slash Function", () => {
         expect(mockResponse.status).toBeCalledWith(200);
         expect(mockJson).toBeCalledWith({ type: InteractionResponseType.PONG });
         expect(mockJson).not.toBeCalledWith({
-          type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         });
       });
     });
@@ -117,8 +114,7 @@ describe("Slash Function", () => {
           mockResponse
         );
 
-        expect(mockResponse.status).toBeCalledWith(200);
-        expect(mockFetch).not.toBeCalled();
+        expect(mockJson).not.toBeCalled();
       });
     });
 
@@ -168,16 +164,10 @@ describe("Slash Function", () => {
               mockResponse
             );
 
-            expect(mockFetch).toBeCalledWith(
-              `https://discord.com/api/v8/webhooks/1234/mockToken/messages/@original`,
-              {
-                method: "PATCH",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ content: "error" }),
-              }
-            );
+            expect(mockJson).toBeCalledWith({
+              type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+              data: { content: "error" },
+            });
           });
         });
 
@@ -231,24 +221,18 @@ describe("Slash Function", () => {
               columns: 5,
               channelId: "mockChannel",
             });
-            expect(mockFetch).toBeCalledWith(
-              `https://discord.com/api/v8/webhooks/1234/mockToken/messages/@original`,
-              {
-                method: "PATCH",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  embeds: [
-                    {
-                      ...mockEmbed,
-                      title: "Map created",
-                      image: { url: "file" },
-                    },
-                  ],
-                }),
-              }
-            );
+            expect(mockJson).toBeCalledWith({
+              type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+              data: {
+                embeds: [
+                  {
+                    ...mockEmbed,
+                    title: "Map created",
+                    image: { url: "file" },
+                  },
+                ],
+              },
+            });
           });
         });
       });
@@ -285,16 +269,10 @@ describe("Slash Function", () => {
               mockResponse
             );
 
-            expect(mockFetch).toBeCalledWith(
-              `https://discord.com/api/v8/webhooks/1234/mockToken/messages/@original`,
-              {
-                method: "PATCH",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ content: "error" }),
-              }
-            );
+            expect(mockJson).toBeCalledWith({
+              type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+              data: { content: "error" },
+            });
           });
         });
 
@@ -332,24 +310,18 @@ describe("Slash Function", () => {
             expect(mockGetMap).toBeCalledWith({
               channelId: "mockChannel",
             });
-            expect(mockFetch).toBeCalledWith(
-              `https://discord.com/api/v8/webhooks/1234/mockToken/messages/@original`,
-              {
-                method: "PATCH",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  embeds: [
-                    {
-                      ...mockEmbed,
-                      title: "Map retrieved",
-                      image: { url: "file" },
-                    },
-                  ],
-                }),
-              }
-            );
+            expect(mockJson).toBeCalledWith({
+              type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+              data: {
+                embeds: [
+                  {
+                    ...mockEmbed,
+                    title: "Map retrieved",
+                    image: { url: "file" },
+                  },
+                ],
+              },
+            });
           });
         });
       });
@@ -378,7 +350,7 @@ describe("Slash Function", () => {
             mockResponse
           );
 
-          expect(mockFetch).not.toBeCalled();
+          expect(mockJson).not.toBeCalled();
         });
       });
     });
@@ -433,16 +405,10 @@ describe("Slash Function", () => {
               mockResponse
             );
 
-            expect(mockFetch).toBeCalledWith(
-              `https://discord.com/api/v8/webhooks/1234/mockToken/messages/@original`,
-              {
-                method: "PATCH",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ content: "error" }),
-              }
-            );
+            expect(mockJson).toBeCalledWith({
+              type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+              data: { content: "error" },
+            });
           });
         });
 
@@ -501,24 +467,18 @@ describe("Slash Function", () => {
               colour: "red",
               channelId: "mockChannel",
             });
-            expect(mockFetch).toBeCalledWith(
-              `https://discord.com/api/v8/webhooks/1234/mockToken/messages/@original`,
-              {
-                method: "PATCH",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  embeds: [
-                    {
-                      ...mockEmbed,
-                      title: "Token token name added to AA3",
-                      image: { url: "file" },
-                    },
-                  ],
-                }),
-              }
-            );
+            expect(mockJson).toBeCalledWith({
+              type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+              data: {
+                embeds: [
+                  {
+                    ...mockEmbed,
+                    title: "Token token name added to AA3",
+                    image: { url: "file" },
+                  },
+                ],
+              },
+            });
           });
         });
       });
@@ -568,16 +528,10 @@ describe("Slash Function", () => {
               mockResponse
             );
 
-            expect(mockFetch).toBeCalledWith(
-              `https://discord.com/api/v8/webhooks/1234/mockToken/messages/@original`,
-              {
-                method: "PATCH",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ content: "error" }),
-              }
-            );
+            expect(mockJson).toBeCalledWith({
+              type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+              data: { content: "error" },
+            });
           });
         });
 
@@ -631,24 +585,18 @@ describe("Slash Function", () => {
               column: "AA",
               channelId: "mockChannel",
             });
-            expect(mockFetch).toBeCalledWith(
-              `https://discord.com/api/v8/webhooks/1234/mockToken/messages/@original`,
-              {
-                method: "PATCH",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  embeds: [
-                    {
-                      ...mockEmbed,
-                      title: "Token token name moved to AA3",
-                      image: { url: "file" },
-                    },
-                  ],
-                }),
-              }
-            );
+            expect(mockJson).toBeCalledWith({
+              type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+              data: {
+                embeds: [
+                  {
+                    ...mockEmbed,
+                    title: "Token token name moved to AA3",
+                    image: { url: "file" },
+                  },
+                ],
+              },
+            });
           });
         });
       });
@@ -690,18 +638,10 @@ describe("Slash Function", () => {
               mockResponse
             );
 
-            expect(mockFetch).toBeCalledWith(
-              `https://discord.com/api/v8/webhooks/1234/mockToken/messages/@original`,
-              {
-                method: "PATCH",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  content: "error",
-                }),
-              }
-            );
+            expect(mockJson).toBeCalledWith({
+              type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+              data: { content: "error" },
+            });
           });
         });
 
@@ -745,24 +685,18 @@ describe("Slash Function", () => {
               name: "token name",
               channelId: "mockChannel",
             });
-            expect(mockFetch).toBeCalledWith(
-              `https://discord.com/api/v8/webhooks/1234/mockToken/messages/@original`,
-              {
-                method: "PATCH",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  embeds: [
-                    {
-                      ...mockEmbed,
-                      title: "Token token name deleted",
-                      image: { url: "file" },
-                    },
-                  ],
-                }),
-              }
-            );
+            expect(mockJson).toBeCalledWith({
+              type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+              data: {
+                embeds: [
+                  {
+                    ...mockEmbed,
+                    title: "Token token name deleted",
+                    image: { url: "file" },
+                  },
+                ],
+              },
+            });
           });
         });
       });
@@ -791,7 +725,7 @@ describe("Slash Function", () => {
             mockResponse
           );
 
-          expect(mockFetch).not.toBeCalled();
+          expect(mockJson).not.toBeCalled();
         });
       });
     });

@@ -1,6 +1,6 @@
 import { Snowflake, MessageEmbed } from "discord.js";
 import dotenv from "dotenv";
-import fetch from "node-fetch";
+import { response, Response } from "express";
 import {
   ApplicationCommandInteractionDataOption,
   InteractionResponseType,
@@ -35,28 +35,22 @@ type CommandProps = {
   respond: (response: UpdatedResponse) => void;
 };
 
-const updateResponse = (applicationId: string, interactionToken: string) => ({
+const updateResponse = (response: Response) => ({
   messageEmbed,
   content,
 }: UpdatedResponse) => {
   const embeds = messageEmbed && [messageEmbed.toJSON()];
-  try {
-    fetch(
-      `https://discord.com/api/v8/webhooks/${applicationId}/${interactionToken}/messages/@original`,
-      {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          embeds,
-          content,
-        }),
-      }
-    );
-  } catch (e) {
-    console.warn(e);
-  }
+
+  response
+    .status(200)
+    .json({
+      type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+      data: {
+        content,
+        embeds,
+      },
+    })
+    .end();
 };
 
 const extractParameters = <T extends CommandOptions>(
@@ -208,12 +202,12 @@ export const slashFunction: HttpFunction = async (req, res) => {
 
   const commandGroup = body.data;
 
-  let channel_id: Snowflake, application_id: string, token: string;
+  let channel_id: Snowflake;
   if ("channel_id" in body) {
-    ({ channel_id, application_id, token } = body);
+    ({ channel_id } = body);
   }
 
-  const respond = updateResponse(application_id, token);
+  const respond = updateResponse(res);
 
   if ("options" in commandGroup) {
     switch (commandGroup.name) {
@@ -237,11 +231,4 @@ export const slashFunction: HttpFunction = async (req, res) => {
         break;
     }
   }
-
-  res
-    .status(200)
-    .json({
-      type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-    })
-    .end();
 };
