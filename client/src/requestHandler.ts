@@ -1,5 +1,5 @@
 import { GaxiosPromise } from "gaxios";
-import { downloadBlob } from "./storage";
+import { getBlobUrl } from "./storage";
 
 type ResponseData = {
   created: string;
@@ -21,11 +21,11 @@ export const handleRequest = async (
     const response = await request();
 
     const { blob, bucket, message } = response.data as ResponseData;
-    const tempFile = await downloadBlob({ blob, bucket });
+    const blobUrl = await getBlobUrl({ blob, bucket });
 
     return {
       success: true,
-      body: tempFile,
+      body: blobUrl,
       message,
     };
   } catch (error) {

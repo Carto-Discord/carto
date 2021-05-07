@@ -1,11 +1,9 @@
-import { downloadBlob } from "./storage";
+import { getBlobUrl } from "./storage";
 import { handleRequest } from "./requestHandler";
 
 jest.mock("./storage");
 
-const mockDownloadBlob = downloadBlob as jest.MockedFunction<
-  typeof downloadBlob
->;
+const mockGetBlobUrl = getBlobUrl as jest.MockedFunction<typeof getBlobUrl>;
 
 describe("Handle Request", () => {
   const mockRequest = jest.fn();
@@ -15,7 +13,7 @@ describe("Handle Request", () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    mockDownloadBlob.mockResolvedValue("temp file");
+    mockGetBlobUrl.mockResolvedValue("temp file");
     process.env.HTTP_TRIGGER_URL = "https://trigger.url";
   });
 
@@ -32,7 +30,7 @@ describe("Handle Request", () => {
         const response = await handleRequest(mockRequest);
 
         expect(mockRequest).toBeCalled();
-        expect(mockDownloadBlob).toBeCalledWith({
+        expect(mockGetBlobUrl).toBeCalledWith({
           blob: "file",
           bucket: "bucket",
         });
@@ -52,7 +50,7 @@ describe("Handle Request", () => {
         const response = await handleRequest(mockRequest);
 
         expect(mockRequest).toBeCalled();
-        expect(mockDownloadBlob).toBeCalledWith({
+        expect(mockGetBlobUrl).toBeCalledWith({
           blob: "file",
           bucket: "bucket",
         });
@@ -80,7 +78,7 @@ describe("Handle Request", () => {
         const response = await handleRequest(mockRequest);
 
         expect(mockRequest).toBeCalled();
-        expect(mockDownloadBlob).not.toBeCalled();
+        expect(mockGetBlobUrl).not.toBeCalled();
         expect(response).toEqual({ success: false, body: "error" });
       });
     });
@@ -99,7 +97,7 @@ describe("Handle Request", () => {
         const response = await handleRequest(mockRequest);
 
         expect(mockRequest).toBeCalled();
-        expect(mockDownloadBlob).not.toBeCalled();
+        expect(mockGetBlobUrl).not.toBeCalled();
         expect(response).toEqual({
           success: false,
           body:

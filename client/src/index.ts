@@ -1,6 +1,4 @@
-import FormData from "form-data";
-import fs from "fs";
-import { Snowflake } from "discord.js";
+import { Snowflake, MessageEmbed } from "discord.js";
 import dotenv from "dotenv";
 import fetch from "node-fetch";
 import {
@@ -27,8 +25,8 @@ import { TokenResponse } from "./requestHandler";
 dotenv.config();
 
 type UpdatedResponse = {
-  fileName?: string;
-  message: string;
+  messageEmbed?: MessageEmbed;
+  content?: string;
 };
 
 type CommandProps = {
@@ -38,18 +36,19 @@ type CommandProps = {
 };
 
 const updateResponse = (applicationId: string, interactionToken: string) => ({
-  fileName,
-  message,
+  messageEmbed,
+  content,
 }: UpdatedResponse) => {
-  const formData = new FormData();
-  fileName && formData.append("file", fs.createReadStream(fileName));
-  formData.append("content", message);
+  const embeds = messageEmbed && [messageEmbed.toJSON()];
 
   fetch(
     `https://discord.com/api/v8/webhooks/${applicationId}/${interactionToken}/messages/@original`,
     {
       method: "PATCH",
-      body: formData,
+      body: JSON.stringify({
+        embeds,
+        content,
+      }),
     }
   );
 };
@@ -71,6 +70,7 @@ const handleMapCommands = async ({
   respond,
 }: CommandProps) => {
   let response: TokenResponse;
+  const embed = new MessageEmbed();
 
   // We can be confident that each subcommand will have the correct parameters,
   // as this is type checked by Discord before reaching here.
@@ -87,8 +87,11 @@ const handleMapCommands = async ({
       });
 
       response.success
-        ? respond({ fileName: response.body, message: "Map created" })
-        : respond({ message: response.body });
+        ? respond({
+            messageEmbed: embed.setTitle("Map created").setURL(response.body),
+          })
+        : respond({ content: response.body });
+
       break;
 
     case SubCommand.MAP_GET:
@@ -96,8 +99,10 @@ const handleMapCommands = async ({
       response = await getMap({ channelId });
 
       response.success
-        ? respond({ fileName: response.body, message: "Map retrieved" })
-        : respond({ message: response.body });
+        ? respond({
+            messageEmbed: embed.setTitle("Map retrieved").setURL(response.body),
+          })
+        : respond({ content: response.body });
       break;
 
     default:
@@ -112,6 +117,7 @@ const handleTokenCommands = async ({
 }: CommandProps) => {
   let response: TokenResponse;
   let name, row, column, colour, size;
+  const embed = new MessageEmbed();
 
   // We can be confident that each subcommand will have the correct parameters,
   // as this is type checked by Discord before reaching here.
@@ -133,10 +139,11 @@ const handleTokenCommands = async ({
 
       response.success
         ? respond({
-            fileName: response.body,
-            message: `Token ${name} added to ${column}${row}`,
+            messageEmbed: embed
+              .setTitle(`Token ${name} added to ${column}${row}`)
+              .setURL(response.body),
           })
-        : respond({ message: response.body });
+        : respond({ content: response.body });
       break;
 
     case SubCommand.TOKEN_MOVE:
@@ -146,10 +153,11 @@ const handleTokenCommands = async ({
 
       response.success
         ? respond({
-            fileName: response.body,
-            message: `Token ${name} moved to ${column}${row}`,
+            messageEmbed: embed
+              .setTitle(`Token ${name} moved to ${column}${row}`)
+              .setURL(response.body),
           })
-        : respond({ message: response.body });
+        : respond({ content: response.body });
       break;
 
     case SubCommand.TOKEN_DELETE:
@@ -159,10 +167,11 @@ const handleTokenCommands = async ({
 
       response.success
         ? respond({
-            fileName: response.body,
-            message: `Token ${name} deleted`,
+            messageEmbed: embed
+              .setTitle(`Token ${name} deleted`)
+              .setURL(response.body),
           })
-        : respond({ message: response.body });
+        : respond({ content: response.body });
       break;
 
     default:

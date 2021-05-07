@@ -5,13 +5,8 @@ type BlobProps = {
   bucket: string;
 };
 
-export const downloadBlob = async ({ blob, bucket }: BlobProps) => {
+export const getBlobUrl = async ({ blob, bucket }: BlobProps) => {
   const storage = new Storage();
 
-  const tempFile = `/tmp/${blob}`;
-  await storage.bucket(bucket).file(blob).download({ destination: tempFile });
-
-  console.log(`gs://${bucket}/${blob} downloaded to ${tempFile}.`);
-
-  return tempFile;
+  return storage.bucket(bucket).file(blob).publicUrl();
 };

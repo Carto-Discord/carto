@@ -21,7 +21,6 @@
     "@google-cloud/storage": "^5.8.3",
     "discord.js": "^12.5.3",
     "dotenv": "^9.0.0",
-    "form-data": "^4.0.0",
     "google-auth-library": "^7.0.4",
     "node-fetch": "^2.6.1",
     "slash-commands": "^1.4.0",

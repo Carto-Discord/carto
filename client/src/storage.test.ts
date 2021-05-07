@@ -1,11 +1,11 @@
-import { downloadBlob } from "./storage";
+import { getBlobUrl } from "./storage";
 
 jest.mock("@google-cloud/storage", () => {
   return {
     Storage: jest.fn().mockImplementation(() => ({
       bucket: () => ({
         file: () => ({
-          download: async () => Promise.resolve({ data: true }),
+          publicUrl: () => "public url",
         }),
       }),
     })),
@@ -13,12 +13,9 @@ jest.mock("@google-cloud/storage", () => {
 });
 
 describe("Storage", () => {
-  const logSpy = jest.spyOn(console, "log").mockImplementation(() => {});
+  it("should return the public url", async () => {
+    const url = await getBlobUrl({ blob: "blob", bucket: "bucket" });
 
-  it("should return the tempfile name", async () => {
-    const tempFile = await downloadBlob({ blob: "blob", bucket: "bucket" });
-
-    expect(tempFile).toBe("/tmp/blob");
-    expect(logSpy).toBeCalledWith("gs://bucket/blob downloaded to /tmp/blob.");
+    expect(url).toBe("public url");
   });
 });

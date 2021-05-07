@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import fs, { ReadStream } from "fs";
 import fetch from "node-fetch";
 import { createMap } from "./create";
 import { getMap } from "./get";
@@ -8,10 +7,6 @@ import { validateRequest } from "./validation";
 import { slashFunction } from ".";
 import { InteractionResponseType, InteractionType } from "slash-commands";
 
-jest.mock("form-data", () => {
-  return jest.fn().mockImplementation(() => ({ append: jest.fn() }));
-});
-jest.mock("fs");
 jest.mock("node-fetch");
 jest.mock("./create");
 jest.mock("./get");
@@ -19,9 +14,6 @@ jest.mock("./delete");
 jest.mock("./token");
 jest.mock("./validation");
 
-const mockCreateReadStream = fs.createReadStream as jest.MockedFunction<
-  typeof fs.createReadStream
->;
 const mockFetch = fetch as jest.MockedFunction<typeof fetch>;
 const mockCreateMap = createMap as jest.MockedFunction<typeof createMap>;
 const mockGetMap = getMap as jest.MockedFunction<typeof getMap>;
@@ -33,14 +25,24 @@ const mockValidateRequest = validateRequest as jest.MockedFunction<
 >;
 
 describe("Slash Function", () => {
-  mockCreateReadStream.mockReturnValue(
-    ("file stream" as unknown) as ReadStream
-  );
   const mockEnd = jest.fn();
   const mockJson = jest.fn().mockReturnValue({ end: mockEnd });
   const mockResponse = ({
     status: jest.fn().mockReturnValue({ end: mockEnd, json: mockJson }),
   } as unknown) as Response;
+  const mockEmbed = {
+    title: null,
+    type: "rich",
+    description: null,
+    url: null,
+    timestamp: null,
+    color: null,
+    fields: [],
+    thumbnail: null,
+    image: null,
+    author: null,
+    footer: null,
+  };
 
   jest.spyOn(console, "log").mockImplementation(jest.fn());
 
@@ -179,7 +181,7 @@ describe("Slash Function", () => {
               `https://discord.com/api/v8/webhooks/1234/mockToken/messages/@original`,
               {
                 method: "PATCH",
-                body: { append: expect.any(Function) },
+                body: JSON.stringify({ content: "error" }),
               }
             );
           });
@@ -240,12 +242,19 @@ describe("Slash Function", () => {
               columns: 5,
               channelId: "mockChannel",
             });
-            expect(mockCreateReadStream).toBeCalledWith("file");
             expect(mockFetch).toBeCalledWith(
               `https://discord.com/api/v8/webhooks/1234/mockToken/messages/@original`,
               {
                 method: "PATCH",
-                body: { append: expect.any(Function) },
+                body: JSON.stringify({
+                  embeds: [
+                    {
+                      ...mockEmbed,
+                      title: "Map created",
+                      url: "file",
+                    },
+                  ],
+                }),
               }
             );
           });
@@ -293,7 +302,7 @@ describe("Slash Function", () => {
               `https://discord.com/api/v8/webhooks/1234/mockToken/messages/@original`,
               {
                 method: "PATCH",
-                body: { append: expect.any(Function) },
+                body: JSON.stringify({ content: "error" }),
               }
             );
           });
@@ -338,12 +347,19 @@ describe("Slash Function", () => {
             expect(mockGetMap).toBeCalledWith({
               channelId: "mockChannel",
             });
-            expect(mockCreateReadStream).toBeCalledWith("file");
             expect(mockFetch).toBeCalledWith(
               `https://discord.com/api/v8/webhooks/1234/mockToken/messages/@original`,
               {
                 method: "PATCH",
-                body: { append: expect.any(Function) },
+                body: JSON.stringify({
+                  embeds: [
+                    {
+                      ...mockEmbed,
+                      title: "Map retrieved",
+                      url: "file",
+                    },
+                  ],
+                }),
               }
             );
           });
@@ -443,7 +459,7 @@ describe("Slash Function", () => {
               `https://discord.com/api/v8/webhooks/1234/mockToken/messages/@original`,
               {
                 method: "PATCH",
-                body: { append: expect.any(Function) },
+                body: JSON.stringify({ content: "error" }),
               }
             );
           });
@@ -509,12 +525,19 @@ describe("Slash Function", () => {
               colour: "red",
               channelId: "mockChannel",
             });
-            expect(mockCreateReadStream).toBeCalledWith("file");
             expect(mockFetch).toBeCalledWith(
               `https://discord.com/api/v8/webhooks/1234/mockToken/messages/@original`,
               {
                 method: "PATCH",
-                body: { append: expect.any(Function) },
+                body: JSON.stringify({
+                  embeds: [
+                    {
+                      ...mockEmbed,
+                      title: "Token token name added to AA3",
+                      url: "file",
+                    },
+                  ],
+                }),
               }
             );
           });
@@ -575,7 +598,7 @@ describe("Slash Function", () => {
               `https://discord.com/api/v8/webhooks/1234/mockToken/messages/@original`,
               {
                 method: "PATCH",
-                body: { append: expect.any(Function) },
+                body: JSON.stringify({ content: "error" }),
               }
             );
           });
@@ -636,12 +659,19 @@ describe("Slash Function", () => {
               column: "AA",
               channelId: "mockChannel",
             });
-            expect(mockCreateReadStream).toBeCalledWith("file");
             expect(mockFetch).toBeCalledWith(
               `https://discord.com/api/v8/webhooks/1234/mockToken/messages/@original`,
               {
                 method: "PATCH",
-                body: { append: expect.any(Function) },
+                body: JSON.stringify({
+                  embeds: [
+                    {
+                      ...mockEmbed,
+                      title: "Token token name moved to AA3",
+                      url: "file",
+                    },
+                  ],
+                }),
               }
             );
           });
@@ -694,7 +724,9 @@ describe("Slash Function", () => {
               `https://discord.com/api/v8/webhooks/1234/mockToken/messages/@original`,
               {
                 method: "PATCH",
-                body: { append: expect.any(Function) },
+                body: JSON.stringify({
+                  content: "error",
+                }),
               }
             );
           });
@@ -745,12 +777,19 @@ describe("Slash Function", () => {
               name: "token name",
               channelId: "mockChannel",
             });
-            expect(mockCreateReadStream).toBeCalledWith("file");
             expect(mockFetch).toBeCalledWith(
               `https://discord.com/api/v8/webhooks/1234/mockToken/messages/@original`,
               {
                 method: "PATCH",
-                body: { append: expect.any(Function) },
+                body: JSON.stringify({
+                  embeds: [
+                    {
+                      ...mockEmbed,
+                      title: "Token token name deleted",
+                      url: "file",
+                    },
+                  ],
+                }),
               }
             );
           });
