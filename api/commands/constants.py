@@ -1,1 +1,1 @@
-BUCKET = 'carto-map-uploads'
+BUCKET = 'carto-bot-map-uploads'

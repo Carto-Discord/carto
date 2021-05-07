@@ -13,7 +13,7 @@ class Logger(object):
         Logger.execution_id = execution_id
         Logger.res = Resource(type="cloud_function",
                               labels={
-                                  "function_name": "carto-api",
+                                  "function_name": "carto-bot-api",
                               })
         Logger.logger = log_client.logger(log_name)
 
