@@ -206,7 +206,7 @@ export const slashFunction: HttpFunction = async (req, res) => {
     return;
   }
 
-  const commandGroup = body.data.options[0];
+  const commandGroup = body.data;
 
   let channel_id: Snowflake, application_id: string, token: string;
   if ("channel_id" in body) {

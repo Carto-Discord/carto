@@ -104,16 +104,12 @@ describe("Slash Function", () => {
           {
             body: {
               type: InteractionType.APPLICATION_COMMAND,
+              id: "1234",
+              token: "mockToken",
+              channel_id: "mockChannel",
               data: {
-                name: "carto",
-                id: "1234",
-                token: "mockToken",
-                channel_id: "mockChannel",
-                options: [
-                  {
-                    name: "unknown",
-                  },
-                ],
+                name: "unknown",
+                options: [],
               },
             },
             method: "POST",
@@ -145,27 +141,22 @@ describe("Slash Function", () => {
                   token: "mockToken",
                   channel_id: "mockChannel",
                   data: {
-                    name: "carto",
+                    name: "map",
                     options: [
                       {
-                        name: "map",
+                        name: "create",
                         options: [
                           {
-                            name: "create",
-                            options: [
-                              {
-                                name: "url",
-                                value: "some.url",
-                              },
-                              {
-                                name: "rows",
-                                value: 3,
-                              },
-                              {
-                                name: "columns",
-                                value: 5,
-                              },
-                            ],
+                            name: "url",
+                            value: "some.url",
+                          },
+                          {
+                            name: "rows",
+                            value: 3,
+                          },
+                          {
+                            name: "columns",
+                            value: 5,
                           },
                         ],
                       },
@@ -207,27 +198,22 @@ describe("Slash Function", () => {
                   token: "mockToken",
                   channel_id: "mockChannel",
                   data: {
-                    name: "carto",
+                    name: "map",
                     options: [
                       {
-                        name: "map",
+                        name: "create",
                         options: [
                           {
-                            name: "create",
-                            options: [
-                              {
-                                name: "url",
-                                value: "some.url",
-                              },
-                              {
-                                name: "rows",
-                                value: 3,
-                              },
-                              {
-                                name: "columns",
-                                value: 5,
-                              },
-                            ],
+                            name: "url",
+                            value: "some.url",
+                          },
+                          {
+                            name: "rows",
+                            value: 3,
+                          },
+                          {
+                            name: "columns",
+                            value: 5,
                           },
                         ],
                       },
@@ -285,16 +271,11 @@ describe("Slash Function", () => {
                   token: "mockToken",
                   channel_id: "mockChannel",
                   data: {
-                    name: "carto",
+                    name: "map",
                     options: [
                       {
-                        name: "map",
-                        options: [
-                          {
-                            name: "get",
-                            options: [],
-                          },
-                        ],
+                        name: "get",
+                        options: [],
                       },
                     ],
                   },
@@ -334,16 +315,11 @@ describe("Slash Function", () => {
                   token: "mockToken",
                   channel_id: "mockChannel",
                   data: {
-                    name: "carto",
+                    name: "map",
                     options: [
                       {
-                        name: "map",
-                        options: [
-                          {
-                            name: "get",
-                            options: [],
-                          },
-                        ],
+                        name: "get",
+                        options: [],
                       },
                     ],
                   },
@@ -388,16 +364,11 @@ describe("Slash Function", () => {
                 token: "mockToken",
                 channel_id: "mockChannel",
                 data: {
-                  name: "carto",
+                  name: "map",
                   options: [
                     {
-                      name: "map",
-                      options: [
-                        {
-                          name: "unknown",
-                          options: [],
-                        },
-                      ],
+                      name: "unknown",
+                      options: [],
                     },
                   ],
                 },
@@ -431,31 +402,26 @@ describe("Slash Function", () => {
                   token: "mockToken",
                   channel_id: "mockChannel",
                   data: {
-                    name: "carto",
+                    name: "token",
                     options: [
                       {
-                        name: "token",
+                        name: "add",
                         options: [
                           {
-                            name: "add",
-                            options: [
-                              {
-                                name: "name",
-                                value: "token name",
-                              },
-                              {
-                                name: "row",
-                                value: 3,
-                              },
-                              {
-                                name: "column",
-                                value: "AA",
-                              },
-                              {
-                                name: "colour",
-                                value: "red",
-                              },
-                            ],
+                            name: "name",
+                            value: "token name",
+                          },
+                          {
+                            name: "row",
+                            value: 3,
+                          },
+                          {
+                            name: "column",
+                            value: "AA",
+                          },
+                          {
+                            name: "colour",
+                            value: "red",
                           },
                         ],
                       },
@@ -494,31 +460,26 @@ describe("Slash Function", () => {
                 body: {
                   type: InteractionType.APPLICATION_COMMAND,
                   data: {
-                    name: "carto",
+                    name: "token",
                     options: [
                       {
-                        name: "token",
+                        name: "add",
                         options: [
                           {
-                            name: "add",
-                            options: [
-                              {
-                                name: "name",
-                                value: "token name",
-                              },
-                              {
-                                name: "row",
-                                value: 3,
-                              },
-                              {
-                                name: "column",
-                                value: "AA",
-                              },
-                              {
-                                name: "colour",
-                                value: "red",
-                              },
-                            ],
+                            name: "name",
+                            value: "token name",
+                          },
+                          {
+                            name: "row",
+                            value: 3,
+                          },
+                          {
+                            name: "column",
+                            value: "AA",
+                          },
+                          {
+                            name: "colour",
+                            value: "red",
                           },
                         ],
                       },
@@ -580,27 +541,22 @@ describe("Slash Function", () => {
                   token: "mockToken",
                   channel_id: "mockChannel",
                   data: {
-                    name: "carto",
+                    name: "token",
                     options: [
                       {
-                        name: "token",
+                        name: "move",
                         options: [
                           {
-                            name: "move",
-                            options: [
-                              {
-                                name: "name",
-                                value: "token name",
-                              },
-                              {
-                                name: "row",
-                                value: 3,
-                              },
-                              {
-                                name: "column",
-                                value: "AA",
-                              },
-                            ],
+                            name: "name",
+                            value: "token name",
+                          },
+                          {
+                            name: "row",
+                            value: 3,
+                          },
+                          {
+                            name: "column",
+                            value: "AA",
                           },
                         ],
                       },
@@ -639,27 +595,22 @@ describe("Slash Function", () => {
                 body: {
                   type: InteractionType.APPLICATION_COMMAND,
                   data: {
-                    name: "carto",
+                    name: "token",
                     options: [
                       {
-                        name: "token",
+                        name: "move",
                         options: [
                           {
-                            name: "move",
-                            options: [
-                              {
-                                name: "name",
-                                value: "token name",
-                              },
-                              {
-                                name: "row",
-                                value: 3,
-                              },
-                              {
-                                name: "column",
-                                value: "AA",
-                              },
-                            ],
+                            name: "name",
+                            value: "token name",
+                          },
+                          {
+                            name: "row",
+                            value: 3,
+                          },
+                          {
+                            name: "column",
+                            value: "AA",
                           },
                         ],
                       },
@@ -720,19 +671,14 @@ describe("Slash Function", () => {
                   token: "mockToken",
                   channel_id: "mockChannel",
                   data: {
-                    name: "carto",
+                    name: "token",
                     options: [
                       {
-                        name: "token",
+                        name: "delete",
                         options: [
                           {
-                            name: "delete",
-                            options: [
-                              {
-                                name: "name",
-                                value: "token name",
-                              },
-                            ],
+                            name: "name",
+                            value: "token name",
                           },
                         ],
                       },
@@ -776,19 +722,14 @@ describe("Slash Function", () => {
                   token: "mockToken",
                   channel_id: "mockChannel",
                   data: {
-                    name: "carto",
+                    name: "token",
                     options: [
                       {
-                        name: "token",
+                        name: "delete",
                         options: [
                           {
-                            name: "delete",
-                            options: [
-                              {
-                                name: "name",
-                                value: "token name",
-                              },
-                            ],
+                            name: "name",
+                            value: "token name",
                           },
                         ],
                       },
@@ -836,16 +777,11 @@ describe("Slash Function", () => {
                 token: "mockToken",
                 channel_id: "mockChannel",
                 data: {
-                  name: "carto",
+                  name: "token",
                   options: [
                     {
-                      name: "token",
-                      options: [
-                        {
-                          name: "unknown",
-                          options: [],
-                        },
-                      ],
+                      name: "unknown",
+                      options: [],
                     },
                   ],
                 },
