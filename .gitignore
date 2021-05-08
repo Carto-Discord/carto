@@ -13,3 +13,7 @@ __pycache__
 *.zip
 *.env
 *.json
+
+!package.json
+!package-lock.json
+!tsconfig.json
