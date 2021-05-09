@@ -49,3 +49,12 @@ resource "google_cloudfunctions_function" "carto_receiver" {
 resource "google_pubsub_topic" "api_complete" {
   name = "api-complete"
 }
+
+resource "google_pubsub_subscription" "pull_subscription" {
+  name = "debug-subscription"
+  topic = google_pubsub_topic.api_complete.name
+
+  retain_acked_messages = true
+
+  enable_message_ordering = true
+}
