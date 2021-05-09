@@ -96,9 +96,13 @@ describe("Receiver", () => {
           },
           body: JSON.stringify({
             content: "message",
-            image: {
-              url: "url",
-            },
+            embeds: [
+              {
+                image: {
+                  url: "url",
+                },
+              },
+            ],
           }),
         }
       );

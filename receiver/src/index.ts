@@ -13,9 +13,7 @@ type Data = {
 };
 
 export const receiver: EventFunction = (event: Event, _context) => {
-  console.log(event.data);
   const data: Data = JSON.parse(Buffer.from(event.data, "base64").toString());
-  console.log(JSON.stringify(data));
 
   const { message, imageUrl, applicationId, token } = data;
 
@@ -24,9 +22,13 @@ export const receiver: EventFunction = (event: Event, _context) => {
     return;
   }
 
-  const image = imageUrl && {
-    url: imageUrl,
-  };
+  const embeds = imageUrl && [
+    {
+      image: {
+        url: imageUrl,
+      },
+    },
+  ];
 
   fetch(
     `https://discord.com/api/v9/webhooks/${applicationId}/${token}/messages/@original`,
@@ -37,7 +39,7 @@ export const receiver: EventFunction = (event: Event, _context) => {
       },
       body: JSON.stringify({
         content: message,
-        image,
+        embeds,
       }),
     }
   );
