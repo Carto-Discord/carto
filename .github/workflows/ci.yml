@@ -1,9 +1,9 @@
-name: Unit Testing
+name: Integration
 
 on: pull_request
 
 jobs:
-  deploy:
+  test:
     runs-on: ubuntu-latest
     env:
       PYTHONPATH: api
