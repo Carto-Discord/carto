@@ -1,23 +1,22 @@
 import { EventFunction } from "@google-cloud/functions-framework/build/src/functions";
 import fetch from "node-fetch";
 
-type EventData = {
+type Event = {
+  data: string;
+};
+
+type Data = {
   message?: string;
   imageUrl?: string;
   applicationId?: string;
   token?: string;
 };
 
-const fromBase64 = (value?: string) =>
-  value && Buffer.from(value, "base64").toString();
-
-export const receiver: EventFunction = (data: EventData, _context) => {
+export const receiver: EventFunction = (event: Event, _context) => {
+  const data: Data = JSON.parse(Buffer.from(event.data, "base64").toString());
   console.log(JSON.stringify(data));
 
-  const message = fromBase64(data?.message);
-  const imageUrl = fromBase64(data?.imageUrl);
-  const applicationId = fromBase64(data?.applicationId);
-  const token = fromBase64(data?.token);
+  const { message, imageUrl, applicationId, token } = data;
 
   if (!applicationId || !token) {
     console.warn("Application ID or token not found, cannot continue");

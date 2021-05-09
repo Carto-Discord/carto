@@ -6,11 +6,17 @@ jest.mock("node-fetch");
 const mockFetch = fetch as jest.MockedFunction<typeof fetch>;
 
 describe("Receiver", () => {
+  jest.spyOn(console, "log").mockImplementation(jest.fn());
   jest.spyOn(console, "warn").mockImplementation(jest.fn());
 
   describe("given no applicationId is sent", () => {
     it("should not call fetch", () => {
-      receiver({ message: "message", imageUrl: "image", token: "token" }, {});
+      const data = { message: "message", imageUrl: "image", token: "token" };
+
+      receiver(
+        { data: Buffer.from(JSON.stringify(data)).toString("base64") },
+        {}
+      );
 
       expect(mockFetch).not.toBeCalled();
     });
@@ -18,8 +24,16 @@ describe("Receiver", () => {
 
   describe("given no token is sent", () => {
     it("should not call fetch", () => {
+      const data = {
+        message: "message",
+        imageUrl: "image",
+        applicationId: "appId",
+      };
+
       receiver(
-        { message: "message", imageUrl: "image", applicationId: "appId" },
+        {
+          data: Buffer.from(JSON.stringify(data)).toString("base64"),
+        },
         {}
       );
 
@@ -29,11 +43,15 @@ describe("Receiver", () => {
 
   describe("given no imageUrl is sent", () => {
     it("should call fetch with just content", () => {
+      const data = {
+        message: "message",
+        applicationId: "appId",
+        token: "token",
+      };
+
       receiver(
         {
-          message: Buffer.from("message").toString("base64"),
-          applicationId: Buffer.from("appId").toString("base64"),
-          token: Buffer.from("token").toString("base64"),
+          data: Buffer.from(JSON.stringify(data)).toString("base64"),
         },
         {}
       );
@@ -55,12 +73,16 @@ describe("Receiver", () => {
 
   describe("given all values are sent", () => {
     it("should call fetch with just content", () => {
+      const data = {
+        message: "message",
+        applicationId: "appId",
+        token: "token",
+        imageUrl: "url",
+      };
+
       receiver(
         {
-          message: Buffer.from("message").toString("base64"),
-          imageUrl: Buffer.from("url").toString("base64"),
-          applicationId: Buffer.from("appId").toString("base64"),
-          token: Buffer.from("token").toString("base64"),
+          data: Buffer.from(JSON.stringify(data)).toString("base64"),
         },
         {}
       );
