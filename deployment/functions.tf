@@ -10,6 +10,8 @@ resource "google_cloudfunctions_function" "carto_api" {
 
   environment_variables = {
     MAP_BUCKET = google_storage_bucket.map_storage.name
+    GOOGLE_CLOUD_PROJECT = var.app_name
+    PUBSUB_TOPIC = google_pubsub_topic.api_complete.name
   }
 }
 
