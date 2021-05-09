@@ -1,77 +1,75 @@
-import json
 import unittest
 from unittest.mock import patch
-
-from flask import Flask
-from freezegun import freeze_time
-from werkzeug.exceptions import HTTPException
 
 from api.commands.create import create_new_map
 
 
 class CreateTest(unittest.TestCase):
-    app = Flask(__name__)
-
     @patch('commands.map.grid.apply_grid')
-    def test_create_invalid_url(self, mock_apply_grid):
+    @patch('publish.publish')
+    def test_create_invalid_url(self, mock_publish, mock_apply_grid):
         params = {
             'action': 'create',
             'url': 'https://mock.url',
             'rows': 42,
             'columns': 24,
-            'channelId': '1234'
+            'channelId': '1234',
+            'token': 'mockToken',
+            'applicationId': '456'
         }
+        mock_publish.return_value = 'published'
         mock_apply_grid.return_value = None
 
-        with self.app.app_context():
-            with self.assertRaises(HTTPException) as http_error:
-                create_new_map(params)
-                self.assertEqual(http_error.exception.code, 404)
+        create_new_map(params)
+        mock_publish.assert_called_with(token='mockToken', application_id='456',
+                                        message='Url https://mock.url could not be found')
 
     @patch('commands.map.grid.apply_grid')
     @patch('commands.map.storage.upload_blob')
-    def test_create_unable_to_upload(self, mock_upload_blob, mock_apply_grid):
+    @patch('publish.publish')
+    def test_create_unable_to_upload(self, mock_publish, mock_upload_blob, mock_apply_grid):
         params = {
             'action': 'create',
             'url': 'https://mock.url',
             'rows': 42,
             'columns': 24,
-            'channelId': '1234'
+            'channelId': '1234',
+            'token': 'mockToken',
+            'applicationId': '456'
         }
         mock_apply_grid.return_value = 'map.png'
         mock_upload_blob.return_value = None
 
-        with self.app.app_context():
-            with self.assertRaises(HTTPException) as http_error:
-                create_new_map(params)
-                self.assertEqual(http_error.exception.code, 500)
+        create_new_map(params)
+        mock_publish.assert_called_with(token='mockToken', application_id='456',
+                                        message='Map could not be created')
 
-    @freeze_time("2021-04-16")
     @patch('commands.map.grid.apply_grid')
     @patch('commands.map.storage.upload_blob')
     @patch('commands.map.database.update_channel_map')
     @patch('commands.map.database.create_map_info')
-    @patch('commands.constants.BUCKET', 'bucket')
-    def test_create_success(self, mock_create_map_info, mock_update_channel_map, mock_upload_blob, mock_apply_grid):
+    @patch('publish.publish')
+    def test_create_success(self, mock_publish, mock_create_map_info, mock_update_channel_map, mock_upload_blob,
+                            mock_apply_grid):
         params = {
             'action': 'create',
             'url': 'https://mock.url',
             'rows': 42,
             'columns': 24,
-            'channelId': '1234'
+            'channelId': '1234',
+            'token': 'mockToken',
+            'applicationId': '456'
         }
         mock_apply_grid.return_value = 'map.png'
         mock_upload_blob.return_value = 'gcs-file'
 
-        with self.app.app_context():
-            response = create_new_map(params)
+        create_new_map(params)
 
-        self.assertEqual(json.loads(response[0].data)['blob'], 'gcs-file')
-        self.assertEqual(json.loads(response[0].data)['bucket'], 'bucket')
-        self.assertEqual(json.loads(response[0].data)['created'], '2021-04-16T00:00:00')
-        self.assertEqual(response[1], 201)
         mock_update_channel_map.assert_called()
         mock_create_map_info.assert_called()
+
+        mock_publish.assert_called_with(token='mockToken', application_id='456',
+                                        message='Map created', image_url='gcs-file')
 
 
 if __name__ == '__main__':

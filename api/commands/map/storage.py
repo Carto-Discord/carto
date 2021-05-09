@@ -1,7 +1,6 @@
-import logging
-
 from google.cloud import storage
 from google.cloud.exceptions import GoogleCloudError, NotFound
+from logs import Logger
 
 
 def upload_blob(bucket_name, source_file_name, destination_blob_name):
@@ -17,13 +16,13 @@ def upload_blob(bucket_name, source_file_name, destination_blob_name):
 
         blob.upload_from_filename(source_file_name)
 
-        logging.log(level=logging.INFO, msg="File {} uploaded to {}.".format(
+        Logger.log("File {} uploaded to {}.".format(
             source_file_name, destination_blob_name
         ))
 
-        return blob.name
+        return blob.public_url
     except GoogleCloudError as e:
-        logging.log(level=logging.ERROR, msg="File {} could not be uploaded to {}. Reason: {}".format(
+        Logger.log("File {} could not be uploaded to {}. Reason: {}".format(
             source_file_name, destination_blob_name, e
         ))
         return None
@@ -42,13 +41,27 @@ def download_blob(bucket_name, source_blob_name, destination_file_name):
         blob = bucket.blob(source_blob_name)
         blob.download_to_filename(destination_file_name)
 
-        logging.log(level=logging.INFO, msg="Blob {} downloaded to {}.".format(
+        Logger.log("Blob {} downloaded to {}.".format(
             source_blob_name, destination_file_name
         ))
 
         return True
     except NotFound as e:
-        logging.log(level=logging.ERROR, msg="File {} could not be downloaded from {} to {} Reason: {}".format(
+        Logger.log("File {} could not be downloaded from {} to {} Reason: {}".format(
             source_blob_name, bucket_name, destination_file_name, e
         ))
         return False
+
+
+def get_public_url(bucket_name, uuid):
+    try:
+        storage_client = storage.Client()
+        bucket = storage_client.bucket(bucket_name)
+        blob = bucket.blob(uuid)
+
+        return blob.public_url
+    except NotFound as e:
+        Logger.log("Map {} could not be found in {}. Reason: {}".format(
+            uuid, bucket_name, e
+        ))
+        return None
