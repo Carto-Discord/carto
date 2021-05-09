@@ -1,11 +1,16 @@
 import { createAuthenticatedClient } from "./authentication";
 import { handleRequest } from "./requestHandler";
+import { PubSubProps } from "./types";
 
-export type DeleteProps = {
+export type DeleteProps = PubSubProps & {
   channelId: string;
 };
 
-export const deleteChannel = async ({ channelId }: DeleteProps) => {
+export const deleteChannel = async ({
+  applicationId,
+  channelId,
+  token,
+}: DeleteProps) => {
   const triggerUrl = process.env.HTTP_TRIGGER_URL;
   const client = await createAuthenticatedClient(triggerUrl);
 
@@ -14,7 +19,7 @@ export const deleteChannel = async ({ channelId }: DeleteProps) => {
       url: triggerUrl,
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
-      data: { channelId },
+      data: { applicationId, channelId, token },
     })
   );
 };

@@ -26,7 +26,9 @@ describe("Delete", () => {
   describe("Delete Channel Map", () => {
     it("should call handleRequest with the appropriate request", async () => {
       await deleteChannel({
+        applicationId: "appId",
         channelId: "1234",
+        token: "mockToken",
       });
 
       expect(mockHandleRequest).toBeCalledTimes(1);
@@ -36,7 +38,7 @@ describe("Delete", () => {
         url: "https://trigger.url",
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        data: { channelId: "1234" },
+        data: { applicationId: "appId", channelId: "1234", token: "mockToken" },
       });
     });
   });

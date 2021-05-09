@@ -28,6 +28,8 @@ describe("Create", () => {
   describe("Create Map", () => {
     it("should call handleRequest with the appropriate request", async () => {
       await createMap({
+        applicationId: "appId",
+        token: "mockToken",
         url: "url",
         rows: 1,
         columns: 2,
@@ -45,6 +47,8 @@ describe("Create", () => {
         },
         data: {
           action: "create",
+          applicationId: "appId",
+          token: "mockToken",
           url: "url",
           rows: 1,
           columns: 2,

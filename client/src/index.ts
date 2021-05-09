@@ -1,6 +1,5 @@
-import { Snowflake, MessageEmbed } from "discord.js";
+import { Snowflake } from "discord.js";
 import dotenv from "dotenv";
-import { response, Response } from "express";
 import {
   ApplicationCommandInteractionDataOption,
   InteractionResponseType,
@@ -20,37 +19,14 @@ import {
 } from "./token";
 import { validateRequest } from "./validation";
 import { CommandGroup, SubCommand, CommandOptions } from "./types";
-import { TokenResponse } from "./requestHandler";
 
 dotenv.config();
 
-type UpdatedResponse = {
-  messageEmbed?: MessageEmbed;
-  content?: string;
-};
-
 type CommandProps = {
   command: ApplicationCommandInteractionDataOption;
-  channelId: string;
-  respond: (response: UpdatedResponse) => void;
-};
-
-const updateResponse = (response: Response) => ({
-  messageEmbed,
-  content,
-}: UpdatedResponse) => {
-  const embeds = messageEmbed && [messageEmbed.toJSON()];
-
-  response
-    .status(200)
-    .json({
-      type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-      data: {
-        content,
-        embeds,
-      },
-    })
-    .end();
+  channelId: Snowflake;
+  token: string;
+  applicationId: Snowflake;
 };
 
 const extractParameters = <T extends CommandOptions>(
@@ -64,14 +40,12 @@ const extractParameters = <T extends CommandOptions>(
   }
 };
 
-const handleMapCommands = async ({
-  command,
+const handleMapCommands = ({
+  applicationId,
   channelId,
-  respond,
+  command,
+  token,
 }: CommandProps) => {
-  let response: TokenResponse;
-  const embed = new MessageEmbed();
-
   // We can be confident that each subcommand will have the correct parameters,
   // as this is type checked by Discord before reaching here.
   switch (command.name) {
@@ -79,32 +53,19 @@ const handleMapCommands = async ({
       console.log("Received creation request");
       const { url, rows, columns } = extractParameters<CreateProps>(command);
 
-      response = await createMap({
-        url,
-        rows,
-        columns,
+      createMap({
+        applicationId,
         channelId,
+        columns,
+        rows,
+        token,
+        url,
       });
-
-      response.success
-        ? respond({
-            messageEmbed: embed.setTitle("Map created").setImage(response.body),
-          })
-        : respond({ content: response.body });
-
       break;
 
     case SubCommand.MAP_GET:
       console.log("Received Map get request");
-      response = await getMap({ channelId });
-
-      response.success
-        ? respond({
-            messageEmbed: embed
-              .setTitle("Map retrieved")
-              .setImage(response.body),
-          })
-        : respond({ content: response.body });
+      getMap({ applicationId, channelId, token });
       break;
 
     default:
@@ -112,14 +73,13 @@ const handleMapCommands = async ({
   }
 };
 
-const handleTokenCommands = async ({
-  command,
+const handleTokenCommands = ({
+  applicationId,
   channelId,
-  respond,
+  command,
+  token,
 }: CommandProps) => {
-  let response: TokenResponse;
   let name, row, column, colour, size;
-  const embed = new MessageEmbed();
 
   // We can be confident that each subcommand will have the correct parameters,
   // as this is type checked by Discord before reaching here.
@@ -130,50 +90,28 @@ const handleTokenCommands = async ({
         command
       ));
 
-      response = await addToken({
-        name,
-        row,
+      addToken({
+        applicationId,
+        channelId,
         column,
         colour,
+        name,
+        row,
         size,
-        channelId,
+        token,
       });
-
-      response.success
-        ? respond({
-            messageEmbed: embed
-              .setTitle(`Token ${name} added to ${column}${row}`)
-              .setImage(response.body),
-          })
-        : respond({ content: response.body });
       break;
 
     case SubCommand.TOKEN_MOVE:
       console.log("Received token move request");
       ({ name, row, column } = extractParameters<MoveProps>(command));
-      response = await moveToken({ name, row, column, channelId });
-
-      response.success
-        ? respond({
-            messageEmbed: embed
-              .setTitle(`Token ${name} moved to ${column}${row}`)
-              .setImage(response.body),
-          })
-        : respond({ content: response.body });
+      moveToken({ applicationId, column, channelId, name, row, token });
       break;
 
     case SubCommand.TOKEN_DELETE:
       console.log("Received token deletion request");
       ({ name } = extractParameters<DeleteProps>(command));
-      response = await deleteToken({ name, channelId });
-
-      response.success
-        ? respond({
-            messageEmbed: embed
-              .setTitle(`Token ${name} deleted`)
-              .setImage(response.body),
-          })
-        : respond({ content: response.body });
+      deleteToken({ applicationId, channelId, name, token });
       break;
 
     default:
@@ -181,7 +119,7 @@ const handleTokenCommands = async ({
   }
 };
 
-export const slashFunction: HttpFunction = async (req, res) => {
+export const slashFunction: HttpFunction = (req, res) => {
   const isVerified = validateRequest(req);
 
   if (!isVerified) {
@@ -202,28 +140,28 @@ export const slashFunction: HttpFunction = async (req, res) => {
 
   const commandGroup = body.data;
 
-  let channel_id: Snowflake;
+  let channel_id: Snowflake, token: string, application_id: Snowflake;
   if ("channel_id" in body) {
-    ({ channel_id } = body);
+    ({ channel_id, token, application_id } = body);
   }
-
-  const respond = updateResponse(res);
 
   if ("options" in commandGroup) {
     switch (commandGroup.name) {
       case CommandGroup.MAP:
-        await handleMapCommands({
-          command: commandGroup.options[0],
+        handleMapCommands({
+          applicationId: application_id,
           channelId: channel_id,
-          respond,
+          command: commandGroup.options[0],
+          token,
         });
         break;
 
       case CommandGroup.TOKEN:
-        await handleTokenCommands({
-          command: commandGroup.options[0],
+        handleTokenCommands({
+          applicationId: application_id,
           channelId: channel_id,
-          respond,
+          command: commandGroup.options[0],
+          token,
         });
         break;
 
@@ -231,4 +169,11 @@ export const slashFunction: HttpFunction = async (req, res) => {
         break;
     }
   }
+
+  res
+    .status(200)
+    .json({
+      type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+    })
+    .end();
 };

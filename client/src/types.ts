@@ -16,6 +16,11 @@ export enum SubCommand {
   TOKEN_DELETE = "delete",
 }
 
+export type PubSubProps = {
+  applicationId: string;
+  token: string;
+};
+
 export type CommandOptions =
   | CreateProps
   | MapDeleteProps

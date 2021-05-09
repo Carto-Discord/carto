@@ -27,19 +27,6 @@ describe("Slash Function", () => {
   const mockResponse = ({
     status: jest.fn().mockReturnValue({ end: mockEnd, json: mockJson }),
   } as unknown) as Response;
-  const mockEmbed = {
-    title: null,
-    type: "rich",
-    description: null,
-    url: null,
-    timestamp: null,
-    color: null,
-    fields: [],
-    thumbnail: null,
-    image: null,
-    author: null,
-    footer: null,
-  };
 
   jest.spyOn(console, "log").mockImplementation(jest.fn());
 
@@ -54,8 +41,8 @@ describe("Slash Function", () => {
       mockValidateRequest.mockReturnValue(false);
     });
 
-    it("should return a 401 response", async () => {
-      await slashFunction({} as Request, mockResponse);
+    it("should return a 401 response", () => {
+      slashFunction({} as Request, mockResponse);
 
       expect(mockResponse.status).toBeCalledWith(401);
       expect(mockEnd).toBeCalledWith("invalid request signature");
@@ -69,8 +56,8 @@ describe("Slash Function", () => {
     });
 
     describe("given a method type other than POST is sent", () => {
-      it("should return a 405 response", async () => {
-        await slashFunction(
+      it("should return a 405 response", () => {
+        slashFunction(
           { body: { type: InteractionType.PING }, method: "GET" } as Request,
           mockResponse
         );
@@ -81,8 +68,8 @@ describe("Slash Function", () => {
     });
 
     describe("given a body type of PING is sent", () => {
-      it("should return a 200 response with a type of PONG", async () => {
-        await slashFunction(
+      it("should return a 200 response with a type of PONG", () => {
+        slashFunction(
           { body: { type: InteractionType.PING }, method: "POST" } as Request,
           mockResponse
         );
@@ -96,8 +83,8 @@ describe("Slash Function", () => {
     });
 
     describe("given an unknown command is recieved", () => {
-      it("should end without doing anything", async () => {
-        await slashFunction(
+      it("should end without doing anything", () => {
+        slashFunction(
           {
             body: {
               type: InteractionType.APPLICATION_COMMAND,
@@ -114,221 +101,104 @@ describe("Slash Function", () => {
           mockResponse
         );
 
-        expect(mockJson).not.toBeCalled();
+        expect(mockAddToken).not.toBeCalled();
+        expect(mockDeleteToken).not.toBeCalled();
+        expect(mockMoveToken).not.toBeCalled();
+        expect(mockCreateMap).not.toBeCalled();
+        expect(mockGetMap).not.toBeCalled();
       });
     });
 
     describe("given a map command is received", () => {
       describe("given a create subcommand is received", () => {
-        describe("given the create response fails", () => {
-          beforeEach(() => {
-            mockCreateMap.mockResolvedValue({
-              success: false,
-              body: "error",
-            });
-          });
-
-          it("should send a message back to the channel", async () => {
-            await slashFunction(
-              {
-                body: {
-                  type: InteractionType.APPLICATION_COMMAND,
-                  application_id: "1234",
-                  token: "mockToken",
-                  channel_id: "mockChannel",
-                  data: {
-                    name: "map",
-                    options: [
-                      {
-                        name: "create",
-                        options: [
-                          {
-                            name: "url",
-                            value: "some.url",
-                          },
-                          {
-                            name: "rows",
-                            value: 3,
-                          },
-                          {
-                            name: "columns",
-                            value: 5,
-                          },
-                        ],
-                      },
-                    ],
-                  },
+        it("should send a message back to the channel", () => {
+          slashFunction(
+            {
+              body: {
+                type: InteractionType.APPLICATION_COMMAND,
+                application_id: "1234",
+                token: "mockToken",
+                channel_id: "mockChannel",
+                data: {
+                  name: "map",
+                  options: [
+                    {
+                      name: "create",
+                      options: [
+                        {
+                          name: "url",
+                          value: "some.url",
+                        },
+                        {
+                          name: "rows",
+                          value: 3,
+                        },
+                        {
+                          name: "columns",
+                          value: 5,
+                        },
+                      ],
+                    },
+                  ],
                 },
-                method: "POST",
-              } as Request,
-              mockResponse
-            );
-
-            expect(mockJson).toBeCalledWith({
-              type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-              data: { content: "error" },
-            });
-          });
-        });
-
-        describe("given the create response succeeds", () => {
-          beforeEach(() => {
-            mockCreateMap.mockResolvedValue({
-              success: true,
-              body: "file",
-            });
-          });
-
-          it("should send a message back to the channel", async () => {
-            await slashFunction(
-              {
-                body: {
-                  type: InteractionType.APPLICATION_COMMAND,
-                  application_id: "1234",
-                  token: "mockToken",
-                  channel_id: "mockChannel",
-                  data: {
-                    name: "map",
-                    options: [
-                      {
-                        name: "create",
-                        options: [
-                          {
-                            name: "url",
-                            value: "some.url",
-                          },
-                          {
-                            name: "rows",
-                            value: 3,
-                          },
-                          {
-                            name: "columns",
-                            value: 5,
-                          },
-                        ],
-                      },
-                    ],
-                  },
-                },
-                method: "POST",
-              } as Request,
-              mockResponse
-            );
-
-            expect(mockCreateMap).toBeCalledWith({
-              url: "some.url",
-              rows: 3,
-              columns: 5,
-              channelId: "mockChannel",
-            });
-            expect(mockJson).toBeCalledWith({
-              type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-              data: {
-                embeds: [
-                  {
-                    ...mockEmbed,
-                    title: "Map created",
-                    image: { url: "file" },
-                  },
-                ],
               },
-            });
+              method: "POST",
+            } as Request,
+            mockResponse
+          );
+
+          expect(mockCreateMap).toBeCalledWith({
+            applicationId: "1234",
+            channelId: "mockChannel",
+            columns: 5,
+            rows: 3,
+            url: "some.url",
+            token: "mockToken",
+          });
+          expect(mockJson).toBeCalledWith({
+            type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
           });
         });
       });
 
       describe("given a get subcommand is received", () => {
-        describe("given the get response fails", () => {
-          beforeEach(() => {
-            mockGetMap.mockResolvedValue({
-              success: false,
-              body: "error",
-            });
-          });
-
-          it("should send a message back to the channel", async () => {
-            await slashFunction(
-              {
-                body: {
-                  type: InteractionType.APPLICATION_COMMAND,
-                  application_id: "1234",
-                  token: "mockToken",
-                  channel_id: "mockChannel",
-                  data: {
-                    name: "map",
-                    options: [
-                      {
-                        name: "get",
-                        options: [],
-                      },
-                    ],
-                  },
+        it("should send a message back to the channel", () => {
+          slashFunction(
+            {
+              body: {
+                type: InteractionType.APPLICATION_COMMAND,
+                application_id: "1234",
+                token: "mockToken",
+                channel_id: "mockChannel",
+                data: {
+                  name: "map",
+                  options: [
+                    {
+                      name: "get",
+                      options: [],
+                    },
+                  ],
                 },
-                method: "POST",
-              } as Request,
-              mockResponse
-            );
-
-            expect(mockJson).toBeCalledWith({
-              type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-              data: { content: "error" },
-            });
-          });
-        });
-
-        describe("given the get response succeeds", () => {
-          beforeEach(() => {
-            mockGetMap.mockResolvedValue({
-              success: true,
-              body: "file",
-            });
-          });
-
-          it("should send a message back to the channel", async () => {
-            await slashFunction(
-              {
-                body: {
-                  type: InteractionType.APPLICATION_COMMAND,
-                  application_id: "1234",
-                  token: "mockToken",
-                  channel_id: "mockChannel",
-                  data: {
-                    name: "map",
-                    options: [
-                      {
-                        name: "get",
-                        options: [],
-                      },
-                    ],
-                  },
-                },
-                method: "POST",
-              } as Request,
-              mockResponse
-            );
-
-            expect(mockGetMap).toBeCalledWith({
-              channelId: "mockChannel",
-            });
-            expect(mockJson).toBeCalledWith({
-              type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-              data: {
-                embeds: [
-                  {
-                    ...mockEmbed,
-                    title: "Map retrieved",
-                    image: { url: "file" },
-                  },
-                ],
               },
-            });
+              method: "POST",
+            } as Request,
+            mockResponse
+          );
+
+          expect(mockGetMap).toBeCalledWith({
+            applicationId: "1234",
+            channelId: "mockChannel",
+            token: "mockToken",
+          });
+          expect(mockJson).toBeCalledWith({
+            type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
           });
         });
       });
 
       describe("given an unknown subcommand is received", () => {
-        it("should do nothing", async () => {
-          await slashFunction(
+        it("should do nothing", () => {
+          slashFunction(
             {
               body: {
                 type: InteractionType.APPLICATION_COMMAND,
@@ -350,360 +220,167 @@ describe("Slash Function", () => {
             mockResponse
           );
 
-          expect(mockJson).not.toBeCalled();
+          expect(mockAddToken).not.toBeCalled();
+          expect(mockDeleteToken).not.toBeCalled();
+          expect(mockMoveToken).not.toBeCalled();
+          expect(mockCreateMap).not.toBeCalled();
+          expect(mockGetMap).not.toBeCalled();
         });
       });
     });
 
     describe("given a token command is received", () => {
       describe("given an add subcommand is received", () => {
-        describe("given the add response fails", () => {
-          beforeEach(() => {
-            mockAddToken.mockResolvedValue({
-              success: false,
-              body: "error",
-            });
-          });
-
-          it("should send a message back to the channel", async () => {
-            await slashFunction(
-              {
-                body: {
-                  type: InteractionType.APPLICATION_COMMAND,
-                  application_id: "1234",
-                  token: "mockToken",
-                  channel_id: "mockChannel",
-                  data: {
-                    name: "token",
-                    options: [
-                      {
-                        name: "add",
-                        options: [
-                          {
-                            name: "name",
-                            value: "token name",
-                          },
-                          {
-                            name: "row",
-                            value: 3,
-                          },
-                          {
-                            name: "column",
-                            value: "AA",
-                          },
-                          {
-                            name: "colour",
-                            value: "red",
-                          },
-                        ],
-                      },
-                    ],
-                  },
+        it("should send a message back to the channel", () => {
+          slashFunction(
+            {
+              body: {
+                type: InteractionType.APPLICATION_COMMAND,
+                data: {
+                  name: "token",
+                  options: [
+                    {
+                      name: "add",
+                      options: [
+                        {
+                          name: "name",
+                          value: "token name",
+                        },
+                        {
+                          name: "row",
+                          value: 3,
+                        },
+                        {
+                          name: "column",
+                          value: "AA",
+                        },
+                        {
+                          name: "colour",
+                          value: "red",
+                        },
+                      ],
+                    },
+                  ],
                 },
-                method: "POST",
-              } as Request,
-              mockResponse
-            );
-
-            expect(mockJson).toBeCalledWith({
-              type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-              data: { content: "error" },
-            });
-          });
-        });
-
-        describe("given the add response succeeds", () => {
-          beforeEach(() => {
-            mockAddToken.mockResolvedValue({
-              success: true,
-              body: "file",
-            });
-          });
-
-          it("should send a message back to the channel", async () => {
-            await slashFunction(
-              {
-                body: {
-                  type: InteractionType.APPLICATION_COMMAND,
-                  data: {
-                    name: "token",
-                    options: [
-                      {
-                        name: "add",
-                        options: [
-                          {
-                            name: "name",
-                            value: "token name",
-                          },
-                          {
-                            name: "row",
-                            value: 3,
-                          },
-                          {
-                            name: "column",
-                            value: "AA",
-                          },
-                          {
-                            name: "colour",
-                            value: "red",
-                          },
-                        ],
-                      },
-                    ],
-                  },
-                  application_id: "1234",
-                  token: "mockToken",
-                  channel_id: "mockChannel",
-                },
-                method: "POST",
-              } as Request,
-              mockResponse
-            );
-
-            expect(mockAddToken).toBeCalledWith({
-              name: "token name",
-              row: 3,
-              column: "AA",
-              colour: "red",
-              channelId: "mockChannel",
-            });
-            expect(mockJson).toBeCalledWith({
-              type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-              data: {
-                embeds: [
-                  {
-                    ...mockEmbed,
-                    title: "Token token name added to AA3",
-                    image: { url: "file" },
-                  },
-                ],
+                application_id: "1234",
+                token: "mockToken",
+                channel_id: "mockChannel",
               },
-            });
+              method: "POST",
+            } as Request,
+            mockResponse
+          );
+
+          expect(mockAddToken).toBeCalledWith({
+            applicationId: "1234",
+            channelId: "mockChannel",
+            colour: "red",
+            column: "AA",
+            name: "token name",
+            row: 3,
+            token: "mockToken",
+          });
+          expect(mockJson).toBeCalledWith({
+            type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
           });
         });
       });
 
       describe("given an move subcommand is received", () => {
-        describe("given the move response fails", () => {
-          beforeEach(() => {
-            mockMoveToken.mockResolvedValue({
-              success: false,
-              body: "error",
-            });
-          });
-
-          it("should send a message back to the channel", async () => {
-            await slashFunction(
-              {
-                body: {
-                  type: InteractionType.APPLICATION_COMMAND,
-                  application_id: "1234",
-                  token: "mockToken",
-                  channel_id: "mockChannel",
-                  data: {
-                    name: "token",
-                    options: [
-                      {
-                        name: "move",
-                        options: [
-                          {
-                            name: "name",
-                            value: "token name",
-                          },
-                          {
-                            name: "row",
-                            value: 3,
-                          },
-                          {
-                            name: "column",
-                            value: "AA",
-                          },
-                        ],
-                      },
-                    ],
-                  },
+        it("should send a message back to the channel", () => {
+          slashFunction(
+            {
+              body: {
+                type: InteractionType.APPLICATION_COMMAND,
+                data: {
+                  name: "token",
+                  options: [
+                    {
+                      name: "move",
+                      options: [
+                        {
+                          name: "name",
+                          value: "token name",
+                        },
+                        {
+                          name: "row",
+                          value: 3,
+                        },
+                        {
+                          name: "column",
+                          value: "AA",
+                        },
+                      ],
+                    },
+                  ],
                 },
-                method: "POST",
-              } as Request,
-              mockResponse
-            );
-
-            expect(mockJson).toBeCalledWith({
-              type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-              data: { content: "error" },
-            });
-          });
-        });
-
-        describe("given the move response succeeds", () => {
-          beforeEach(() => {
-            mockMoveToken.mockResolvedValue({
-              success: true,
-              body: "file",
-            });
-          });
-
-          it("should send a message back to the channel", async () => {
-            await slashFunction(
-              {
-                body: {
-                  type: InteractionType.APPLICATION_COMMAND,
-                  data: {
-                    name: "token",
-                    options: [
-                      {
-                        name: "move",
-                        options: [
-                          {
-                            name: "name",
-                            value: "token name",
-                          },
-                          {
-                            name: "row",
-                            value: 3,
-                          },
-                          {
-                            name: "column",
-                            value: "AA",
-                          },
-                        ],
-                      },
-                    ],
-                  },
-                  application_id: "1234",
-                  token: "mockToken",
-                  channel_id: "mockChannel",
-                },
-                method: "POST",
-              } as Request,
-              mockResponse
-            );
-
-            expect(mockMoveToken).toBeCalledWith({
-              name: "token name",
-              row: 3,
-              column: "AA",
-              channelId: "mockChannel",
-            });
-            expect(mockJson).toBeCalledWith({
-              type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-              data: {
-                embeds: [
-                  {
-                    ...mockEmbed,
-                    title: "Token token name moved to AA3",
-                    image: { url: "file" },
-                  },
-                ],
+                application_id: "1234",
+                token: "mockToken",
+                channel_id: "mockChannel",
               },
-            });
+              method: "POST",
+            } as Request,
+            mockResponse
+          );
+
+          expect(mockMoveToken).toBeCalledWith({
+            applicationId: "1234",
+            channelId: "mockChannel",
+            column: "AA",
+            name: "token name",
+            row: 3,
+            token: "mockToken",
+          });
+          expect(mockJson).toBeCalledWith({
+            type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
           });
         });
       });
 
       describe("given an delete subcommand is received", () => {
-        describe("given the delete response fails", () => {
-          beforeEach(() => {
-            mockDeleteToken.mockResolvedValue({
-              success: false,
-              body: "error",
-            });
-          });
-
-          it("should send a message back to the channel", async () => {
-            await slashFunction(
-              {
-                body: {
-                  type: InteractionType.APPLICATION_COMMAND,
-                  application_id: "1234",
-                  token: "mockToken",
-                  channel_id: "mockChannel",
-                  data: {
-                    name: "token",
-                    options: [
-                      {
-                        name: "delete",
-                        options: [
-                          {
-                            name: "name",
-                            value: "token name",
-                          },
-                        ],
-                      },
-                    ],
-                  },
+        it("should send a message back to the channel", () => {
+          slashFunction(
+            {
+              body: {
+                type: InteractionType.APPLICATION_COMMAND,
+                application_id: "1234",
+                token: "mockToken",
+                channel_id: "mockChannel",
+                data: {
+                  name: "token",
+                  options: [
+                    {
+                      name: "delete",
+                      options: [
+                        {
+                          name: "name",
+                          value: "token name",
+                        },
+                      ],
+                    },
+                  ],
                 },
-                method: "POST",
-              } as Request,
-              mockResponse
-            );
-
-            expect(mockJson).toBeCalledWith({
-              type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-              data: { content: "error" },
-            });
-          });
-        });
-
-        describe("given the delete response succeeds", () => {
-          beforeEach(() => {
-            mockDeleteToken.mockResolvedValue({
-              success: true,
-              body: "file",
-            });
-          });
-
-          it("should send a message back to the channel", async () => {
-            await slashFunction(
-              {
-                body: {
-                  type: InteractionType.APPLICATION_COMMAND,
-                  application_id: "1234",
-                  token: "mockToken",
-                  channel_id: "mockChannel",
-                  data: {
-                    name: "token",
-                    options: [
-                      {
-                        name: "delete",
-                        options: [
-                          {
-                            name: "name",
-                            value: "token name",
-                          },
-                        ],
-                      },
-                    ],
-                  },
-                },
-                method: "POST",
-              } as Request,
-              mockResponse
-            );
-
-            expect(mockDeleteToken).toBeCalledWith({
-              name: "token name",
-              channelId: "mockChannel",
-            });
-            expect(mockJson).toBeCalledWith({
-              type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-              data: {
-                embeds: [
-                  {
-                    ...mockEmbed,
-                    title: "Token token name deleted",
-                    image: { url: "file" },
-                  },
-                ],
               },
-            });
+              method: "POST",
+            } as Request,
+            mockResponse
+          );
+
+          expect(mockDeleteToken).toBeCalledWith({
+            applicationId: "1234",
+            channelId: "mockChannel",
+            name: "token name",
+            token: "mockToken",
+          });
+          expect(mockJson).toBeCalledWith({
+            type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
           });
         });
       });
 
       describe("given an unknown subcommand is received", () => {
-        it("should do nothing", async () => {
-          await slashFunction(
+        it("should do nothing", () => {
+          slashFunction(
             {
               body: {
                 type: InteractionType.APPLICATION_COMMAND,
@@ -725,7 +402,11 @@ describe("Slash Function", () => {
             mockResponse
           );
 
-          expect(mockJson).not.toBeCalled();
+          expect(mockAddToken).not.toBeCalled();
+          expect(mockDeleteToken).not.toBeCalled();
+          expect(mockMoveToken).not.toBeCalled();
+          expect(mockCreateMap).not.toBeCalled();
+          expect(mockGetMap).not.toBeCalled();
         });
       });
     });
