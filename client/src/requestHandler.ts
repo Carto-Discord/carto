@@ -1,5 +1,4 @@
 import { GaxiosPromise } from "gaxios";
-import { getBlobUrl } from "./storage";
 
 type ResponseData = {
   created: string;
@@ -8,44 +7,10 @@ type ResponseData = {
   message?: string;
 };
 
-export type TokenResponse = {
-  success: boolean;
-  message?: string;
-  body: string;
-};
-
 export const handleRequest = async (
   request: () => GaxiosPromise<ResponseData>
-): Promise<TokenResponse> => {
-  try {
-    const response = await request();
-
-    const { blob, bucket, message } = response.data as ResponseData;
-    const blobUrl = await getBlobUrl({ blob, bucket });
-
-    return {
-      success: true,
-      body: blobUrl,
-      message,
-    };
-  } catch (error) {
-    console.warn(
-      `Non-ok response received.\n Status: ${
-        error.response.status
-      }\n Data: ${JSON.stringify(error.response.data)}`
-    );
-
-    if (error.response.status < 500) {
-      return {
-        success: false,
-        body: error.response.data.message,
-      };
-    } else {
-      return {
-        success: false,
-        body:
-          "A server error occured. Please raise a GitHub issue detailing the problem.",
-      };
-    }
-  }
+) => {
+  request().catch((e) =>
+    console.warn(`Non-ok response received.\n Error: ${e}`)
+  );
 };

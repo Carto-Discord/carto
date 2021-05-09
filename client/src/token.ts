@@ -1,36 +1,39 @@
 import { createAuthenticatedClient } from "./authentication";
 import { handleRequest } from "./requestHandler";
+import { PubSubProps } from "./types";
 
-export type AddProps = {
-  name: string;
-  row: number;
-  column: string;
-  size?: string;
+export type AddProps = PubSubProps & {
   condition?: string;
   colour?: string;
-  channelId: string;
-};
-
-export type MoveProps = {
-  name: string;
-  row: number;
   column: string;
   channelId: string;
+  name: string;
+  row: number;
+  size?: string;
 };
 
-export type DeleteProps = {
-  name: string;
+export type MoveProps = PubSubProps & {
+  column: string;
   channelId: string;
+  name: string;
+  row: number;
+};
+
+export type DeleteProps = PubSubProps & {
+  channelId: string;
+  name: string;
 };
 
 export const addToken = async ({
+  applicationId,
+  channelId,
+  colour,
+  column,
+  condition,
   name,
   row,
-  column,
   size = "MEDIUM",
-  condition,
-  colour,
-  channelId,
+  token,
 }: AddProps) => {
   const triggerUrl = process.env.HTTP_TRIGGER_URL;
   const client = await createAuthenticatedClient(triggerUrl);
@@ -42,23 +45,27 @@ export const addToken = async ({
       headers: { "Content-Type": "application/json" },
       data: {
         action: "addToken",
+        applicationId,
+        channelId,
+        colour,
+        column,
+        condition,
         name,
         row,
-        column,
         size,
-        condition,
-        colour,
-        channelId,
+        token,
       },
     })
   );
 };
 
 export const moveToken = async ({
+  applicationId,
+  channelId,
+  column,
   name,
   row,
-  column,
-  channelId,
+  token,
 }: MoveProps) => {
   const triggerUrl = process.env.HTTP_TRIGGER_URL;
   const client = await createAuthenticatedClient(triggerUrl);
@@ -70,16 +77,23 @@ export const moveToken = async ({
       headers: { "Content-Type": "application/json" },
       data: {
         action: "moveToken",
+        applicationId,
+        channelId,
+        column,
         name,
         row,
-        column,
-        channelId,
+        token,
       },
     })
   );
 };
 
-export const deleteToken = async ({ name, channelId }: DeleteProps) => {
+export const deleteToken = async ({
+  applicationId,
+  channelId,
+  name,
+  token,
+}: DeleteProps) => {
   const triggerUrl = process.env.HTTP_TRIGGER_URL;
   const client = await createAuthenticatedClient(triggerUrl);
 
@@ -88,11 +102,7 @@ export const deleteToken = async ({ name, channelId }: DeleteProps) => {
       url: triggerUrl,
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
-      data: {
-        action: "deleteToken",
-        name,
-        channelId,
-      },
+      data: { action: "deleteToken", applicationId, channelId, name, token },
     })
   );
 };

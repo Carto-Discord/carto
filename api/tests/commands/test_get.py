@@ -1,21 +1,17 @@
-import json
 import unittest
 from unittest.mock import patch
-
-from flask import Flask
-from werkzeug.exceptions import HTTPException
 
 from api.commands.get import get_channel_map
 
 
 @patch('logs.Logger.log')
 class GetTest(unittest.TestCase):
-    app = Flask(__name__)
-
     @patch('commands.map.database.get_current_channel_map')
     @patch('commands.map.database.get_map_info')
+    @patch('commands.map.storage.get_public_url')
+    @patch('publish.publish')
     @patch('commands.constants.BUCKET', 'bucket')
-    def test_get_channel_map(self, mock_map_info, mock_get_map, mock_log):
+    def test_get_channel_map(self, mock_publish, mock_public_url, mock_map_info, mock_get_map, mock_log):
         mock_get_map.return_value = '1234'
         mock_map_info.return_value = {
             'tokens': [
@@ -31,42 +27,43 @@ class GetTest(unittest.TestCase):
                 }
             ]
         }
+        mock_public_url.return_value = 'public url'
 
-        with self.app.app_context():
-            response = get_channel_map({'channelId': '4567'})
-
-        self.assertEqual(json.loads(response[0].data)['blob'], '1234.png')
-        self.assertEqual(json.loads(response[0].data)['bucket'], 'bucket')
-        self.assertEqual(json.loads(response[0].data)['message'], 'Tokens on map:\ntoken1: (AA, 4)\ntoken2: (B, 7)\n')
+        get_channel_map({'channelId': '4567', 'token': 'mockToken', 'applicationId': '456'})
+        mock_publish.assert_called_with(token='mockToken', application_id='456',
+                                        message='Tokens on map:\ntoken1: (AA, 4)\ntoken2: (B, 7)\n',
+                                        image_url='public url')
 
     @patch('commands.map.database.get_current_channel_map')
     @patch('commands.map.database.get_map_info')
+    @patch('commands.map.storage.get_public_url')
+    @patch('publish.publish')
     @patch('commands.constants.BUCKET', 'bucket')
-    def test_get_channel_map_no_tokens(self, mock_map_info, mock_get_map, mock_log):
+    def test_get_channel_map_no_tokens(self, mock_publish, mock_public_url, mock_map_info, mock_get_map, mock_log):
         mock_get_map.return_value = '1234'
         mock_map_info.return_value = {}
+        mock_public_url.return_value = 'public url'
 
-        with self.app.app_context():
-            response = get_channel_map({'channelId': '4567'})
+        get_channel_map({'channelId': '4567', 'token': 'mockToken', 'applicationId': '456'})
 
-        self.assertEqual(json.loads(response[0].data)['blob'], '1234.png')
-        self.assertEqual(json.loads(response[0].data)['bucket'], 'bucket')
-        self.assertEqual(json.loads(response[0].data)['message'], '')
+        mock_publish.assert_called_with(token='mockToken', application_id='456',
+                                        message='', image_url='public url')
 
     @patch('commands.map.database.get_current_channel_map')
-    def test_get_channel_map_no_uuid(self, mock_get_map, mock_log):
+    @patch('publish.publish')
+    def test_get_channel_map_no_uuid(self, mock_publish, mock_get_map, mock_log):
         mock_get_map.return_value = None
 
-        with self.app.app_context():
-            with self.assertRaises(HTTPException) as http_error:
-                get_channel_map({'channelId': '4567'})
-                self.assertEqual(http_error.exception.code, 404)
+        get_channel_map({'channelId': '4567', 'token': 'mockToken', 'applicationId': '456'})
+        mock_publish.assert_called_with(token='mockToken', application_id='456',
+                                        message='This channel has no current map associated')
 
-    def test_get_channel_map_no_id(self, mock_log):
-        with self.app.app_context():
-            with self.assertRaises(HTTPException) as http_error:
-                get_channel_map({})
-                self.assertEqual(http_error.exception.code, 400)
+    @patch('publish.publish')
+    def test_get_channel_map_no_id(self, mock_publish, mock_log):
+        get_channel_map({ 'token': 'mockToken', 'applicationId': '456'})
+
+        mock_publish.assert_called_with(token='mockToken', application_id='456',
+                                        message='No channel found')
 
 
 if __name__ == '__main__':

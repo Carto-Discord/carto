@@ -28,7 +28,9 @@ describe("Get", () => {
   describe("Get Map", () => {
     it("should call handleRequest with the appropriate request", async () => {
       await getMap({
+        applicationId: "appId",
         channelId: "1234",
+        token: "mockToken",
       });
 
       expect(mockHandleRequest).toBeCalledTimes(1);
@@ -38,7 +40,9 @@ describe("Get", () => {
         url: "https://trigger.url",
         method: "GET",
         params: {
+          applicationId: "appId",
           channelId: "1234",
+          token: "mockToken",
         },
       });
     });

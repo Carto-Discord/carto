@@ -1,11 +1,12 @@
 import { createAuthenticatedClient } from "./authentication";
 import { handleRequest } from "./requestHandler";
+import { PubSubProps } from "./types";
 
-export type GetProps = {
+export type GetProps = PubSubProps & {
   channelId: string;
 };
 
-export const getMap = async ({ channelId }: GetProps) => {
+export const getMap = async ({ applicationId, channelId, token }: GetProps) => {
   const triggerUrl = process.env.HTTP_TRIGGER_URL;
   const client = await createAuthenticatedClient(triggerUrl);
 
@@ -13,7 +14,7 @@ export const getMap = async ({ channelId }: GetProps) => {
     client.request({
       url: triggerUrl,
       method: "GET",
-      params: { channelId },
+      params: { applicationId, channelId, token },
     })
   );
 };

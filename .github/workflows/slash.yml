@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  deploy:
+  register:
     runs-on: ubuntu-latest
     env:
       APPLICATION_ID: ${{ secrets.APPLICATION_ID }}

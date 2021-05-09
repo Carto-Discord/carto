@@ -37,14 +37,17 @@ jobs:
           pip install -r api/dev_requirements.txt
           pip install -r api/requirements.txt
 
-      - name: Install node depedencies
+      - name: Build client application
         run: |
           cd client
           npm ci
+          npm run build
+          npm run build:package
 
-      - name: Build node application
+      - name: Build receiver application
         run: |
-          cd client
+          cd receiver
+          npm ci
           npm run build
           npm run build:package
 
@@ -59,9 +62,14 @@ jobs:
         run: |
           python -m unittest
 
-      - name: Test with jest
+      - name: Test client with jest
         run: |
           cd client
+          npm run test:coverage
+
+      - name: Test receiver with jest
+        run: |
+          cd receiver
           npm run test:coverage
 
       - name: Initialise terraform

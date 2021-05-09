@@ -1,18 +1,21 @@
 import { createAuthenticatedClient } from "./authentication";
 import { handleRequest } from "./requestHandler";
+import { PubSubProps } from "./types";
 
-export type CreateProps = {
-  url: string;
-  rows: number;
-  columns: number;
+export type CreateProps = PubSubProps & {
   channelId: string;
+  columns: number;
+  rows: number;
+  url: string;
 };
 
 export const createMap = async ({
-  url,
-  rows,
-  columns,
+  applicationId,
   channelId,
+  columns,
+  rows,
+  token,
+  url,
 }: CreateProps) => {
   const triggerUrl = process.env.HTTP_TRIGGER_URL;
   const client = await createAuthenticatedClient(triggerUrl);
@@ -24,10 +27,12 @@ export const createMap = async ({
       headers: { "Content-Type": "application/json" },
       data: {
         action: "create",
-        url,
-        rows,
-        columns,
+        applicationId,
         channelId,
+        columns,
+        rows,
+        token,
+        url,
       },
     })
   );

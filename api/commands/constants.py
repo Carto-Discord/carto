@@ -1,1 +1,3 @@
-BUCKET = 'carto-bot-map-uploads'
+import os
+
+BUCKET = os.getenv('MAP_BUCKET')
