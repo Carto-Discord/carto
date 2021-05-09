@@ -27,6 +27,6 @@ def get_channel_map(request_params):
         for token in tokens:
             message += f"{token['name']}: ({token['column']}, {token['row']})\n"
 
-    image_url = storage.get_public_url(bucket_name=constants.BUCKET, uuid=uuid)
+    image_url = storage.get_public_url(bucket_name=constants.BUCKET, file_name=uuid + '.png')
 
     return publish.publish(token=discord_token, application_id=application_id, message=message, image_url=image_url)

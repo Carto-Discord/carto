@@ -53,15 +53,15 @@ def download_blob(bucket_name, source_blob_name, destination_file_name):
         return False
 
 
-def get_public_url(bucket_name, uuid):
+def get_public_url(bucket_name, file_name):
     try:
         storage_client = storage.Client()
         bucket = storage_client.bucket(bucket_name)
-        blob = bucket.blob(uuid)
+        blob = bucket.blob(file_name)
 
         return blob.public_url
     except NotFound as e:
         Logger.log("Map {} could not be found in {}. Reason: {}".format(
-            uuid, bucket_name, e
+            file_name, bucket_name, e
         ))
         return None
