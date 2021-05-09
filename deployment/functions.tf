@@ -7,6 +7,10 @@ resource "google_cloudfunctions_function" "carto_api" {
   source_archive_object = google_storage_bucket_object.api_archive.name
   trigger_http          = true
   entry_point           = "function"
+
+  environment_variables = {
+    MAP_BUCKET = google_storage_bucket.map_storage.name
+  }
 }
 
 resource "google_cloudfunctions_function" "carto_client" {
