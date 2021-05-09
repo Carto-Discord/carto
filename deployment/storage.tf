@@ -10,6 +10,12 @@ data "archive_file" "client_zip" {
   output_path = "../client.zip"
 }
 
+data "archive_file" "receiver_zip" {
+  type = "zip"
+  source_dir = "../receiver/package/"
+  output_path = "../receiver.zip"
+}
+
 resource "google_storage_bucket" "map_storage" {
   name                        = "${var.app_name}-map-uploads"
   location                    = var.location
@@ -42,4 +48,10 @@ resource "google_storage_bucket_object" "client_archive" {
   name    = "${var.app_name}_client.${data.archive_file.client_zip.output_md5}.zip"
   bucket  = google_storage_bucket.code_archives.name
   source  = data.archive_file.client_zip.output_path
+}
+
+resource "google_storage_bucket_object" "receiver_archive" {
+  name    = "${var.app_name}_client.${data.archive_file.receiver_zip.output_md5}.zip"
+  bucket  = google_storage_bucket.code_archives.name
+  source  = data.archive_file.receiver_zip.output_path
 }
