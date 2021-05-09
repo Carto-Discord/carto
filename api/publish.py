@@ -1,20 +1,15 @@
-import json
 import os
 
-from google.cloud import pubsub_v1
-
-PROJECT_ID = os.getenv('GOOGLE_CLOUD_PROJECT')
-TOPIC = os.getenv('PUBSUB_TOPIC')
+import google.auth.transport.requests
+import google.oauth2.id_token
+import requests
 
 
 def publish(token, application_id, message=None, image_url=None):
-    # Instantiates a Pub/Sub client
-    publisher = pubsub_v1.PublisherClient()
+    service_url = os.getenv('HTTP_TRIGGER_URL')
 
-    print(f'Publishing message to topic {TOPIC}')
-
-    # References an existing topic
-    topic_path = publisher.topic_path(PROJECT_ID, TOPIC)
+    auth_req = google.auth.transport.requests.Request()
+    id_token = google.oauth2.id_token.fetch_id_token(auth_req, service_url)
 
     message_dict = {
         'token': token,
@@ -27,14 +22,4 @@ def publish(token, application_id, message=None, image_url=None):
     if message is not None:
         message_dict['message'] = message
 
-    message_json = json.dumps(message_dict)
-    message_bytes = message_json.encode('utf-8')
-
-    # Publishes a message
-    try:
-        publish_future = publisher.publish(topic_path, data=message_bytes)
-        publish_future.result()  # Verify the publish succeeded
-        return 'Message published.'
-    except Exception as e:
-        print(e)
-        return e, 500
+    requests.post(service_url, json=message_dict, headers={'Authorization': f"Bearer {id_token}"})

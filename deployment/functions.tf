@@ -10,8 +10,7 @@ resource "google_cloudfunctions_function" "carto_api" {
 
   environment_variables = {
     MAP_BUCKET = google_storage_bucket.map_storage.name
-    GOOGLE_CLOUD_PROJECT = var.app_name
-    PUBSUB_TOPIC = google_pubsub_topic.api_complete.name
+    HTTP_TRIGGER_URL  = google_cloudfunctions_function.carto_receiver.https_trigger_url
   }
 }
 
@@ -38,23 +37,6 @@ resource "google_cloudfunctions_function" "carto_receiver" {
   available_memory_mb   = 128
   source_archive_bucket = google_storage_bucket.code_archives.name
   source_archive_object = google_storage_bucket_object.receiver_archive.name
+  trigger_http          = true
   entry_point           = "receiver"
-
-  event_trigger {
-    event_type  = "google.pubsub.topic.publish"
-    resource    = google_pubsub_topic.api_complete.id
-  }
-}
-
-resource "google_pubsub_topic" "api_complete" {
-  name = "api-complete"
-}
-
-resource "google_pubsub_subscription" "pull_subscription" {
-  name = "debug-subscription"
-  topic = google_pubsub_topic.api_complete.name
-
-  retain_acked_messages = true
-
-  enable_message_ordering = true
 }

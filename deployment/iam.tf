@@ -16,6 +16,15 @@ resource "google_cloudfunctions_function_iam_member" "client_invoker" {
   member = "allUsers"
 }
 
+resource "google_cloudfunctions_function_iam_member" "receiver_invoker" {
+  project        = google_cloudfunctions_function.carto_receiver.project
+  region         = google_cloudfunctions_function.carto_receiver.region
+  cloud_function = google_cloudfunctions_function.carto_receiver.name
+
+  role   = "roles/cloudfunctions.invoker"
+  member = "allAuthenticatedUsers"
+}
+
 resource "google_storage_bucket_iam_member" "public_rule" {
   bucket = google_storage_bucket.map_storage.name
   role   = "roles/storage.objectViewer"
