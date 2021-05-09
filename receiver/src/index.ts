@@ -13,6 +13,7 @@ type Data = {
 };
 
 export const receiver: EventFunction = (event: Event, _context) => {
+  console.log(event.data);
   const data: Data = JSON.parse(Buffer.from(event.data, "base64").toString());
   console.log(JSON.stringify(data));
 
