@@ -76,6 +76,7 @@ def add_token(request_json):
     if str.upper(token_size) not in size.keys():
         message = "Size {} is invalid. Valid sizes are as in the D&D Basic Rules".format(token_size)
         publish.publish(token=discord_token, application_id=application_id, message=message)
+        exit(0)
 
     channel_map_data = validate_map_data(channel_id, discord_token, application_id)
 
@@ -110,8 +111,10 @@ def move_token(request_json):
     tokens = convert_to_tokens(tokens)
 
     if name not in [t.name for t in tokens]:
-        message = "Token {} not found in map. Token names are case sensitive, so try again or add it using /token add"
+        message = "Token {} not found in map. Token names are case sensitive, so try again or add it using /token add".format(
+            name)
         publish.publish(token=discord_token, application_id=application_id, message=message)
+        exit(0)
 
     for i, token in enumerate(tokens):
         if token.name == name:
@@ -134,8 +137,10 @@ def delete_token(request_json):
     tokens = convert_to_tokens(tokens)
 
     if name not in [t.name for t in tokens]:
-        message = "Token {} not found in map. Token names are case sensitive, so try again or add it using !token add"
+        message = "Token {} not found in map. Token names are case sensitive, so try again or add it using /token add".format(
+            name)
         publish.publish(token=discord_token, application_id=application_id, message=message)
+        exit(0)
 
     for i, token in enumerate(tokens):
         if token.name == name:

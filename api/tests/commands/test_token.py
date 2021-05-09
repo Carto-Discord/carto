@@ -163,8 +163,7 @@ class TokenAddTest(unittest.TestCase):
         mock_apply_grid.return_value = 'map.png'
         mock_upload.return_value = None
 
-        with self.assertRaises(SystemExit):
-            add_token(request)
+        add_token(request)
 
         mock_publish.assert_called_with(token='mockToken', application_id='5678',
                                         message="Map could not be created")
@@ -227,14 +226,14 @@ class TokenMoveTest(unittest.TestCase):
         request = {
             'channelId': '1234',
             'name': 'token',
-            'row': '4',
-            'column': 'C',
+            'row': '1',
+            'column': 'A',
             'token': 'mockToken',
             'applicationId': '5678'
         }
 
-        mock_get_map_info.return_value = '4567'
-        mock_get_channel_map.return_value = {
+        mock_get_channel_map.return_value = '4567'
+        mock_get_map_info.return_value = {
             'url': 'url',
             'rows': 2,
             'columns': 2,
@@ -242,7 +241,9 @@ class TokenMoveTest(unittest.TestCase):
                 {
                     'name': 'not_token',
                     'row': 1,
-                    'column': 'A'
+                    'column': 'A',
+                    'size': 1,
+                    'colour': 'red'
                 }
             ]
         }
@@ -251,7 +252,7 @@ class TokenMoveTest(unittest.TestCase):
             move_token(request)
 
         mock_publish.assert_called_with(token='mockToken', application_id='5678',
-                                        image_url='Token token not found in map. Token names are case sensitive, so try again or add it using /token add')
+                                        message='Token token not found in map. Token names are case sensitive, so try again or add it using /token add')
         mock_apply_grid.assert_not_called()
 
     @patch('commands.map.database.get_current_channel_map')
@@ -312,8 +313,8 @@ class TokenDeleteTest(unittest.TestCase):
             'applicationId': '5678'
         }
 
-        mock_get_map_info.return_value = '4567'
-        mock_get_channel_map.return_value = {
+        mock_get_channel_map.return_value = '4567'
+        mock_get_map_info.return_value = {
             'url': 'url',
             'rows': 2,
             'columns': 2,
@@ -321,7 +322,9 @@ class TokenDeleteTest(unittest.TestCase):
                 {
                     'name': 'not_token',
                     'row': 1,
-                    'column': 'A'
+                    'column': 'A',
+                    'size': 1,
+                    'colour': 'red'
                 }
             ]
         }
@@ -330,7 +333,7 @@ class TokenDeleteTest(unittest.TestCase):
             delete_token(request)
 
         mock_publish.assert_called_with(token='mockToken', application_id='5678',
-                                        image_url='Token token not found in map. Token names are case sensitive, so try again or add it using /token add')
+                                        message='Token token not found in map. Token names are case sensitive, so try again or add it using /token add')
         mock_apply_grid.assert_not_called()
 
     @patch('commands.map.database.get_current_channel_map')
