@@ -16,7 +16,7 @@ class TokenAddTest(unittest.TestCase):
             'column': 'C',
             'size': 'VERY_SMALL',
             'token': 'mockToken',
-            'application_id': '5678'
+            'applicationId': '5678'
         }
 
         with self.assertRaises(SystemExit):
@@ -36,7 +36,7 @@ class TokenAddTest(unittest.TestCase):
             'column': 'C',
             'size': 'MEDIUM',
             'token': 'mockToken',
-            'application_id': '5678'
+            'applicationId': '5678'
         }
 
         mock_get_map.return_value = None
@@ -59,7 +59,7 @@ class TokenAddTest(unittest.TestCase):
             'column': 'C',
             'size': 'MEDIUM',
             'token': 'mockToken',
-            'application_id': '5678'
+            'applicationId': '5678'
         }
 
         mock_get_map.return_value = '4567'
@@ -86,7 +86,7 @@ class TokenAddTest(unittest.TestCase):
             'column': 'C',
             'size': 'MEDIUM',
             'token': 'mockToken',
-            'application_id': '5678'
+            'applicationId': '5678'
         }
 
         mock_get_map.return_value = '4567'
@@ -117,7 +117,7 @@ class TokenAddTest(unittest.TestCase):
             'column': 'C',
             'size': 'MEDIUM',
             'token': 'mockToken',
-            'application_id': '5678'
+            'applicationId': '5678'
         }
 
         mock_get_map.return_value = '4567'
@@ -150,7 +150,7 @@ class TokenAddTest(unittest.TestCase):
             'column': 'C',
             'size': 'MEDIUM',
             'token': 'mockToken',
-            'application_id': '5678'
+            'applicationId': '5678'
         }
 
         mock_get_map.return_value = '4567'
@@ -188,7 +188,7 @@ class TokenAddTest(unittest.TestCase):
             'size': 'MEDIUM',
             'colour': 'red',
             'token': 'mockToken',
-            'application_id': '5678'
+            'applicationId': '5678'
         }
 
         mock_get_map.return_value = '4567'
@@ -230,7 +230,7 @@ class TokenMoveTest(unittest.TestCase):
             'row': '4',
             'column': 'C',
             'token': 'mockToken',
-            'application_id': '5678'
+            'applicationId': '5678'
         }
 
         mock_get_map_info.return_value = '4567'
@@ -269,7 +269,7 @@ class TokenMoveTest(unittest.TestCase):
             'row': '4',
             'column': 'C',
             'token': 'mockToken',
-            'application_id': '5678'
+            'applicationId': '5678'
         }
 
         mock_get_channel_map.return_value = '4567'
@@ -309,7 +309,7 @@ class TokenDeleteTest(unittest.TestCase):
             'channelId': '1234',
             'name': 'token',
             'token': 'mockToken',
-            'application_id': '5678'
+            'applicationId': '5678'
         }
 
         mock_get_map_info.return_value = '4567'
@@ -346,7 +346,7 @@ class TokenDeleteTest(unittest.TestCase):
             'channelId': '1234',
             'name': 'token',
             'token': 'mockToken',
-            'application_id': '5678'
+            'applicationId': '5678'
         }
 
         mock_get_channel_map.return_value = '4567'
