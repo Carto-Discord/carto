@@ -6,6 +6,10 @@ jest.mock("node-fetch");
 const mockFetch = fetch as jest.MockedFunction<typeof fetch>;
 
 describe("Receiver", () => {
+  const mockResponse = {
+    status: jest.fn().mockReturnValue({ end: jest.fn() }),
+  };
+
   jest.spyOn(console, "log").mockImplementation(jest.fn());
   jest.spyOn(console, "warn").mockImplementation(jest.fn());
 
@@ -13,10 +17,8 @@ describe("Receiver", () => {
     it("should not call fetch", () => {
       const data = { message: "message", imageUrl: "image", token: "token" };
 
-      receiver(
-        { data: Buffer.from(JSON.stringify(data)).toString("base64") },
-        {}
-      );
+      //@ts-ignore
+      receiver({ body: data }, mockResponse);
 
       expect(mockFetch).not.toBeCalled();
     });
@@ -30,12 +32,8 @@ describe("Receiver", () => {
         applicationId: "appId",
       };
 
-      receiver(
-        {
-          data: Buffer.from(JSON.stringify(data)).toString("base64"),
-        },
-        {}
-      );
+      //@ts-ignore
+      receiver({ body: data }, mockResponse);
 
       expect(mockFetch).not.toBeCalled();
     });
@@ -49,12 +47,8 @@ describe("Receiver", () => {
         token: "token",
       };
 
-      receiver(
-        {
-          data: Buffer.from(JSON.stringify(data)).toString("base64"),
-        },
-        {}
-      );
+      //@ts-ignore
+      receiver({ body: data }, mockResponse);
 
       expect(mockFetch).toBeCalledWith(
         "https://discord.com/api/v9/webhooks/appId/token/messages/@original",
@@ -80,12 +74,8 @@ describe("Receiver", () => {
         imageUrl: "url",
       };
 
-      receiver(
-        {
-          data: Buffer.from(JSON.stringify(data)).toString("base64"),
-        },
-        {}
-      );
+      //@ts-ignore
+      receiver({ body: data }, mockResponse);
 
       expect(mockFetch).toBeCalledWith(
         "https://discord.com/api/v9/webhooks/appId/token/messages/@original",

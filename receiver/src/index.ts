@@ -1,9 +1,5 @@
-import { EventFunction } from "@google-cloud/functions-framework/build/src/functions";
+import { HttpFunction } from "@google-cloud/functions-framework/build/src/functions";
 import fetch from "node-fetch";
-
-type Event = {
-  data: string;
-};
 
 type Data = {
   message?: string;
@@ -12,13 +8,14 @@ type Data = {
   token?: string;
 };
 
-export const receiver: EventFunction = (event: Event, _context) => {
-  const data: Data = JSON.parse(Buffer.from(event.data, "base64").toString());
+export const receiver: HttpFunction = (req, res) => {
+  const data: Data = req.body;
 
   const { message, imageUrl, applicationId, token } = data;
 
   if (!applicationId || !token) {
     console.warn("Application ID or token not found, cannot continue");
+    res.status(400).end();
     return;
   }
 
@@ -43,4 +40,6 @@ export const receiver: EventFunction = (event: Event, _context) => {
       }),
     }
   );
+
+  res.status(200).end();
 };
