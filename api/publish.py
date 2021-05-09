@@ -7,7 +7,7 @@ PROJECT_ID = os.getenv('GOOGLE_CLOUD_PROJECT')
 TOPIC = os.getenv('PUBSUB_TOPIC')
 
 
-def publish(token, application_id, message, image_url=None):
+def publish(token, application_id, message=None, image_url=None):
     # Instantiates a Pub/Sub client
     publisher = pubsub_v1.PublisherClient()
 
@@ -19,11 +19,13 @@ def publish(token, application_id, message, image_url=None):
     message_dict = {
         'token': token,
         'applicationId': application_id,
-        'message': message
     }
 
     if image_url is not None:
         message_dict['imageUrl'] = image_url
+
+    if message is not None:
+        message_dict['message'] = message
 
     message_json = json.dumps(message_dict)
     message_bytes = message_json.encode('utf-8')

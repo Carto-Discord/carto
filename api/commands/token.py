@@ -8,11 +8,8 @@ from commands.map.Token import size, Token
 from commands import constants
 import publish
 
-discord_token = ''
-application_id = ''
 
-
-def validate_map_data(channel_id):
+def validate_map_data(channel_id, discord_token, application_id):
     channel_map_id = database.get_current_channel_map(channel_id)
 
     if channel_map_id is None:
@@ -30,7 +27,7 @@ def validate_map_data(channel_id):
     return channel_map_data
 
 
-def validate_token_position(token_row, token_column, grid_rows, grid_columns):
+def validate_token_position(token_row, token_column, grid_rows, grid_columns, discord_token, application_id):
     if int(token_row) > grid_rows or grid.column_number(token_column) > grid_columns:
         message = "The row or column you entered is not on the map, please try again. " \
                   "This map's bounds are {} rows by {} columns".format(grid_rows, grid_columns)
@@ -47,7 +44,7 @@ def convert_to_tokens(tokens_array):
     return tokens
 
 
-def create_new_grid(url, rows, columns, tokens, channel_id):
+def create_new_grid(url, rows, columns, tokens, channel_id, discord_token, application_id):
     source_file_name = grid.apply_grid(image_url=url, rows=rows, cols=columns, tokens=tokens)
 
     if source_file_name is None:
@@ -80,12 +77,12 @@ def add_token(request_json):
         message = "Size {} is invalid. Valid sizes are as in the D&D Basic Rules".format(token_size)
         publish.publish(token=discord_token, application_id=application_id, message=message)
 
-    channel_map_data = validate_map_data(channel_id)
+    channel_map_data = validate_map_data(channel_id, discord_token, application_id)
 
     keys = ['url', 'rows', 'columns', 'tokens']
     url, rows, columns, tokens = [channel_map_data.get(key) for key in keys]
 
-    validate_token_position(row, column, rows, columns)
+    validate_token_position(row, column, rows, columns, discord_token, application_id)
 
     if colour is None:
         r = lambda: random.randint(0, 255)
@@ -96,19 +93,19 @@ def add_token(request_json):
     new_token = Token(name=name, row=int(row), column=column, size=size[token_size], colour=colour)
     tokens.append(new_token)
 
-    return create_new_grid(url, rows, columns, tokens, channel_id)
+    return create_new_grid(url, rows, columns, tokens, channel_id, discord_token, application_id)
 
 
 def move_token(request_json):
     keys = ['channelId', 'name', 'row', 'column', 'token', 'applicationId']
     channel_id, name, row, column, discord_token, application_id = [request_json.get(key) for key in keys]
 
-    channel_map_data = validate_map_data(channel_id)
+    channel_map_data = validate_map_data(channel_id, discord_token, application_id)
 
     keys = ['url', 'rows', 'columns', 'tokens']
     url, rows, columns, tokens = [channel_map_data.get(key) for key in keys]
 
-    validate_token_position(row, column, rows, columns)
+    validate_token_position(row, column, rows, columns, discord_token, application_id)
 
     tokens = convert_to_tokens(tokens)
 
@@ -122,14 +119,14 @@ def move_token(request_json):
             token.column = column
             break
 
-    return create_new_grid(url, rows, columns, tokens, channel_id)
+    return create_new_grid(url, rows, columns, tokens, channel_id, discord_token, application_id)
 
 
 def delete_token(request_json):
     keys = ['channelId', 'name', 'token', 'applicationId']
     channel_id, name, discord_token, application_id = [request_json.get(key) for key in keys]
 
-    channel_map_data = validate_map_data(channel_id)
+    channel_map_data = validate_map_data(channel_id, discord_token, application_id)
 
     keys = ['url', 'rows', 'columns', 'tokens']
     url, rows, columns, tokens = [channel_map_data.get(key) for key in keys]
@@ -145,4 +142,4 @@ def delete_token(request_json):
             tokens.remove(token)
             break
 
-    return create_new_grid(url, rows, columns, tokens, channel_id)
+    return create_new_grid(url, rows, columns, tokens, channel_id, discord_token, application_id)
