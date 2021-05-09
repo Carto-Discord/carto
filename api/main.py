@@ -1,4 +1,3 @@
-from flask import abort, jsonify, make_response
 from commands import create, get, delete, token
 from logs import Logger
 
@@ -19,12 +18,12 @@ def function(request):
 
     allowed_methods = ['GET', 'POST', 'DELETE']
     if method not in allowed_methods:
-        abort(make_response(jsonify(message="Method not allowed"), 405))
+        return 'Method not allowed', 405
 
     if method == 'POST':
         request_json = request.get_json(silent=True)
         if request_json is None:
-            abort(make_response(jsonify(message="JSON could not be serialised"), 400))
+            return 'JSON could not be serialised', 400
 
         Logger.log("Received POST with JSON {}".format(
             request_json), severity='DEBUG')
@@ -48,7 +47,7 @@ def function(request):
     if method == 'DELETE':
         request_json = request.get_json(silent=True)
         if request_json is None:
-            abort(make_response(jsonify(message="JSON could not be serialised"), 400))
+            return 'JSON could not be serialised', 400
 
         Logger.log("Received DELETE with JSON {}".format(
             request_json), severity='DEBUG')

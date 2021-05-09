@@ -1,7 +1,6 @@
 import ntpath
+import random
 import uuid
-
-from numpy import random
 
 from commands.map import database, grid, storage
 from commands.map.Token import size, Token
