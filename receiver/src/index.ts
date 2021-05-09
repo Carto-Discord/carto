@@ -12,6 +12,8 @@ const fromBase64 = (value?: string) =>
   value && Buffer.from(value, "base64").toString();
 
 export const receiver: EventFunction = (data: EventData, _context) => {
+  console.log(JSON.stringify(data));
+
   const message = fromBase64(data?.message);
   const imageUrl = fromBase64(data?.imageUrl);
   const applicationId = fromBase64(data?.applicationId);
