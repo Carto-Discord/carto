@@ -29,11 +29,13 @@ describe("Token", () => {
     describe("given size is not provided", () => {
       it("should call handleRequest with the appropriate request", async () => {
         await addToken({
-          row: 1,
-          column: "A",
-          name: "token",
+          applicationId: "appId",
           channelId: "1234",
           colour: "red",
+          column: "A",
+          name: "token",
+          row: 1,
+          token: "mockToken",
         });
 
         expect(mockHandleRequest).toBeCalledTimes(1);
@@ -47,12 +49,14 @@ describe("Token", () => {
           },
           data: {
             action: "addToken",
+            applicationId: "appId",
+            channelId: "1234",
+            colour: "red",
+            column: "A",
             name: "token",
             row: 1,
-            column: "A",
             size: "MEDIUM",
-            colour: "red",
-            channelId: "1234",
+            token: "mockToken",
           },
         });
       });
@@ -61,11 +65,13 @@ describe("Token", () => {
     describe("given size is provided", () => {
       it("should call handleRequest with the appropriate request", async () => {
         await addToken({
-          row: 1,
+          applicationId: "appId",
+          channelId: "1234",
           column: "A",
           name: "token",
+          row: 1,
           size: "TINY",
-          channelId: "1234",
+          token: "mockToken",
         });
 
         expect(mockHandleRequest).toBeCalledTimes(1);
@@ -79,11 +85,13 @@ describe("Token", () => {
           },
           data: {
             action: "addToken",
+            applicationId: "appId",
+            channelId: "1234",
+            column: "A",
             name: "token",
             row: 1,
-            column: "A",
             size: "TINY",
-            channelId: "1234",
+            token: "mockToken",
           },
         });
       });
@@ -93,10 +101,12 @@ describe("Token", () => {
   describe("Move Token", () => {
     it("should call handleRequest with the appropriate request", async () => {
       await moveToken({
-        row: 1,
+        applicationId: "appId",
+        channelId: "1234",
         column: "A",
         name: "token",
-        channelId: "1234",
+        row: 1,
+        token: "mockToken",
       });
 
       expect(mockHandleRequest).toBeCalledTimes(1);
@@ -110,10 +120,12 @@ describe("Token", () => {
         },
         data: {
           action: "moveToken",
+          applicationId: "appId",
+          channelId: "1234",
+          column: "A",
           name: "token",
           row: 1,
-          column: "A",
-          channelId: "1234",
+          token: "mockToken",
         },
       });
     });
@@ -122,8 +134,10 @@ describe("Token", () => {
   describe("Delete Token", () => {
     it("should call handleRequest with the appropriate request", async () => {
       await deleteToken({
-        name: "token",
+        applicationId: "appId",
         channelId: "1234",
+        name: "token",
+        token: "mockToken",
       });
 
       expect(mockHandleRequest).toBeCalledTimes(1);
@@ -137,8 +151,10 @@ describe("Token", () => {
         },
         data: {
           action: "deleteToken",
-          name: "token",
+          applicationId: "appId",
           channelId: "1234",
+          name: "token",
+          token: "mockToken",
         },
       });
     });
