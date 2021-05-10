@@ -51,7 +51,7 @@ resource "google_storage_bucket_object" "client_archive" {
 }
 
 resource "google_storage_bucket_object" "receiver_archive" {
-  name    = "${var.app_name}_client.${data.archive_file.receiver_zip.output_md5}.zip"
+  name    = "${var.app_name}_receiver.${data.archive_file.receiver_zip.output_md5}.zip"
   bucket  = google_storage_bucket.code_archives.name
   source  = data.archive_file.receiver_zip.output_path
 }
