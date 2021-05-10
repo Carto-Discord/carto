@@ -1,6 +1,6 @@
 data "archive_file" "application_zip" {
   type        = "zip"
-  source_dir  = "../api/"
+  source_dir  = "../api_package/"
   output_path = "../api.zip"
 }
 

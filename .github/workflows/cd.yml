@@ -37,6 +37,14 @@ jobs:
           pip install -r api/dev_requirements.txt
           pip install -r api/requirements.txt
 
+      - name: Package api application
+        run: |
+          mkdir api_package
+          cp -r api/assets/ api_package/
+          cp -r api/commands/ api_package/
+          cp api/*.py api_package/
+          cp api/requirements.txt api_package/
+
       - name: Build client application
         run: |
           cd client
