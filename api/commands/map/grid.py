@@ -1,22 +1,19 @@
 import os
 import operator
-import logging
 import string
 from typing import List, Tuple
 
-from PIL import Image, ImageDraw, ImageFont
-import requests
-
 from commands.map.Token import Token, size
 from configuration import FONT_DIR
+from logs import Logger
 
 
 def download_image(image_url: str) -> str:
+    import requests
     try:
         response = requests.get(image_url)
         if response.status_code >= 400:
-            logging.log(level=logging.WARN,
-                        msg="Url {0} returned status code {1}".format(image_url, response.status_code))
+            Logger.log("Url {0} returned status code {1}".format(image_url, response.status_code), severity='WARN')
             return ""
 
         extension = image_url.split('/')[-1].split('.')[-1]
@@ -28,7 +25,7 @@ def download_image(image_url: str) -> str:
         file.close()
         return file_name
     except requests.RequestException as exception:
-        logging.log(level=logging.WARN, msg="Could not find image: {0}".format(exception))
+        Logger.log("Could not find image: {0}".format(exception), severity='WARN')
         return ""
 
 
@@ -54,9 +51,11 @@ def column_number(col):
 
 
 def find_font_size(text, max_width, max_height):
+    from PIL import ImageFont
+
     font_height = 1
     font_path = os.path.join(FONT_DIR, "arial.ttf")
-    logging.log(level=logging.DEBUG, msg='Font located at ' + font_path)
+    Logger.log('Font located at ' + font_path, severity='DEBUG')
 
     try:
         font = ImageFont.truetype(font_path, font_height)
@@ -64,7 +63,7 @@ def find_font_size(text, max_width, max_height):
             font_height += 1
             font = ImageFont.truetype(font_path, font_height)
     except OSError as oe:
-        logging.log(level=logging.WARN, msg=oe)
+        Logger.log(oe, severity='WARN')
         font = ImageFont.load_default()
 
     return font
@@ -84,6 +83,8 @@ def place_tiny_token(no_on_square: int, coordinates: Tuple[float, float, float, 
 
 
 def apply_grid(image_url: str, rows: int, cols: int, tokens: List[Token] = None):
+    from PIL import Image, ImageDraw
+
     image_name = download_image(image_url)
     if image_name == '':
         return None
