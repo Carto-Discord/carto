@@ -34,7 +34,7 @@ class GridTest(unittest.TestCase):
 
     def test_find_font_size(self):
         font = grid.find_font_size('text', max_width=50, max_height=30)
-        self.assertEqual(font.size, 31)
+        self.assertEqual(28, font.size)
 
 
 if __name__ == '__main__':
