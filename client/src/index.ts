@@ -19,14 +19,16 @@ import {
 } from "./token";
 import { validateRequest } from "./validation";
 import { CommandGroup, SubCommand, CommandOptions } from "./types";
+import { Response } from "express";
 
 dotenv.config();
 
 type CommandProps = {
-  command: ApplicationCommandInteractionDataOption;
-  channelId: Snowflake;
-  token: string;
   applicationId: Snowflake;
+  channelId: Snowflake;
+  command: ApplicationCommandInteractionDataOption;
+  res: Response;
+  token: string;
 };
 
 const extractParameters = <T extends CommandOptions>(
@@ -40,10 +42,11 @@ const extractParameters = <T extends CommandOptions>(
   }
 };
 
-const handleMapCommands = ({
+const handleMapCommands = async ({
   applicationId,
   channelId,
   command,
+  res,
   token,
 }: CommandProps) => {
   // We can be confident that each subcommand will have the correct parameters,
@@ -61,11 +64,18 @@ const handleMapCommands = ({
         token,
         url,
       });
+
+      res
+        .status(200)
+        .json({
+          type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+        })
+        .end();
       break;
 
     case SubCommand.MAP_GET:
       console.log("Received Map get request");
-      getMap({ applicationId, channelId, token });
+      await getMap({ channelId, res });
       break;
 
     default:
@@ -77,6 +87,7 @@ const handleTokenCommands = ({
   applicationId,
   channelId,
   command,
+  res,
   token,
 }: CommandProps) => {
   let name, row, column, colour, size;
@@ -86,9 +97,8 @@ const handleTokenCommands = ({
   switch (command.name) {
     case SubCommand.TOKEN_ADD:
       console.log("Received token creation request");
-      ({ name, row, column, colour, size } = extractParameters<AddProps>(
-        command
-      ));
+      ({ name, row, column, colour, size } =
+        extractParameters<AddProps>(command));
 
       addToken({
         applicationId,
@@ -117,9 +127,16 @@ const handleTokenCommands = ({
     default:
       break;
   }
+
+  res
+    .status(200)
+    .json({
+      type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+    })
+    .end();
 };
 
-export const slashFunction: HttpFunction = (req, res) => {
+export const slashFunction: HttpFunction = async (req, res) => {
   const isVerified = validateRequest(req);
 
   if (!isVerified) {
@@ -148,10 +165,11 @@ export const slashFunction: HttpFunction = (req, res) => {
   if ("options" in commandGroup) {
     switch (commandGroup.name) {
       case CommandGroup.MAP:
-        handleMapCommands({
+        await handleMapCommands({
           applicationId: application_id,
           channelId: channel_id,
           command: commandGroup.options[0],
+          res,
           token,
         });
         break;
@@ -161,6 +179,7 @@ export const slashFunction: HttpFunction = (req, res) => {
           applicationId: application_id,
           channelId: channel_id,
           command: commandGroup.options[0],
+          res,
           token,
         });
         break;
@@ -169,11 +188,4 @@ export const slashFunction: HttpFunction = (req, res) => {
         break;
     }
   }
-
-  res
-    .status(200)
-    .json({
-      type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
-    })
-    .end();
 };

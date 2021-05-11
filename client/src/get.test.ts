@@ -1,49 +1,42 @@
-import { createAuthenticatedClient } from "./authentication";
-import { handleRequest } from "./requestHandler";
+import { Response } from "express";
+import { InteractionResponseType } from "slash-commands";
+import { getCurrentMap } from "./firestore";
 import { getMap } from "./get";
 
-jest.mock("./authentication");
-jest.mock("./requestHandler");
+jest.mock("./firestore");
 
-const mockCreateAuthenticatedClient = createAuthenticatedClient as jest.MockedFunction<
-  typeof createAuthenticatedClient
->;
-const mockHandleRequest = handleRequest as jest.MockedFunction<
-  typeof handleRequest
+const mockGetCurrentMap = getCurrentMap as jest.MockedFunction<
+  typeof getCurrentMap
 >;
 
 describe("Get", () => {
-  const mockRequest = jest.fn();
-
-  jest.spyOn(console, "warn").mockImplementation(() => {});
+  const mockJson = jest.fn().mockReturnValue({ end: jest.fn() });
+  //@ts-ignore
+  const mockResponse: Response = {
+    status: jest.fn().mockReturnValue({
+      json: mockJson,
+    }),
+  };
 
   beforeEach(() => {
     jest.clearAllMocks();
-    //@ts-ignore
-    mockCreateAuthenticatedClient.mockResolvedValue({ request: mockRequest });
-
-    process.env.HTTP_TRIGGER_URL = "https://trigger.url";
   });
 
   describe("Get Map", () => {
-    it("should call handleRequest with the appropriate request", async () => {
-      await getMap({
-        applicationId: "appId",
-        channelId: "1234",
-        token: "mockToken",
+    describe("given getCurrentMap returns undefined", () => {
+      beforeEach(() => {
+        mockGetCurrentMap.mockResolvedValue(undefined);
       });
 
-      expect(mockHandleRequest).toBeCalledTimes(1);
-      await mockHandleRequest.mock.calls[0][0]();
+      it("should call res with a negative response", async () => {
+        await getMap({ channelId: "123", res: mockResponse });
 
-      expect(mockRequest).toBeCalledWith({
-        url: "https://trigger.url",
-        method: "GET",
-        params: {
-          applicationId: "appId",
-          channelId: "1234",
-          token: "mockToken",
-        },
+        expect(mockJson).toBeCalledWith({
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            content: "No map no found for this channel",
+          },
+        });
       });
     });
   });

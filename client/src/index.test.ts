@@ -24,9 +24,9 @@ const mockValidateRequest = validateRequest as jest.MockedFunction<
 describe("Slash Function", () => {
   const mockEnd = jest.fn();
   const mockJson = jest.fn().mockReturnValue({ end: mockEnd });
-  const mockResponse = ({
+  const mockResponse = {
     status: jest.fn().mockReturnValue({ end: mockEnd, json: mockJson }),
-  } as unknown) as Response;
+  } as unknown as Response;
 
   jest.spyOn(console, "log").mockImplementation(jest.fn());
 
@@ -41,8 +41,8 @@ describe("Slash Function", () => {
       mockValidateRequest.mockReturnValue(false);
     });
 
-    it("should return a 401 response", () => {
-      slashFunction({} as Request, mockResponse);
+    it("should return a 401 response", async () => {
+      await slashFunction({} as Request, mockResponse);
 
       expect(mockResponse.status).toBeCalledWith(401);
       expect(mockEnd).toBeCalledWith("invalid request signature");
@@ -56,8 +56,8 @@ describe("Slash Function", () => {
     });
 
     describe("given a method type other than POST is sent", () => {
-      it("should return a 405 response", () => {
-        slashFunction(
+      it("should return a 405 response", async () => {
+        await slashFunction(
           { body: { type: InteractionType.PING }, method: "GET" } as Request,
           mockResponse
         );
@@ -68,8 +68,8 @@ describe("Slash Function", () => {
     });
 
     describe("given a body type of PING is sent", () => {
-      it("should return a 200 response with a type of PONG", () => {
-        slashFunction(
+      it("should return a 200 response with a type of PONG", async () => {
+        await slashFunction(
           { body: { type: InteractionType.PING }, method: "POST" } as Request,
           mockResponse
         );
@@ -83,8 +83,8 @@ describe("Slash Function", () => {
     });
 
     describe("given an unknown command is recieved", () => {
-      it("should end without doing anything", () => {
-        slashFunction(
+      it("should end without doing anything", async () => {
+        await slashFunction(
           {
             body: {
               type: InteractionType.APPLICATION_COMMAND,
@@ -111,8 +111,8 @@ describe("Slash Function", () => {
 
     describe("given a map command is received", () => {
       describe("given a create subcommand is received", () => {
-        it("should send a message back to the channel", () => {
-          slashFunction(
+        it("should send a message back to the channel", async () => {
+          await slashFunction(
             {
               body: {
                 type: InteractionType.APPLICATION_COMMAND,
@@ -162,8 +162,8 @@ describe("Slash Function", () => {
       });
 
       describe("given a get subcommand is received", () => {
-        it("should send a message back to the channel", () => {
-          slashFunction(
+        it("should call getMap", async () => {
+          await slashFunction(
             {
               body: {
                 type: InteractionType.APPLICATION_COMMAND,
@@ -186,19 +186,15 @@ describe("Slash Function", () => {
           );
 
           expect(mockGetMap).toBeCalledWith({
-            applicationId: "1234",
             channelId: "mockChannel",
-            token: "mockToken",
-          });
-          expect(mockJson).toBeCalledWith({
-            type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+            res: mockResponse,
           });
         });
       });
 
       describe("given an unknown subcommand is received", () => {
-        it("should do nothing", () => {
-          slashFunction(
+        it("should do nothing", async () => {
+          await slashFunction(
             {
               body: {
                 type: InteractionType.APPLICATION_COMMAND,
@@ -231,8 +227,8 @@ describe("Slash Function", () => {
 
     describe("given a token command is received", () => {
       describe("given an add subcommand is received", () => {
-        it("should send a message back to the channel", () => {
-          slashFunction(
+        it("should send a message back to the channel", async () => {
+          await slashFunction(
             {
               body: {
                 type: InteractionType.APPLICATION_COMMAND,
@@ -287,8 +283,8 @@ describe("Slash Function", () => {
       });
 
       describe("given an move subcommand is received", () => {
-        it("should send a message back to the channel", () => {
-          slashFunction(
+        it("should send a message back to the channel", async () => {
+          await slashFunction(
             {
               body: {
                 type: InteractionType.APPLICATION_COMMAND,
@@ -338,8 +334,8 @@ describe("Slash Function", () => {
       });
 
       describe("given an delete subcommand is received", () => {
-        it("should send a message back to the channel", () => {
-          slashFunction(
+        it("should send a message back to the channel", async () => {
+          await slashFunction(
             {
               body: {
                 type: InteractionType.APPLICATION_COMMAND,
@@ -379,8 +375,8 @@ describe("Slash Function", () => {
       });
 
       describe("given an unknown subcommand is received", () => {
-        it("should do nothing", () => {
-          slashFunction(
+        it("should do nothing", async () => {
+          await slashFunction(
             {
               body: {
                 type: InteractionType.APPLICATION_COMMAND,
