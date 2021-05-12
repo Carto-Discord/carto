@@ -5,5 +5,5 @@ export const getPublicUrl = (fileName: string) => {
   const bucket = storage.bucket(process.env.MAP_BUCKET);
   const file = bucket.file(fileName);
 
-  return file.publicUrl();
+  return file.publicUrl() + ".png";
 };
