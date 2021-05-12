@@ -39,5 +39,67 @@ describe("Get", () => {
         });
       });
     });
+
+    describe("given getCurrentMap returns a map", () => {
+      beforeEach(() => {
+        mockGetCurrentMap.mockResolvedValue({
+          publicUrl: "publicUrl",
+          tokens: [
+            {
+              name: "token1",
+              column: "A",
+              row: 1,
+              colour: "red",
+              size: 1,
+            },
+            {
+              name: "token2",
+              column: "Y",
+              row: 5,
+              colour: "blue",
+              size: 0.5,
+            },
+          ],
+        });
+      });
+
+      it("should call res with an embed response", async () => {
+        await getMap({ channelId: "123", res: mockResponse });
+
+        expect(mockJson).toBeCalledWith({
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            embeds: [
+              {
+                type: "rich",
+                title: "Map retrieved",
+                image: {
+                  url: "publicUrl",
+                },
+                fields: [
+                  {
+                    inline: true,
+                    name: "token1",
+                    value: "A1",
+                  },
+                  {
+                    inline: true,
+                    name: "token2",
+                    value: "Y5",
+                  },
+                ],
+                author: null,
+                color: null,
+                description: null,
+                footer: null,
+                thumbnail: null,
+                timestamp: null,
+                url: null,
+              },
+            ],
+          },
+        });
+      });
+    });
   });
 });
