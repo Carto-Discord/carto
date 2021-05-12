@@ -1,10 +1,8 @@
 import {
   ApplicationCommandInteractionDataOption,
-  InteractionResponseType,
-  InteractionType,
   Interaction,
 } from "slash-commands";
-import { HttpFunction } from "@google-cloud/functions-framework/build/src/functions";
+import { Request, Response } from "express";
 import { createMap, CreateProps } from "./create";
 import { getMap } from "./get";
 import {
@@ -16,8 +14,13 @@ import {
   moveToken,
 } from "./token";
 import { validateRequest } from "./validation";
-import { CommandGroup, SubCommand, CommandOptions } from "./types";
-import { Response } from "express";
+import {
+  CommandGroup,
+  SubCommand,
+  CommandOptions,
+  InteractionResponseType,
+  InteractionType,
+} from "./types";
 
 type CommandProps = {
   applicationId: string;
@@ -132,7 +135,7 @@ const handleTokenCommands = ({
     .end();
 };
 
-export const slashFunction: HttpFunction = async (req, res) => {
+export const slashFunction = async (req: Request, res: Response) => {
   const isVerified = validateRequest(req);
 
   if (!isVerified) {
