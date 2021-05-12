@@ -6,7 +6,7 @@
     "prebuild": "rimraf build/",
     "postbuild": "copyfiles .env build/",
     "build": "tsc",
-    "build:package": "copyfiles build/**/* package.json package-lock.json package",
+    "build:package": "copyfiles --exclude build/src/registerCommands* build/**/* package.json package-lock.json package",
     "register": "node ./build/src/registerCommands.js",
     "start": "functions-framework --source=build/src/ --target=slashFunction",
     "test": "jest --watch",

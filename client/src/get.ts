@@ -1,5 +1,5 @@
 import { Response } from "express";
-import { InteractionResponseType } from "slash-commands";
+import { InteractionResponseType } from "./types";
 import { getCurrentMap } from "./firestore";
 
 export type GetProps = {
