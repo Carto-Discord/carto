@@ -1,5 +1,3 @@
-import { Snowflake } from "discord.js";
-import dotenv from "dotenv";
 import {
   ApplicationCommandInteractionDataOption,
   InteractionResponseType,
@@ -21,11 +19,9 @@ import { validateRequest } from "./validation";
 import { CommandGroup, SubCommand, CommandOptions } from "./types";
 import { Response } from "express";
 
-dotenv.config();
-
 type CommandProps = {
-  applicationId: Snowflake;
-  channelId: Snowflake;
+  applicationId: string;
+  channelId: string;
   command: ApplicationCommandInteractionDataOption;
   res: Response;
   token: string;
@@ -157,7 +153,7 @@ export const slashFunction: HttpFunction = async (req, res) => {
 
   const commandGroup = body.data;
 
-  let channel_id: Snowflake, token: string, application_id: Snowflake;
+  let channel_id: string, token: string, application_id: string;
   if ("channel_id" in body) {
     ({ channel_id, token, application_id } = body);
   }
