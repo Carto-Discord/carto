@@ -29,6 +29,7 @@ export const getCurrentMap = async (channelId: string) => {
   if (channelDoc.exists) {
     const { current } = channelDoc.data() as ChannelDocument;
     const publicUrl = getPublicUrl(current);
+    console.log(`Map image url: ${publicUrl}`);
     const mapDoc = await firestore.collection("maps").doc(current).get();
 
     if (mapDoc.exists) {
