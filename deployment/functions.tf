@@ -27,6 +27,7 @@ resource "google_cloudfunctions_function" "carto_client" {
   environment_variables = {
     PUBLIC_KEY        = var.public_key
     HTTP_TRIGGER_URL  = google_cloudfunctions_function.carto_api.https_trigger_url
+    MAP_BUCKET        = google_storage_bucket.map_storage.name
   }
 }
 
