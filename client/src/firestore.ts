@@ -1,5 +1,4 @@
 import { Firestore } from "@google-cloud/firestore";
-import { getPublicUrl } from "./storage";
 
 type ChannelDocument = {
   current: string;
@@ -17,6 +16,13 @@ type MapDocument = {
     size: number;
   }[];
   url: string;
+};
+
+const getPublicUrl = (fileName: string) => {
+  const gcsBase = "https://storage.googleapis.com";
+  const bucket = process.env.MAP_BUCKET;
+
+  return `${gcsBase}/${bucket}/${fileName}.png`;
 };
 
 export const getCurrentMap = async (channelId: string) => {
