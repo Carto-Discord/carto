@@ -143,15 +143,13 @@ export const slashFunction = async (req: Request, res: Response) => {
   }
 
   if (req.method !== "POST") {
-    res.status(405).end();
-    return;
+    return res.status(405).end();
   }
 
   const body: Interaction = req.body;
 
   if (body.type === InteractionType.PING) {
-    res.status(200).json({ type: InteractionResponseType.PONG }).end();
-    return;
+    return res.status(200).json({ type: InteractionResponseType.PONG }).end();
   }
 
   const commandGroup = body.data;
