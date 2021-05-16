@@ -10,7 +10,7 @@ resource "google_cloudfunctions_function" "carto_api" {
 
   environment_variables = {
     MAP_BUCKET = google_storage_bucket.map_storage.name
-    HTTP_TRIGGER_URL  = google_cloudfunctions_function.carto_client.https_trigger_url
+    HTTP_TRIGGER_URL  = "https://${var.function_location}-${var.app_name}.cloudfunctions.net/${var.app_name}-client"
   }
 }
 
@@ -27,7 +27,7 @@ resource "google_cloudfunctions_function" "carto_client" {
   environment_variables = {
     PUBLIC_KEY        = var.public_key
     HTTP_TRIGGER_URL  = google_cloudfunctions_function.carto_api.https_trigger_url
-    CLIENT_TRIGGER_URL  = google_cloudfunctions_function.carto_client.https_trigger_url
+    CLIENT_TRIGGER_URL  = self.https_trigger_url
     MAP_BUCKET        = google_storage_bucket.map_storage.name
   }
 }
