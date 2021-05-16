@@ -34,13 +34,6 @@ jobs:
           npm run build
           npm run build:package
 
-      - name: Build receiver application
-        run: |
-          cd receiver
-          npm ci
-          npm run build
-          npm run build:package
-
       - name: Lint with flake8
         run: |
           # stop the build if there are Python syntax errors or undefined names
@@ -55,9 +48,4 @@ jobs:
       - name: Test client with jest
         run: |
           cd client
-          npm run test:coverage
-
-      - name: Test receiver with jest
-        run: |
-          cd receiver
           npm run test:coverage
