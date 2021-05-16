@@ -25,9 +25,9 @@ resource "google_cloudfunctions_function" "carto_client" {
   entry_point           = "slashFunction"
 
   environment_variables = {
-    PUBLIC_KEY        = var.public_key
-    HTTP_TRIGGER_URL  = google_cloudfunctions_function.carto_api.https_trigger_url
-    CLIENT_TRIGGER_URL  = self.https_trigger_url
-    MAP_BUCKET        = google_storage_bucket.map_storage.name
+    PUBLIC_KEY          = var.public_key
+    HTTP_TRIGGER_URL    = google_cloudfunctions_function.carto_api.https_trigger_url
+    CLIENT_TRIGGER_URL  = "https://${var.function_location}-${var.app_name}.cloudfunctions.net/${var.app_name}-client"
+    MAP_BUCKET          = google_storage_bucket.map_storage.name
   }
 }
