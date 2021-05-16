@@ -21,12 +21,12 @@ import {
   InteractionResponseType,
   InteractionType,
 } from "./types";
+import { receiver } from "./receiver";
 
 type CommandProps = {
   applicationId: string;
   channelId: string;
   command: ApplicationCommandInteractionDataOption;
-  res: Response;
   token: string;
 };
 
@@ -45,7 +45,6 @@ const handleMapCommands = async ({
   applicationId,
   channelId,
   command,
-  res,
   token,
 }: CommandProps) => {
   // We can be confident that each subcommand will have the correct parameters,
@@ -63,18 +62,11 @@ const handleMapCommands = async ({
         token,
         url,
       });
-
-      res
-        .status(200)
-        .json({
-          type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
-        })
-        .end();
       break;
 
     case SubCommand.MAP_GET:
       console.log("Received Map get request");
-      await getMap({ channelId, res });
+      getMap({ applicationId, channelId, token });
       break;
 
     default:
@@ -86,7 +78,6 @@ const handleTokenCommands = ({
   applicationId,
   channelId,
   command,
-  res,
   token,
 }: CommandProps) => {
   let name, row, column, colour, size;
@@ -126,13 +117,6 @@ const handleTokenCommands = ({
     default:
       break;
   }
-
-  res
-    .status(200)
-    .json({
-      type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
-    })
-    .end();
 };
 
 export const slashFunction = async (req: Request, res: Response) => {
@@ -142,7 +126,9 @@ export const slashFunction = async (req: Request, res: Response) => {
     return res.status(401).end("invalid request signature");
   }
 
-  if (req.method !== "POST") {
+  if (req.method === "PUT") {
+    return await receiver(req, res);
+  } else if (req.method !== "POST") {
     return res.status(405).end();
   }
 
@@ -166,7 +152,6 @@ export const slashFunction = async (req: Request, res: Response) => {
           applicationId: application_id,
           channelId: channel_id,
           command: commandGroup.options[0],
-          res,
           token,
         });
         break;
@@ -176,7 +161,6 @@ export const slashFunction = async (req: Request, res: Response) => {
           applicationId: application_id,
           channelId: channel_id,
           command: commandGroup.options[0],
-          res,
           token,
         });
         break;
@@ -184,5 +168,12 @@ export const slashFunction = async (req: Request, res: Response) => {
       default:
         break;
     }
+
+    res
+      .status(200)
+      .json({
+        type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+      })
+      .end();
   }
 };

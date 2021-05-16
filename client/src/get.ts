@@ -1,50 +1,27 @@
-import { Response } from "express";
-import { InteractionResponseType } from "./types";
-import { getCurrentMap } from "./firestore";
+import { createAuthenticatedClient } from "./authentication";
+import { handleRequest } from "./requestHandler";
 
 export type GetProps = {
+  applicationId: string;
   channelId: string;
-  res: Response;
+  token: string;
 };
 
-export const getMap = async ({ channelId, res }: GetProps) => {
-  const map = await getCurrentMap(channelId);
+export const getMap = async ({ applicationId, channelId, token }: GetProps) => {
+  const triggerUrl = process.env.CLIENT_TRIGGER_URL;
+  const client = await createAuthenticatedClient(triggerUrl);
 
-  if (map) {
-    const { publicUrl, tokens } = map;
-    const tokenFields = tokens.map((token) => ({
-      name: token.name,
-      value: `${token.column}${token.row}`,
-      inline: true,
-    }));
-
-    const embed = {
-      type: "rich",
-      title: "Map retrieved",
-      image: {
-        url: publicUrl,
+  return handleRequest(() =>
+    client.request({
+      url: triggerUrl,
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      data: {
+        action: "get_map",
+        applicationId,
+        message: channelId,
+        token,
       },
-      fields: tokenFields,
-    };
-
-    res
-      .status(200)
-      .json({
-        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-        data: {
-          embeds: [embed],
-        },
-      })
-      .end();
-  } else {
-    res
-      .status(200)
-      .json({
-        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-        data: {
-          content: "No map no found for this channel",
-        },
-      })
-      .end();
-  }
+    })
+  );
 };

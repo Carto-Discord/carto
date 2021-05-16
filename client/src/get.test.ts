@@ -1,97 +1,54 @@
-import { Response } from "express";
-import { InteractionResponseType } from "slash-commands";
-import { getCurrentMap } from "./firestore";
+import { createAuthenticatedClient } from "./authentication";
+import { handleRequest } from "./requestHandler";
 import { getMap } from "./get";
 
-jest.mock("./firestore");
+jest.mock("./authentication");
+jest.mock("./requestHandler");
 
-const mockGetCurrentMap = getCurrentMap as jest.MockedFunction<
-  typeof getCurrentMap
+const mockCreateAuthenticatedClient =
+  createAuthenticatedClient as jest.MockedFunction<
+    typeof createAuthenticatedClient
+  >;
+const mockHandleRequest = handleRequest as jest.MockedFunction<
+  typeof handleRequest
 >;
 
 describe("Get", () => {
-  const mockJson = jest.fn().mockReturnValue({ end: jest.fn() });
-  //@ts-ignore
-  const mockResponse: Response = {
-    status: jest.fn().mockReturnValue({
-      json: mockJson,
-    }),
-  };
+  const mockRequest = jest.fn();
+
+  jest.spyOn(console, "warn").mockImplementation(() => {});
 
   beforeEach(() => {
     jest.clearAllMocks();
+    //@ts-ignore
+    mockCreateAuthenticatedClient.mockResolvedValue({ request: mockRequest });
+
+    process.env.CLIENT_TRIGGER_URL = "https://trigger.url";
   });
 
-  describe("Get Map", () => {
-    describe("given getCurrentMap returns undefined", () => {
-      beforeEach(() => {
-        mockGetCurrentMap.mockResolvedValue(undefined);
+  describe("Create Map", () => {
+    it("should call handleRequest with the appropriate request", async () => {
+      await getMap({
+        applicationId: "appId",
+        token: "mockToken",
+        channelId: "1234",
       });
 
-      it("should call res with a negative response", async () => {
-        await getMap({ channelId: "123", res: mockResponse });
+      expect(mockHandleRequest).toBeCalledTimes(1);
+      await mockHandleRequest.mock.calls[0][0]();
 
-        expect(mockJson).toBeCalledWith({
-          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-          data: {
-            content: "No map no found for this channel",
-          },
-        });
-      });
-    });
-
-    describe("given getCurrentMap returns a map", () => {
-      beforeEach(() => {
-        mockGetCurrentMap.mockResolvedValue({
-          publicUrl: "publicUrl",
-          tokens: [
-            {
-              name: "token1",
-              column: "A",
-              row: 1,
-              colour: "red",
-              size: 1,
-            },
-            {
-              name: "token2",
-              column: "Y",
-              row: 5,
-              colour: "blue",
-              size: 0.5,
-            },
-          ],
-        });
-      });
-
-      it("should call res with an embed response", async () => {
-        await getMap({ channelId: "123", res: mockResponse });
-
-        expect(mockJson).toBeCalledWith({
-          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-          data: {
-            embeds: [
-              {
-                type: "rich",
-                title: "Map retrieved",
-                image: {
-                  url: "publicUrl",
-                },
-                fields: [
-                  {
-                    inline: true,
-                    name: "token1",
-                    value: "A1",
-                  },
-                  {
-                    inline: true,
-                    name: "token2",
-                    value: "Y5",
-                  },
-                ],
-              },
-            ],
-          },
-        });
+      expect(mockRequest).toBeCalledWith({
+        url: "https://trigger.url",
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        data: {
+          action: "get_map",
+          applicationId: "appId",
+          token: "mockToken",
+          message: "1234",
+        },
       });
     });
   });

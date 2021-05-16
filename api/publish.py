@@ -22,6 +22,6 @@ def publish(token, application_id, message=None, image_url=None):
     if message is not None:
         message_dict['message'] = message
 
-    requests.post(service_url, json=message_dict, headers={'Authorization': f"Bearer {id_token}"})
+    requests.put(service_url, json=message_dict, headers={'Authorization': f"Bearer {id_token}"})
 
     return '', 200
