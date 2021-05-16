@@ -120,16 +120,16 @@ const handleTokenCommands = ({
 };
 
 export const slashFunction = async (req: Request, res: Response) => {
-  const isVerified = validateRequest(req);
-
-  if (!isVerified) {
-    return res.status(401).end("invalid request signature");
-  }
-
   if (req.method === "PUT") {
     return await receiver(req, res);
   } else if (req.method !== "POST") {
     return res.status(405).end();
+  }
+
+  const isVerified = validateRequest(req);
+
+  if (!isVerified) {
+    return res.status(401).end("invalid request signature");
   }
 
   const body: Interaction = req.body;

@@ -45,7 +45,7 @@ describe("Slash Function", () => {
     });
 
     it("should return a 401 response", async () => {
-      await slashFunction({} as Request, mockResponse);
+      await slashFunction({ method: "POST" } as Request, mockResponse);
 
       expect(mockResponse.status).toBeCalledWith(401);
       expect(mockEnd).toBeCalledWith("invalid request signature");
