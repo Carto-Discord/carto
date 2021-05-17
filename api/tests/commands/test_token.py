@@ -1,6 +1,8 @@
 import unittest
 from unittest.mock import patch
 
+from werkzeug.exceptions import HTTPException
+
 from api.commands.token import add_token, move_token, delete_token
 
 
@@ -10,7 +12,6 @@ class TokenAddTest(unittest.TestCase):
     @patch('commands.map.database.get_current_channel_map')
     def test_invalid_size(self, mock_get_map, mock_publish):
         request = {
-            'channelId': '1234',
             'name': 'token',
             'row': '4',
             'column': 'C',
@@ -19,8 +20,8 @@ class TokenAddTest(unittest.TestCase):
             'applicationId': '5678'
         }
 
-        with self.assertRaises(SystemExit):
-            add_token(request)
+        with self.assertRaises(HTTPException):
+            add_token(channel_id='1234', request_json=request)
 
         mock_publish.assert_called_with(token='mockToken', application_id='5678',
                                         message='Size VERY_SMALL is invalid. Valid sizes are as in the D&D Basic Rules')
@@ -30,7 +31,6 @@ class TokenAddTest(unittest.TestCase):
     @patch('commands.map.database.get_map_info')
     def test_invalid_map_id(self, mock_map_info, mock_get_map, mock_publish):
         request = {
-            'channelId': '1234',
             'name': 'token',
             'row': '4',
             'column': 'C',
@@ -41,8 +41,8 @@ class TokenAddTest(unittest.TestCase):
 
         mock_get_map.return_value = None
 
-        with self.assertRaises(SystemExit):
-            add_token(request)
+        with self.assertRaises(HTTPException):
+            add_token(channel_id='1234', request_json=request)
 
         mock_publish.assert_called_with(token='mockToken', application_id='5678',
                                         message="No map exists for this channel. Create one with the /map create command")
@@ -53,7 +53,6 @@ class TokenAddTest(unittest.TestCase):
     @patch('commands.map.grid.apply_grid')
     def test_invalid_map_data(self, mock_apply_grid, mock_map_info, mock_get_map, mock_publish):
         request = {
-            'channelId': '1234',
             'name': 'token',
             'row': '4',
             'column': 'C',
@@ -68,8 +67,8 @@ class TokenAddTest(unittest.TestCase):
             'tokens': []
         }
 
-        with self.assertRaises(SystemExit):
-            add_token(request)
+        with self.assertRaises(HTTPException):
+            add_token(channel_id='1234', request_json=request)
 
         mock_publish.assert_called_with(token='mockToken', application_id='5678',
                                         message="Map data for this channel is incomplete. Please report this as an issue on GitHub")
@@ -80,7 +79,6 @@ class TokenAddTest(unittest.TestCase):
     @patch('commands.map.grid.apply_grid')
     def test_invalid_rows_cols_provided(self, mock_apply_grid, mock_map_info, mock_get_map, mock_publish):
         request = {
-            'channelId': '1234',
             'name': 'token',
             'row': '4',
             'column': 'C',
@@ -97,8 +95,8 @@ class TokenAddTest(unittest.TestCase):
             'tokens': []
         }
 
-        with self.assertRaises(SystemExit):
-            add_token(request)
+        with self.assertRaises(HTTPException):
+            add_token(channel_id='1234', request_json=request)
 
         mock_publish.assert_called_with(token='mockToken', application_id='5678',
                                         message="The row or column you entered is not on the map, please try again. "
@@ -111,7 +109,6 @@ class TokenAddTest(unittest.TestCase):
     @patch('commands.map.storage.upload_blob')
     def test_grid_cannot_be_created(self, mock_upload, mock_apply_grid, mock_map_info, mock_get_map, mock_publish):
         request = {
-            'channelId': '1234',
             'name': 'token',
             'row': '4',
             'column': 'C',
@@ -129,8 +126,8 @@ class TokenAddTest(unittest.TestCase):
         }
         mock_apply_grid.return_value = None
 
-        with self.assertRaises(SystemExit):
-            add_token(request)
+        with self.assertRaises(HTTPException):
+            add_token(channel_id='1234', request_json=request)
 
         mock_publish.assert_called_with(token='mockToken', application_id='5678',
                                         message="Url url could not be found")
@@ -144,7 +141,6 @@ class TokenAddTest(unittest.TestCase):
     def test_image_cannot_be_uploaded(self, mock_update, mock_upload, mock_apply_grid, mock_map_info, mock_get_map,
                                       mock_publish):
         request = {
-            'channelId': '1234',
             'name': 'token',
             'row': '4',
             'column': 'C',
@@ -163,7 +159,7 @@ class TokenAddTest(unittest.TestCase):
         mock_apply_grid.return_value = 'map.png'
         mock_upload.return_value = None
 
-        add_token(request)
+        add_token(channel_id='1234', request_json=request)
 
         mock_publish.assert_called_with(token='mockToken', application_id='5678',
                                         message="Map could not be created")
@@ -180,7 +176,6 @@ class TokenAddTest(unittest.TestCase):
     def test_successful_creation(self, mock_uuid, mock_create, mock_update, mock_upload, mock_apply_grid, mock_map_info,
                                  mock_get_map, mock_publish):
         request = {
-            'channelId': '1234',
             'name': 'token',
             'row': '4',
             'column': 'C',
@@ -201,7 +196,7 @@ class TokenAddTest(unittest.TestCase):
         mock_upload.return_value = 'gcs-file'
         mock_uuid.return_value = '1234-5678'
 
-        add_token(request)
+        add_token(channel_id='1234', request_json=request)
 
         mock_update.assert_called_once()
         mock_create.assert_called_with(uuid='1234-5678', url='url', rows=5, columns=5, tokens=[{
@@ -224,7 +219,6 @@ class TokenMoveTest(unittest.TestCase):
     @patch('commands.map.grid.apply_grid')
     def test_name_not_found(self, mock_apply_grid, mock_get_map_info, mock_get_channel_map, mock_publish):
         request = {
-            'channelId': '1234',
             'name': 'token',
             'row': '1',
             'column': 'A',
@@ -248,8 +242,8 @@ class TokenMoveTest(unittest.TestCase):
             ]
         }
 
-        with self.assertRaises(SystemExit):
-            move_token(request)
+        with self.assertRaises(HTTPException):
+            move_token(channel_id='1234', request_json=request)
 
         mock_publish.assert_called_with(token='mockToken', application_id='5678',
                                         message='Token token not found in map. Token names are case sensitive, so try again or add it using /token add')
@@ -265,7 +259,6 @@ class TokenMoveTest(unittest.TestCase):
     def test_changes_token_attributes(self, mock_create_map_info, mock_update_channel, mock_upload_blob,
                                       mock_apply_grid, mock_get_map_info, mock_get_channel_map, mock_publish):
         request = {
-            'channelId': '1234',
             'name': 'token',
             'row': '4',
             'column': 'C',
@@ -292,7 +285,7 @@ class TokenMoveTest(unittest.TestCase):
         mock_apply_grid.return_value = 'map.png'
         mock_upload_blob.return_value = 'gcs-file'
 
-        move_token(request)
+        move_token(channel_id='1234', request_json=request)
 
         tokens = mock_apply_grid.call_args.kwargs['tokens']
         self.assertEqual(tokens[0].row, 4)
@@ -307,7 +300,6 @@ class TokenDeleteTest(unittest.TestCase):
     @patch('commands.map.grid.apply_grid')
     def test_name_not_found(self, mock_apply_grid, mock_get_map_info, mock_get_channel_map, mock_publish):
         request = {
-            'channelId': '1234',
             'name': 'token',
             'token': 'mockToken',
             'applicationId': '5678'
@@ -329,8 +321,8 @@ class TokenDeleteTest(unittest.TestCase):
             ]
         }
 
-        with self.assertRaises(SystemExit):
-            delete_token(request)
+        with self.assertRaises(HTTPException):
+            delete_token(channel_id='1234', request_json=request)
 
         mock_publish.assert_called_with(token='mockToken', application_id='5678',
                                         message='Token token not found in map. Token names are case sensitive, so try again or add it using /token add')
@@ -346,7 +338,6 @@ class TokenDeleteTest(unittest.TestCase):
     def test_changes_token_attributes(self, mock_create_map_info, mock_update_channel, mock_upload_blob,
                                       mock_apply_grid, mock_get_map_info, mock_get_channel_map, mock_publish):
         request = {
-            'channelId': '1234',
             'name': 'token',
             'token': 'mockToken',
             'applicationId': '5678'
@@ -378,7 +369,7 @@ class TokenDeleteTest(unittest.TestCase):
         mock_apply_grid.return_value = 'map.png'
         mock_upload_blob.return_value = 'gcs-file'
 
-        delete_token(request)
+        delete_token(channel_id='1234', request_json=request)
 
         tokens = mock_apply_grid.call_args.kwargs['tokens']
         self.assertEqual(tokens[0].row, 3)

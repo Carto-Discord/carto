@@ -4,9 +4,9 @@ from logs import Logger
 import publish
 
 
-def get_channel_map(request_params):
-    keys = ['channelId', 'token', 'applicationId']
-    channel_id, discord_token, application_id = [request_params.get(key) for key in keys]
+def get_channel_map(channel_id, request_params):
+    keys = ['token', 'applicationId']
+    discord_token, application_id = [request_params.get(key) for key in keys]
 
     if channel_id is None:
         return publish.publish(token=discord_token, application_id=application_id, message="No channel found")

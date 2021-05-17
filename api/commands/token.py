@@ -2,6 +2,8 @@ import ntpath
 import random
 import uuid
 
+from flask import abort
+
 from commands.map import database, grid, storage
 from commands.map.Token import size, Token
 from commands import constants
@@ -14,14 +16,14 @@ def validate_map_data(channel_id, discord_token, application_id):
     if channel_map_id is None:
         message = "No map exists for this channel. Create one with the /map create command"
         publish.publish(token=discord_token, application_id=application_id, message=message)
-        exit(0)
+        abort(404)
 
     channel_map_data = database.get_map_info(channel_map_id)
 
     if 'rows' not in channel_map_data or 'columns' not in channel_map_data:
         message = "Map data for this channel is incomplete. Please report this as an issue on GitHub"
         publish.publish(token=discord_token, application_id=application_id, message=message)
-        exit(0)
+        abort(500)
 
     return channel_map_data
 
@@ -31,7 +33,7 @@ def validate_token_position(token_row, token_column, grid_rows, grid_columns, di
         message = "The row or column you entered is not on the map, please try again. " \
                   "This map's bounds are {} rows by {} columns".format(grid_rows, grid_columns)
         publish.publish(token=discord_token, application_id=application_id, message=message)
-        exit(0)
+        abort(400)
 
 
 def convert_to_tokens(tokens_array):
@@ -49,7 +51,7 @@ def create_new_grid(url, rows, columns, tokens, channel_id, discord_token, appli
     if source_file_name is None:
         message = "Url {} could not be found".format(url)
         publish.publish(token=discord_token, application_id=application_id, message=message)
-        exit(0)
+        abort(404)
 
     map_uuid = str(uuid.uuid4())
     file_name = ntpath.basename(source_file_name)
@@ -67,15 +69,15 @@ def create_new_grid(url, rows, columns, tokens, channel_id, discord_token, appli
         return publish.publish(token=discord_token, application_id=application_id, image_url=file)
 
 
-def add_token(request_json):
-    keys = ['channelId', 'name', 'row', 'column', 'size', 'colour', 'token', 'applicationId']
-    channel_id, name, row, column, token_size, colour, discord_token, application_id = [request_json.get(key) for key in
-                                                                                        keys]
+def add_token(channel_id, request_json):
+    keys = ['name', 'row', 'column', 'size', 'colour', 'token', 'applicationId']
+    name, row, column, token_size, colour, discord_token, application_id = [request_json.get(key) for key in
+                                                                            keys]
 
     if str.upper(token_size) not in size.keys():
         message = "Size {} is invalid. Valid sizes are as in the D&D Basic Rules".format(token_size)
         publish.publish(token=discord_token, application_id=application_id, message=message)
-        exit(0)
+        abort(400)
 
     channel_map_data = validate_map_data(channel_id, discord_token, application_id)
 
@@ -96,9 +98,9 @@ def add_token(request_json):
     return create_new_grid(url, rows, columns, tokens, channel_id, discord_token, application_id)
 
 
-def move_token(request_json):
-    keys = ['channelId', 'name', 'row', 'column', 'token', 'applicationId']
-    channel_id, name, row, column, discord_token, application_id = [request_json.get(key) for key in keys]
+def move_token(channel_id, request_json):
+    keys = ['name', 'row', 'column', 'token', 'applicationId']
+    name, row, column, discord_token, application_id = [request_json.get(key) for key in keys]
 
     channel_map_data = validate_map_data(channel_id, discord_token, application_id)
 
@@ -113,7 +115,7 @@ def move_token(request_json):
         message = "Token {} not found in map. Token names are case sensitive, so try again or add it using /token add".format(
             name)
         publish.publish(token=discord_token, application_id=application_id, message=message)
-        exit(0)
+        abort(404)
 
     for i, token in enumerate(tokens):
         if token.name == name:
@@ -124,9 +126,9 @@ def move_token(request_json):
     return create_new_grid(url, rows, columns, tokens, channel_id, discord_token, application_id)
 
 
-def delete_token(request_json):
-    keys = ['channelId', 'name', 'token', 'applicationId']
-    channel_id, name, discord_token, application_id = [request_json.get(key) for key in keys]
+def delete_token(channel_id, request_json):
+    keys = ['name', 'token', 'applicationId']
+    name, discord_token, application_id = [request_json.get(key) for key in keys]
 
     channel_map_data = validate_map_data(channel_id, discord_token, application_id)
 
@@ -139,7 +141,7 @@ def delete_token(request_json):
         message = "Token {} not found in map. Token names are case sensitive, so try again or add it using /token add".format(
             name)
         publish.publish(token=discord_token, application_id=application_id, message=message)
-        exit(0)
+        abort(404)
 
     for i, token in enumerate(tokens):
         if token.name == name:

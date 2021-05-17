@@ -6,9 +6,9 @@ from commands import constants
 import publish
 
 
-def create_new_map(request_json):
-    keys = ['url', 'rows', 'columns', 'channelId', 'token', 'applicationId']
-    url, rows, columns, channel_id, token, application_id = [request_json.get(key) for key in keys]
+def create_new_map(channel_id, request_json):
+    keys = ['url', 'rows', 'columns', 'token', 'applicationId']
+    url, rows, columns, token, application_id = [request_json.get(key) for key in keys]
 
     source_file_name = grid.apply_grid(url, rows, columns)
     if source_file_name is None:

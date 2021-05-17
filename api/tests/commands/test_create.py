@@ -9,18 +9,16 @@ class CreateTest(unittest.TestCase):
     @patch('publish.publish')
     def test_create_invalid_url(self, mock_publish, mock_apply_grid):
         params = {
-            'action': 'create',
             'url': 'https://mock.url',
             'rows': 42,
             'columns': 24,
-            'channelId': '1234',
             'token': 'mockToken',
             'applicationId': '456'
         }
         mock_publish.return_value = 'published'
         mock_apply_grid.return_value = None
 
-        create_new_map(params)
+        create_new_map(channel_id='1234', request_json=params)
         mock_publish.assert_called_with(token='mockToken', application_id='456',
                                         message='Url https://mock.url could not be found')
 
@@ -29,18 +27,16 @@ class CreateTest(unittest.TestCase):
     @patch('publish.publish')
     def test_create_unable_to_upload(self, mock_publish, mock_upload_blob, mock_apply_grid):
         params = {
-            'action': 'create',
             'url': 'https://mock.url',
             'rows': 42,
             'columns': 24,
-            'channelId': '1234',
             'token': 'mockToken',
             'applicationId': '456'
         }
         mock_apply_grid.return_value = 'map.png'
         mock_upload_blob.return_value = None
 
-        create_new_map(params)
+        create_new_map(channel_id='1234', request_json=params)
         mock_publish.assert_called_with(token='mockToken', application_id='456',
                                         message='Map could not be created')
 
@@ -52,18 +48,16 @@ class CreateTest(unittest.TestCase):
     def test_create_success(self, mock_publish, mock_create_map_info, mock_update_channel_map, mock_upload_blob,
                             mock_apply_grid):
         params = {
-            'action': 'create',
             'url': 'https://mock.url',
             'rows': 42,
             'columns': 24,
-            'channelId': '1234',
             'token': 'mockToken',
             'applicationId': '456'
         }
         mock_apply_grid.return_value = 'map.png'
         mock_upload_blob.return_value = 'gcs-file'
 
-        create_new_map(params)
+        create_new_map(channel_id='1234', request_json=params)
 
         mock_update_channel_map.assert_called()
         mock_create_map_info.assert_called()
