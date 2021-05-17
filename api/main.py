@@ -1,5 +1,4 @@
 from commands import create, get, delete, token
-from logs import Logger
 from flask import Flask, request
 
 app = Flask(__name__)
@@ -7,9 +6,8 @@ app = Flask(__name__)
 
 @app.route('/map/<channel_id>')
 def get_map(channel_id):
-    Logger.setup(request.headers.get('function-execution-id'))
-    Logger.log("Received Map get request for Channel {}".format(
-        channel_id), severity='DEBUG')
+    app.logger.debug("Received Map get request for Channel {}".format(
+        channel_id))
 
     request_params = request.args.to_dict()
     return get.get_channel_map(channel_id=channel_id, request_params=request_params)
@@ -21,9 +19,8 @@ def create_map(channel_id):
     if request_json is None:
         return 'JSON could not be serialised', 400
 
-    Logger.setup(request.headers.get('function-execution-id'))
-    Logger.log("Received Map create request with JSON {}".format(
-        request_json), severity='DEBUG')
+    app.logger.debug("Received Map create request with JSON {}".format(
+        request_json))
 
     return create.create_new_map(channel_id=channel_id, request_json=request_json)
 
@@ -34,9 +31,8 @@ def delete_map(channel_id):
     if request_json is None:
         return 'JSON could not be serialised', 400
 
-    Logger.setup(request.headers.get('function-execution-id'))
-    Logger.log("Received Map delete request with JSON {}".format(
-        request_json), severity='DEBUG')
+    app.logger.debug("Received Map delete request with JSON {}".format(
+        request_json))
 
     return delete.delete_channel_data(channel_id=channel_id, request_json=request_json)
 
@@ -47,9 +43,8 @@ def create_token(channel_id):
     if request_json is None:
         return 'JSON could not be serialised', 400
 
-    Logger.setup(request.headers.get('function-execution-id'))
-    Logger.log("Received Token create request with JSON {}".format(
-        request_json), severity='DEBUG')
+    app.logger.debug("Received Token create request with JSON {}".format(
+        request_json))
 
     return token.add_token(channel_id=channel_id, request_json=request_json)
 
@@ -60,9 +55,8 @@ def move_token(channel_id):
     if request_json is None:
         return 'JSON could not be serialised', 400
 
-    Logger.setup(request.headers.get('function-execution-id'))
-    Logger.log("Received Token move request with JSON {}".format(
-        request_json), severity='DEBUG')
+    app.logger.debug("Received Token move request with JSON {}".format(
+        request_json))
 
     return token.move_token(channel_id=channel_id, request_json=request_json)
 
@@ -73,8 +67,7 @@ def delete_token(channel_id):
     if request_json is None:
         return 'JSON could not be serialised', 400
 
-    Logger.setup(request.headers.get('function-execution-id'))
-    Logger.log("Received Token delete request with JSON {}".format(
-        request_json), severity='DEBUG')
+    app.logger.debug("Received Token delete request with JSON {}".format(
+        request_json))
 
     return token.delete_token(channel_id=channel_id, request_json=request_json)

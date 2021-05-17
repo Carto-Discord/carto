@@ -1,6 +1,7 @@
+import logging
+
 from commands import constants
 from commands.map import database, storage
-from logs import Logger
 import publish
 
 
@@ -12,7 +13,7 @@ def get_channel_map(channel_id, request_params):
         return publish.publish(token=discord_token, application_id=application_id, message="No channel found")
 
     uuid = database.get_current_channel_map(channel_id)
-    Logger.log("Getting map for channel UUID: {}".format(uuid), severity='DEBUG')
+    logging.log(level=logging.DEBUG, msg="Getting map for channel UUID: {}".format(uuid))
 
     if uuid is None:
         return publish.publish(token=discord_token, application_id=application_id,
