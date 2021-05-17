@@ -5,9 +5,10 @@ import { addToken, deleteToken, moveToken } from "./token";
 jest.mock("./authentication");
 jest.mock("./requestHandler");
 
-const mockCreateAuthenticatedClient = createAuthenticatedClient as jest.MockedFunction<
-  typeof createAuthenticatedClient
->;
+const mockCreateAuthenticatedClient =
+  createAuthenticatedClient as jest.MockedFunction<
+    typeof createAuthenticatedClient
+  >;
 const mockHandleRequest = handleRequest as jest.MockedFunction<
   typeof handleRequest
 >;
@@ -42,15 +43,13 @@ describe("Token", () => {
         await mockHandleRequest.mock.calls[0][0]();
 
         expect(mockRequest).toBeCalledWith({
-          url: "https://trigger.url",
+          url: "https://trigger.url/token/1234",
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           data: {
-            action: "addToken",
             applicationId: "appId",
-            channelId: "1234",
             colour: "red",
             column: "A",
             name: "token",
@@ -78,15 +77,13 @@ describe("Token", () => {
         await mockHandleRequest.mock.calls[0][0]();
 
         expect(mockRequest).toBeCalledWith({
-          url: "https://trigger.url",
+          url: "https://trigger.url/token/1234",
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           data: {
-            action: "addToken",
             applicationId: "appId",
-            channelId: "1234",
             column: "A",
             name: "token",
             row: 1,
@@ -113,15 +110,13 @@ describe("Token", () => {
       await mockHandleRequest.mock.calls[0][0]();
 
       expect(mockRequest).toBeCalledWith({
-        url: "https://trigger.url",
-        method: "POST",
+        url: "https://trigger.url/token/1234",
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
         data: {
-          action: "moveToken",
           applicationId: "appId",
-          channelId: "1234",
           column: "A",
           name: "token",
           row: 1,
@@ -144,15 +139,13 @@ describe("Token", () => {
       await mockHandleRequest.mock.calls[0][0]();
 
       expect(mockRequest).toBeCalledWith({
-        url: "https://trigger.url",
+        url: "https://trigger.url/token/1234",
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
         },
         data: {
-          action: "deleteToken",
           applicationId: "appId",
-          channelId: "1234",
           name: "token",
           token: "mockToken",
         },

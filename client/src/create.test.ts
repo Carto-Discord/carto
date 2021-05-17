@@ -5,9 +5,10 @@ import { createMap } from "./create";
 jest.mock("./authentication");
 jest.mock("./requestHandler");
 
-const mockCreateAuthenticatedClient = createAuthenticatedClient as jest.MockedFunction<
-  typeof createAuthenticatedClient
->;
+const mockCreateAuthenticatedClient =
+  createAuthenticatedClient as jest.MockedFunction<
+    typeof createAuthenticatedClient
+  >;
 const mockHandleRequest = handleRequest as jest.MockedFunction<
   typeof handleRequest
 >;
@@ -40,7 +41,7 @@ describe("Create", () => {
       await mockHandleRequest.mock.calls[0][0]();
 
       expect(mockRequest).toBeCalledWith({
-        url: "https://trigger.url",
+        url: "https://trigger.url/map/1234",
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -52,7 +53,6 @@ describe("Create", () => {
           url: "url",
           rows: 1,
           columns: 2,
-          channelId: "1234",
         },
       });
     });

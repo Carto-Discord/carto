@@ -35,7 +35,7 @@ export const addToken = async ({
   size = "MEDIUM",
   token,
 }: AddProps) => {
-  const triggerUrl = process.env.HTTP_TRIGGER_URL;
+  const triggerUrl = `${process.env.HTTP_TRIGGER_URL}/token/${channelId}`;
   const client = await createAuthenticatedClient(triggerUrl);
 
   return handleRequest(() =>
@@ -44,9 +44,7 @@ export const addToken = async ({
       method: "POST",
       headers: { "Content-Type": "application/json" },
       data: {
-        action: "addToken",
         applicationId,
-        channelId,
         colour,
         column,
         condition,
@@ -67,18 +65,16 @@ export const moveToken = async ({
   row,
   token,
 }: MoveProps) => {
-  const triggerUrl = process.env.HTTP_TRIGGER_URL;
+  const triggerUrl = `${process.env.HTTP_TRIGGER_URL}/token/${channelId}`;
   const client = await createAuthenticatedClient(triggerUrl);
 
   return handleRequest(() =>
     client.request({
       url: triggerUrl,
-      method: "POST",
+      method: "PUT",
       headers: { "Content-Type": "application/json" },
       data: {
-        action: "moveToken",
         applicationId,
-        channelId,
         column,
         name,
         row,
@@ -94,7 +90,7 @@ export const deleteToken = async ({
   name,
   token,
 }: DeleteProps) => {
-  const triggerUrl = process.env.HTTP_TRIGGER_URL;
+  const triggerUrl = `${process.env.HTTP_TRIGGER_URL}/token/${channelId}`;
   const client = await createAuthenticatedClient(triggerUrl);
 
   return handleRequest(() =>
@@ -102,7 +98,7 @@ export const deleteToken = async ({
       url: triggerUrl,
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
-      data: { action: "deleteToken", applicationId, channelId, name, token },
+      data: { applicationId, name, token },
     })
   );
 };

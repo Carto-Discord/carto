@@ -17,7 +17,7 @@ export const createMap = async ({
   token,
   url,
 }: CreateProps) => {
-  const triggerUrl = process.env.HTTP_TRIGGER_URL;
+  const triggerUrl = `${process.env.HTTP_TRIGGER_URL}/map/${channelId}`;
   const client = await createAuthenticatedClient(triggerUrl);
 
   return handleRequest(() =>
@@ -28,7 +28,6 @@ export const createMap = async ({
       data: {
         action: "create",
         applicationId,
-        channelId,
         columns,
         rows,
         token,

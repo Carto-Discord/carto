@@ -26,7 +26,7 @@ describe("Get", () => {
     process.env.CLIENT_TRIGGER_URL = "https://trigger.url";
   });
 
-  describe("Create Map", () => {
+  describe("Get Map", () => {
     it("should call handleRequest with the appropriate request", async () => {
       await getMap({
         applicationId: "appId",
@@ -38,16 +38,11 @@ describe("Get", () => {
       await mockHandleRequest.mock.calls[0][0]();
 
       expect(mockRequest).toBeCalledWith({
-        url: "https://trigger.url",
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        data: {
-          action: "get_map",
+        url: "https://trigger.url/map/1234",
+        method: "GET",
+        params: {
           applicationId: "appId",
           token: "mockToken",
-          message: "1234",
         },
       });
     });

@@ -5,9 +5,10 @@ import { deleteChannel } from "./delete";
 jest.mock("./authentication");
 jest.mock("./requestHandler");
 
-const mockCreateAuthenticatedClient = createAuthenticatedClient as jest.MockedFunction<
-  typeof createAuthenticatedClient
->;
+const mockCreateAuthenticatedClient =
+  createAuthenticatedClient as jest.MockedFunction<
+    typeof createAuthenticatedClient
+  >;
 const mockHandleRequest = handleRequest as jest.MockedFunction<
   typeof handleRequest
 >;
@@ -35,10 +36,10 @@ describe("Delete", () => {
       await mockHandleRequest.mock.calls[0][0]();
 
       expect(mockRequest).toBeCalledWith({
-        url: "https://trigger.url",
+        url: "https://trigger.url/map/1234",
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        data: { applicationId: "appId", channelId: "1234", token: "mockToken" },
+        data: { applicationId: "appId", token: "mockToken" },
       });
     });
   });
