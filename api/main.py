@@ -71,3 +71,7 @@ def delete_token(channel_id):
         request_json))
 
     return token.delete_token(channel_id=channel_id, request_json=request_json)
+
+
+if __name__ == "__main__":
+    app.run(host='0.0.0.0')
