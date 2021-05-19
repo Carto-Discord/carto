@@ -1,4 +1,4 @@
-import logging
+from flask import current_app
 
 from commands import constants
 from commands.map import database, storage
@@ -13,7 +13,7 @@ def get_channel_map(channel_id, request_params):
         return publish.publish(token=discord_token, application_id=application_id, message="No channel found")
 
     uuid = database.get_current_channel_map(channel_id)
-    logging.log(level=logging.DEBUG, msg="Getting map for channel UUID: {}".format(uuid))
+    current_app.logger.info("Getting map for channel UUID: {}".format(uuid))
 
     if uuid is None:
         return publish.publish(token=discord_token, application_id=application_id,

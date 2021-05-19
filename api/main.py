@@ -1,7 +1,12 @@
+import logging
+
 from commands import create, get, delete, token
 from flask import Flask, request
 
 app = Flask(__name__)
+gunicorn_logger = logging.getLogger('gunicorn.error')
+app.logger.handlers = gunicorn_logger.handlers
+app.logger.setLevel(gunicorn_logger.level)
 
 
 @app.route('/map/<channel_id>')

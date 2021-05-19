@@ -1,8 +1,9 @@
-import logging
 import os
 import operator
 import string
 from typing import List, Tuple
+
+from flask import current_app
 
 from commands.map.Token import Token, size
 from configuration import FONT_DIR
@@ -13,8 +14,7 @@ def download_image(image_url: str) -> str:
     try:
         response = requests.get(image_url)
         if response.status_code >= 400:
-            logging.log(level=logging.WARN,
-                        msg="Url {0} returned status code {1}".format(image_url, response.status_code))
+            current_app.logger.warn("Url {0} returned status code {1}".format(image_url, response.status_code))
             return ""
 
         extension = image_url.split('/')[-1].split('.')[-1]
@@ -26,7 +26,7 @@ def download_image(image_url: str) -> str:
         file.close()
         return file_name
     except requests.RequestException as exception:
-        logging.log(level=logging.WARN, msg="Could not find image: {0}".format(exception))
+        current_app.logger.warn("Could not find image: {0}".format(exception))
         return ""
 
 
@@ -56,7 +56,6 @@ def find_font_size(text, max_width, max_height):
 
     font_height = 1
     font_path = os.path.join(FONT_DIR, "arial.ttf")
-    logging.log(level=logging.DEBUG, msg='Font located at ' + font_path)
 
     try:
         font = ImageFont.truetype(font_path, font_height)
@@ -64,7 +63,7 @@ def find_font_size(text, max_width, max_height):
             font_height += 1
             font = ImageFont.truetype(font_path, font_height)
     except OSError as oe:
-        logging.log(level=logging.WARN, msg=oe)
+        current_app.logger.warn(oe)
         font = ImageFont.load_default()
 
     return font
