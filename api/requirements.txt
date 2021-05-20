@@ -2,6 +2,5 @@ flask
 google-auth
 google-cloud-firestore
 google-cloud-storage
-grpcio
 Pillow
 requests
