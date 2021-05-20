@@ -1,6 +1,3 @@
-import grpc.experimental.gevent as grpc_gevent
-grpc_gevent.init_gevent()
-
 from google.cloud import firestore
 
 channels_collection = 'channels'
