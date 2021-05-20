@@ -38,7 +38,7 @@ def get_current_channel_map(channel_id):
         db = firestore.Client()
         current_app.logger.info('Created client')
         channel_doc_ref = db.collection(channels_collection).document(channel_id)
-        current_app.logger.info('Got doc {}'.format(channel_doc_ref.id))
+        current_app.logger.info('Got doc {}'.format(channel_doc_ref.get().exists))
         channel_doc = channel_doc_ref.get()
         current_app.logger.info('Doc: {}'.format(channel_doc))
 
@@ -48,7 +48,6 @@ def get_current_channel_map(channel_id):
             return None
     except Exception as e:
         current_app.logger.warn(e)
-
 
 
 def delete_channel_document(channel_id):
