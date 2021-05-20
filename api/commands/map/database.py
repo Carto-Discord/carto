@@ -36,8 +36,11 @@ def get_current_channel_map(channel_id):
     """
     try:
         db = firestore.Client()
+        current_app.logger.info('Created client')
         channel_doc_ref = db.collection(channels_collection).document(channel_id)
+        current_app.logger.info('Got doc')
         channel_doc = channel_doc_ref.get()
+        current_app.logger.info('Doc: {}'.format(channel_doc))
 
         if channel_doc.exists:
             return channel_doc.to_dict()['current']
