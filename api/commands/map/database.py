@@ -1,3 +1,4 @@
+from flask import current_app
 from google.cloud import firestore
 
 channels_collection = 'channels'
@@ -33,6 +34,8 @@ def get_current_channel_map(channel_id):
     :param channel_id: The channel to search for
     :return: The map UUID, or None if it doesn't exist
     """
+    current_app.logger.debug("Going to firestore")
+
     db = firestore.Client()
     channel_doc_ref = db.collection(channels_collection).document(channel_id)
     channel_doc = channel_doc_ref.get()
