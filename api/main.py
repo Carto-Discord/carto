@@ -3,9 +3,6 @@ import logging
 from commands import create, get, delete, token
 from flask import Flask, request
 
-import grpc.experimental.gevent as grpc_gevent
-grpc_gevent.init_gevent()
-
 app = Flask(__name__)
 gunicorn_logger = logging.getLogger('gunicorn.error')
 app.logger.handlers = gunicorn_logger.handlers
