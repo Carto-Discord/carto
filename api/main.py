@@ -2,8 +2,11 @@ import logging
 
 from commands import create, get, delete, token
 from flask import Flask, request
+from flask_sockets import Sockets
 
 app = Flask(__name__)
+sockets = Sockets(app)
+
 gunicorn_logger = logging.getLogger('gunicorn.error')
 app.logger.handlers = gunicorn_logger.handlers
 app.logger.setLevel(gunicorn_logger.level)
