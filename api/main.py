@@ -2,10 +2,8 @@ import logging
 
 from commands import create, get, delete, token
 from flask import Flask, request
-from flask_sockets import Sockets
 
 app = Flask(__name__)
-sockets = Sockets(app)
 
 gunicorn_logger = logging.getLogger('gunicorn.error')
 app.logger.handlers = gunicorn_logger.handlers
@@ -82,4 +80,4 @@ def delete_token(channel_id):
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0')
+    app.run()
