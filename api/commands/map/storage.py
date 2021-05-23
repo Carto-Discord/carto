@@ -58,7 +58,7 @@ def get_public_url(bucket_name, file_name):
     try:
         storage_client = storage.Client()
         bucket = storage_client.bucket(bucket_name)
-        blob = bucket.blob(file_name + '.png')
+        blob = bucket.blob(file_name)
 
         return blob.public_url
     except NotFound as e:
