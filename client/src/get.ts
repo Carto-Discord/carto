@@ -9,7 +9,6 @@ export type GetProps = {
 export const getMap = async ({ applicationId, channelId, token }: GetProps) => {
   const triggerUrl = `http://${process.env.API_TRIGGER_URL}/map/${channelId}?`;
   const params = new URLSearchParams({ applicationId, token });
-  console.log(triggerUrl + params);
 
   return fetch(triggerUrl + params);
 };
