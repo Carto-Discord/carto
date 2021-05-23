@@ -13,6 +13,10 @@ packages:
   - python3-venv
 
 write_files:
+  - path: /etc/environment
+    content: |
+      MAP_BUCKET="${map_bucket}"
+    append: true
   - path: /var/lib/cloud/scripts/per-boot/git-update.sh
     content: |
       #/bin/bash

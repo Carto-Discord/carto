@@ -33,6 +33,7 @@ data "template_cloudinit_config" "config" {
     content = templatefile("${path.module}/init.tpl", {
       user             = var.server_user
       port             = var.api_port
+      map_bucket       = google_storage_bucket.map_storage.name
     })
   }
 }
