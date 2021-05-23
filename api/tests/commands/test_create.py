@@ -19,8 +19,13 @@ class CreateTest(unittest.TestCase):
         mock_apply_grid.return_value = None
 
         create_new_map(channel_id='1234', request_json=params)
-        mock_publish.assert_called_with(token='mockToken', application_id='456',
-                                        message='Url https://mock.url could not be found')
+        args = mock_publish.call_args.kwargs
+        self.assertEqual('mockToken', args['token'])
+        self.assertEqual('456', args['application_id'])
+        self.assertDictEqual({'type': 'rich',
+                              'title': 'Map create error',
+                              'description': 'URL https://mock.url could not be found.\nMake sure it is public and includes the file extension'},
+                             args['embed'].to_dict())
 
     @patch('commands.map.grid.apply_grid')
     @patch('commands.map.storage.upload_blob')
@@ -37,8 +42,13 @@ class CreateTest(unittest.TestCase):
         mock_upload_blob.return_value = None
 
         create_new_map(channel_id='1234', request_json=params)
-        mock_publish.assert_called_with(token='mockToken', application_id='456',
-                                        message='Map could not be created')
+        args = mock_publish.call_args.kwargs
+        self.assertEqual('mockToken', args['token'])
+        self.assertEqual('456', args['application_id'])
+        self.assertDictEqual({'type': 'rich',
+                              'title': 'Map create error',
+                              'description': 'Map could not be created due to an internal error.\nTry again later, or [report it](https://www.github.com/carto-discord/carto/issues).'},
+                             args['embed'].to_dict())
 
     @patch('commands.map.grid.apply_grid')
     @patch('commands.map.storage.upload_blob')
@@ -62,8 +72,27 @@ class CreateTest(unittest.TestCase):
         mock_update_channel_map.assert_called()
         mock_create_map_info.assert_called()
 
-        mock_publish.assert_called_with(token='mockToken', application_id='456',
-                                        message='Map created', image_url='gcs-file')
+        args = mock_publish.call_args.kwargs
+        self.assertEqual('mockToken', args['token'])
+        self.assertEqual('456', args['application_id'])
+        self.assertDictEqual({'type': 'rich',
+                              'title': 'Map created',
+                              'fields': [
+                                  {
+                                      'name': 'Rows',
+                                      'value': '42',
+                                      'inline': True
+                                  },
+                                  {
+                                      'name': 'Columns',
+                                      'value': '24',
+                                      'inline': True
+                                  }
+                              ],
+                              'image': {
+                                  'url': 'gcs-file'
+                              }},
+                             args['embed'].to_dict())
 
 
 if __name__ == '__main__':

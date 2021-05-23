@@ -23,8 +23,16 @@ class TokenAddTest(unittest.TestCase):
         with self.assertRaises(HTTPException):
             add_token(channel_id='1234', request_json=request)
 
-        mock_publish.assert_called_with(token='mockToken', application_id='5678',
-                                        message='Size VERY_SMALL is invalid. Valid sizes are as in the D&D Basic Rules')
+        args = mock_publish.call_args.kwargs
+        self.assertEqual('mockToken', args['token'])
+        self.assertEqual('5678', args['application_id'])
+        self.assertDictEqual({'type': 'rich',
+                              'title': 'Token Error',
+                              'description': 'Size VERY_SMALL is invalid.\n'
+                                             'Valid sizes are as in the '
+                                             '[D&D Basic Rules](https://www.dndbeyond.com/sources/basic-rules/monsters#Size)'},
+                             args['embed'].to_dict())
+
         mock_get_map.assert_not_called()
 
     @patch('commands.map.database.get_current_channel_map')
@@ -44,8 +52,14 @@ class TokenAddTest(unittest.TestCase):
         with self.assertRaises(HTTPException):
             add_token(channel_id='1234', request_json=request)
 
-        mock_publish.assert_called_with(token='mockToken', application_id='5678',
-                                        message="No map exists for this channel. Create one with the /map create command")
+        args = mock_publish.call_args.kwargs
+        self.assertEqual('mockToken', args['token'])
+        self.assertEqual('5678', args['application_id'])
+        self.assertDictEqual({'type': 'rich',
+                              'title': 'Token Error',
+                              'description': 'No map exists for this channel.\nCreate one with the /map create command'
+                              },
+                             args['embed'].to_dict())
         mock_map_info.assert_not_called()
 
     @patch('commands.map.database.get_current_channel_map')
@@ -70,8 +84,16 @@ class TokenAddTest(unittest.TestCase):
         with self.assertRaises(HTTPException):
             add_token(channel_id='1234', request_json=request)
 
-        mock_publish.assert_called_with(token='mockToken', application_id='5678',
-                                        message="Map data for this channel is incomplete. Please report this as an issue on GitHub")
+        args = mock_publish.call_args.kwargs
+        self.assertEqual('mockToken', args['token'])
+        self.assertEqual('5678', args['application_id'])
+        self.assertDictEqual({'type': 'rich',
+                              'title': 'Token Error',
+                              'description': 'Map data for this channel is incomplete. '
+                                             'Create the map again or [report it](https://www.github.com/carto-discord/carto/issues).'
+                              },
+                             args['embed'].to_dict())
+
         mock_apply_grid.assert_not_called()
 
     @patch('commands.map.database.get_current_channel_map')
@@ -98,9 +120,15 @@ class TokenAddTest(unittest.TestCase):
         with self.assertRaises(HTTPException):
             add_token(channel_id='1234', request_json=request)
 
-        mock_publish.assert_called_with(token='mockToken', application_id='5678',
-                                        message="The row or column you entered is not on the map, please try again. "
-                                                "This map's bounds are 2 rows by 2 columns")
+        args = mock_publish.call_args.kwargs
+        self.assertEqual('mockToken', args['token'])
+        self.assertEqual('5678', args['application_id'])
+        self.assertDictEqual({'type': 'rich',
+                              'title': 'Token Error',
+                              'description': "The row or column you entered is out of bounds. "
+                                             "This map's bounds are 2 rows by 2 columns"
+                              },
+                             args['embed'].to_dict())
         mock_apply_grid.assert_not_called()
 
     @patch('commands.map.database.get_current_channel_map')
@@ -129,8 +157,15 @@ class TokenAddTest(unittest.TestCase):
         with self.assertRaises(HTTPException):
             add_token(channel_id='1234', request_json=request)
 
-        mock_publish.assert_called_with(token='mockToken', application_id='5678',
-                                        message="Url url could not be found")
+        args = mock_publish.call_args.kwargs
+        self.assertEqual('mockToken', args['token'])
+        self.assertEqual('5678', args['application_id'])
+        self.assertDictEqual({'type': 'rich',
+                              'title': 'Token Error',
+                              'description': 'Map could not be recreated. Reason: URL url could not be found'
+                              },
+                             args['embed'].to_dict())
+
         mock_upload.assert_not_called()
 
     @patch('commands.map.database.get_current_channel_map')
@@ -161,8 +196,15 @@ class TokenAddTest(unittest.TestCase):
 
         add_token(channel_id='1234', request_json=request)
 
-        mock_publish.assert_called_with(token='mockToken', application_id='5678',
-                                        message="Map could not be created")
+        args = mock_publish.call_args.kwargs
+        self.assertEqual('mockToken', args['token'])
+        self.assertEqual('5678', args['application_id'])
+        self.assertDictEqual({'type': 'rich',
+                              'title': 'Token Error',
+                              'description': 'Map could not be created'
+                              },
+                             args['embed'].to_dict())
+
         mock_update.assert_not_called()
 
     @patch('commands.map.database.get_current_channel_map')
@@ -207,8 +249,24 @@ class TokenAddTest(unittest.TestCase):
             'size': 1
         }])
 
-        mock_publish.assert_called_with(token='mockToken', application_id='5678',
-                                        image_url='gcs-file')
+        args = mock_publish.call_args.kwargs
+        self.assertEqual('mockToken', args['token'])
+        self.assertEqual('5678', args['application_id'])
+        self.assertDictEqual({'type': 'rich',
+                              'title': 'Tokens updated',
+                              'description': 'Token positions:',
+                              'fields': [
+                                  {
+                                      'name': 'token',
+                                      'value': 'C4',
+                                      'inline': True
+                                  }
+                              ],
+                              'image': {
+                                  'url': 'gcs-file'
+                              }
+                              },
+                             args['embed'].to_dict())
 
 
 @patch('publish.publish')
@@ -245,8 +303,15 @@ class TokenMoveTest(unittest.TestCase):
         with self.assertRaises(HTTPException):
             move_token(channel_id='1234', request_json=request)
 
-        mock_publish.assert_called_with(token='mockToken', application_id='5678',
-                                        message='Token token not found in map. Token names are case sensitive, so try again or add it using /token add')
+        args = mock_publish.call_args.kwargs
+        self.assertEqual('mockToken', args['token'])
+        self.assertEqual('5678', args['application_id'])
+        self.assertDictEqual({'type': 'rich',
+                              'title': 'Token Error',
+                              'description': 'Token token not found in map. '
+                                             'Token names are case sensitive, so try again or add it using /token add',
+                              },
+                             args['embed'].to_dict())
         mock_apply_grid.assert_not_called()
 
     @patch('commands.map.database.get_current_channel_map')
@@ -324,8 +389,15 @@ class TokenDeleteTest(unittest.TestCase):
         with self.assertRaises(HTTPException):
             delete_token(channel_id='1234', request_json=request)
 
-        mock_publish.assert_called_with(token='mockToken', application_id='5678',
-                                        message='Token token not found in map. Token names are case sensitive, so try again or add it using /token add')
+        args = mock_publish.call_args.kwargs
+        self.assertEqual('mockToken', args['token'])
+        self.assertEqual('5678', args['application_id'])
+        self.assertDictEqual({'type': 'rich',
+                              'title': 'Token Error',
+                              'description': 'Token token not found in map. '
+                                             'Token names are case sensitive, so try again or add it using /token add',
+                              },
+                             args['embed'].to_dict())
         mock_apply_grid.assert_not_called()
 
     @patch('commands.map.database.get_current_channel_map')

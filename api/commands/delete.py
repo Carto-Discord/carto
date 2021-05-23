@@ -1,14 +1,12 @@
+from flask import jsonify
+
 from commands.map import database
-import publish
 
 
-def delete_channel_data(channel_id, request_json):
-    keys = ['token', 'applicationId']
-    discord_token, application_id = [request_json.get(key) for key in keys]
-
+def delete_channel_data(channel_id=None):
     if channel_id is None:
-        return publish.publish(token=discord_token, application_id=application_id, message="No channel found")
+        return jsonify(deleted=False, channel='No channel provided'), 404
 
     database.delete_channel_document(channel_id)
 
-    return publish.publish(token=discord_token, application_id=application_id, message="Channel data deleted")
+    return jsonify(deleted=True, channel=channel_id), 200

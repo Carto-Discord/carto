@@ -1,11 +1,12 @@
 import os
 
+from discord import Embed
 import google.auth.transport.requests
 import google.oauth2.id_token
 import requests
 
 
-def publish(token, application_id, message=None, image_url=None):
+def publish(token: str, application_id: str, embed: Embed):
     service_url = os.getenv('HTTP_TRIGGER_URL')
 
     auth_req = google.auth.transport.requests.Request()
@@ -14,14 +15,9 @@ def publish(token, application_id, message=None, image_url=None):
     message_dict = {
         'token': token,
         'applicationId': application_id,
+        'embed': embed.to_dict()
     }
-
-    if image_url is not None:
-        message_dict['imageUrl'] = image_url
-
-    if message is not None:
-        message_dict['message'] = message
 
     requests.put(service_url, json=message_dict, headers={'Authorization': f"Bearer {id_token}"})
 
-    return '', 200
+    return '', 204
