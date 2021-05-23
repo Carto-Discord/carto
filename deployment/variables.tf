@@ -15,10 +15,6 @@ variable "discord_public_key" {
   description = "Discord App Public Key"
 }
 
-variable "server_public_key" {
-  description = "API Server Public Key"
-}
-
 variable "api_port" {
   default     = 5000
   description = "Port on which to run the API"

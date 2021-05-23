@@ -76,7 +76,6 @@ jobs:
       - name: Apply terraform
         run: |
           cd deployment
-          terraform apply -var="discord_public_key=$DISCORD_PUBLIC_KEY" -var="server_public_key=$SERVER_PUBLIC_KEY" -auto-approve
+          terraform apply -var="discord_public_key=$DISCORD_PUBLIC_KEY" -auto-approve
         env:
           DISCORD_PUBLIC_KEY: ${{ secrets.DISCORD_PUBLIC_KEY }}
-          SERVER_PUBLIC_KEY: ${{ secrets.SERVER_PUBLIC_KEY }}

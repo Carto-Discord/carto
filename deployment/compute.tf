@@ -31,7 +31,6 @@ data "template_cloudinit_config" "config" {
     filename     = "init.cfg"
     content_type = "text/cloud-config"
     content = templatefile("${path.module}/init.tpl", {
-      public_key       = var.server_public_key,
       user             = var.server_user
       port             = var.api_port
     })

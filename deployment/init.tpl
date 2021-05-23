@@ -4,8 +4,6 @@ users:
     groups: sudo
     shell: /bin/bash
     sudo: [ "ALL=(ALL) NOPASSWD:ALL" ]
-    ssh-authorized-keys:
-      - ${public_key}
 
 package_upgrade: true
 packages:
