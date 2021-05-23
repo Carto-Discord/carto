@@ -1,9 +1,3 @@
-data "archive_file" "application_zip" {
-  type        = "zip"
-  source_dir  = "../api_package/"
-  output_path = "../api.zip"
-}
-
 data "archive_file" "client_zip" {
   type = "zip"
   source_dir = "../client/package/"
@@ -30,12 +24,6 @@ resource "google_storage_bucket" "code_archives" {
   name          = "${var.app_name}-code"
   location      = var.location
   force_destroy = true
-}
-
-resource "google_storage_bucket_object" "api_archive" {
-  name    = "${var.app_name}_api.${data.archive_file.application_zip.output_md5}.zip"
-  bucket  = google_storage_bucket.code_archives.name
-  source  = data.archive_file.application_zip.output_path
 }
 
 resource "google_storage_bucket_object" "client_archive" {
