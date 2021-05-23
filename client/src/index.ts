@@ -21,7 +21,6 @@ import {
   InteractionResponseType,
   InteractionType,
 } from "./types";
-import { receiver } from "./receiver";
 
 type CommandProps = {
   applicationId: string;
@@ -120,9 +119,7 @@ const handleTokenCommands = ({
 };
 
 export const slashFunction = async (req: Request, res: Response) => {
-  if (req.method === "PUT") {
-    return await receiver(req, res);
-  } else if (req.method !== "POST") {
+  if (req.method !== "POST") {
     return res.status(405).end();
   }
 

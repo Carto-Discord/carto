@@ -11,7 +11,7 @@ export const deleteChannel = async ({
   channelId,
   token,
 }: DeleteProps) => {
-  const triggerUrl = `${process.env.HTTP_TRIGGER_URL}/map/${channelId}`;
+  const triggerUrl = `${process.env.API_TRIGGER_URL}/map/${channelId}`;
   const client = await createAuthenticatedClient(triggerUrl);
 
   return handleRequest(() =>

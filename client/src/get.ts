@@ -8,7 +8,7 @@ export type GetProps = {
 };
 
 export const getMap = async ({ applicationId, channelId, token }: GetProps) => {
-  const triggerUrl = `${process.env.CLIENT_TRIGGER_URL}/map/${channelId}`;
+  const triggerUrl = `${process.env.API_TRIGGER_URL}/map/${channelId}`;
   const client = await createAuthenticatedClient(triggerUrl);
 
   return handleRequest(() =>

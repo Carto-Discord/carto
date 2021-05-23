@@ -23,7 +23,7 @@ describe("Get", () => {
     //@ts-ignore
     mockCreateAuthenticatedClient.mockResolvedValue({ request: mockRequest });
 
-    process.env.CLIENT_TRIGGER_URL = "https://trigger.url";
+    process.env.API_TRIGGER_URL = "https://trigger.url";
   });
 
   describe("Get Map", () => {

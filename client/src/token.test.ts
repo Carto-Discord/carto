@@ -23,7 +23,7 @@ describe("Token", () => {
     //@ts-ignore
     mockCreateAuthenticatedClient.mockResolvedValue({ request: mockRequest });
 
-    process.env.HTTP_TRIGGER_URL = "https://trigger.url";
+    process.env.API_TRIGGER_URL = "https://trigger.url";
   });
 
   describe("Add Token", () => {

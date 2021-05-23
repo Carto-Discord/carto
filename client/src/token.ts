@@ -35,7 +35,7 @@ export const addToken = async ({
   size = "MEDIUM",
   token,
 }: AddProps) => {
-  const triggerUrl = `${process.env.HTTP_TRIGGER_URL}/token/${channelId}`;
+  const triggerUrl = `${process.env.API_TRIGGER_URL}/token/${channelId}`;
   const client = await createAuthenticatedClient(triggerUrl);
 
   return handleRequest(() =>
@@ -65,7 +65,7 @@ export const moveToken = async ({
   row,
   token,
 }: MoveProps) => {
-  const triggerUrl = `${process.env.HTTP_TRIGGER_URL}/token/${channelId}`;
+  const triggerUrl = `${process.env.API_TRIGGER_URL}/token/${channelId}`;
   const client = await createAuthenticatedClient(triggerUrl);
 
   return handleRequest(() =>
@@ -90,7 +90,7 @@ export const deleteToken = async ({
   name,
   token,
 }: DeleteProps) => {
-  const triggerUrl = `${process.env.HTTP_TRIGGER_URL}/token/${channelId}`;
+  const triggerUrl = `${process.env.API_TRIGGER_URL}/token/${channelId}`;
   const client = await createAuthenticatedClient(triggerUrl);
 
   return handleRequest(() =>
