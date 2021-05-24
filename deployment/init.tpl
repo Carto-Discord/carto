@@ -19,7 +19,7 @@ write_files:
     append: true
   - path: /var/lib/cloud/scripts/per-boot/git-update.sh
     content: |
-      #/bin/bash
+      #|/bin/bash
 
       cd /carto/api
       git pull --rebase
@@ -51,6 +51,7 @@ runcmd:
   - [ source, venv/bin/activate ]
   - [ cd, api ]
   - [ pip, install, -r, requirements.txt ]
+  - "export MAP_BUCKET=${map_bucket}"
   - [
       gunicorn,
       --bind,
