@@ -7,27 +7,45 @@ users:
 
 package_upgrade: true
 packages:
-  - gunicorn
   - git
   - python3-pip
   - python3-venv
 
 write_files:
-  - path: /etc/environment
-    content: |
-      MAP_BUCKET="${map_bucket}"
-    append: true
   - path: /var/lib/cloud/scripts/per-boot/git-update.sh
+    permissions: 0744
+    owner: root
     content: |
-      #|/bin/bash
+      #!/bin/bash
 
-      cd /carto/api
+      cd /carto
       git pull --rebase
       source venv/bin/activate
       pip install -r requirements.txt
-      gunicorn --bind "0.0.0.0:${port}" \
+      cd api
+
+      MAP_BUCKET=${map_bucket}
+      gunicorn --bind 0.0.0.0:${port} \
+      --access-logfile /var/log/carto/gunicorn-access.log --error-logfile /var/log/carto/gunicorn-error.log \
+      --log-level DEBUG wsgi:app
+
+  - path: /home/carto/setup.sh
+    permissions: 0744
+    owner: root
+    content: |
+      #!/bin/bash
+
+      git clone https://github.com/Carto-Discord/carto.git
+      cd carto
+      python3 -m venv venv
+      source venv/bin/activate
+      pip install -r requirements.txt
+      cd api
+
+      MAP_BUCKET=${map_bucket}
+      gunicorn --bind 0.0.0.0:${port} \
         --access-logfile /var/log/carto/gunicorn-access.log --error-logfile /var/log/carto/gunicorn-error.log \
-        --log-level DEBUG "wsgi:app"
+        --log-level DEBUG wsgi:app
 
   - path: /etc/logrotate.d/carto
     content: |
@@ -45,22 +63,4 @@ write_files:
   - path: /var/log/carto/gunicorn-error.log
 
 runcmd:
-  - [ git, clone, "https://github.com/Carto-Discord/carto.git" ]
-  - [ cd, carto ]
-  - [ python3, -m, venv, venv ]
-  - [ source, venv/bin/activate ]
-  - [ cd, api ]
-  - [ pip, install, -r, requirements.txt ]
-  - "export MAP_BUCKET=${map_bucket}"
-  - [
-      gunicorn,
-      --bind,
-      "0.0.0.0:${port}",
-      --access-logfile,
-      /var/log/carto/gunicorn-access.log,
-      --error-logfile,
-      /var/log/carto/gunicorn-error.log,
-      --log-level,
-      DEBUG,
-      "wsgi:app",
-  ]
+  - "/home/carto/setup.sh"
