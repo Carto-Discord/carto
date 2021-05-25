@@ -1,13 +1,12 @@
 import fetch from "node-fetch";
+import { DiscordProps } from "./types";
 
-export type GetProps = {
-  applicationId: string;
+export type GetProps = DiscordProps & {
   channelId: string;
-  token: string;
 };
 
 export const getMap = async ({ applicationId, channelId, token }: GetProps) => {
-  const triggerUrl = `http://${process.env.API_TRIGGER_URL}/map/${channelId}?`;
+  const triggerUrl = `${process.env.API_TRIGGER_URL}/map/${channelId}?`;
   const params = new URLSearchParams({ applicationId, token });
 
   return fetch(triggerUrl + params);

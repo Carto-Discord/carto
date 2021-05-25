@@ -1,8 +1,7 @@
-import { createAuthenticatedClient } from "./authentication";
-import { handleRequest } from "./requestHandler";
-import { PubSubProps } from "./types";
+import fetch from "node-fetch";
+import { DiscordProps } from "./types";
 
-export type DeleteProps = PubSubProps & {
+export type DeleteProps = DiscordProps & {
   channelId: string;
 };
 
@@ -12,14 +11,12 @@ export const deleteChannel = async ({
   token,
 }: DeleteProps) => {
   const triggerUrl = `${process.env.API_TRIGGER_URL}/map/${channelId}`;
-  const client = await createAuthenticatedClient(triggerUrl);
-
-  return handleRequest(() =>
-    client.request({
-      url: triggerUrl,
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      data: { applicationId, token },
-    })
-  );
+  fetch(triggerUrl, {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      applicationId,
+      token,
+    }),
+  });
 };
