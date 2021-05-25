@@ -62,5 +62,26 @@ write_files:
   - path: /var/log/carto/gunicorn-access.log
   - path: /var/log/carto/gunicorn-error.log
 
+  - path: /etc/google-fluentd/config.d/gunicorn-log.conf
+    content: |
+      <source>
+        @type tail
+        <parse>
+            # 'none' indicates the log is unstructured (text).
+            @type none
+        </parse>
+        # The path of the log file.
+        path /var/log/carto/gunicorn-*.log
+        # The path of the position file that records where in the log file
+        # we have processed already. This is useful when the agent
+        # restarts.
+        pos_file /var/lib/google-fluentd/pos/gunicorn-error-log.pos
+        read_from_head true
+        # The log tag for this log input.
+        tag carto-api-log
+      </source>
+
 runcmd:
+  - "curl -sSO https://dl.google.com/cloudagents/add-logging-agent-repo.sh"
+  - "bash add-logging-agent-repo.sh --also-install"
   - "/home/carto/setup.sh"
