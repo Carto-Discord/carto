@@ -26,10 +26,10 @@ write_files:
 
       MAP_BUCKET=${map_bucket}
       gunicorn --bind 0.0.0.0:${port} \
-      --access-logfile /var/log/carto/gunicorn-access.log --error-logfile /var/log/carto/gunicorn-error.log \
+      --access-logfile /var/log/${user}/gunicorn-access.log --error-logfile /var/log/${user}/gunicorn-error.log \
       --log-level DEBUG wsgi:app
 
-  - path: /home/carto/setup.sh
+  - path: /home/${user}/setup.sh
     permissions: 0744
     owner: root
     content: |
@@ -44,12 +44,12 @@ write_files:
 
       MAP_BUCKET=${map_bucket}
       gunicorn --bind 0.0.0.0:${port} \
-        --access-logfile /var/log/carto/gunicorn-access.log --error-logfile /var/log/carto/gunicorn-error.log \
+        --access-logfile /var/log/${user}/gunicorn-access.log --error-logfile /var/log/${user}/gunicorn-error.log \
         --log-level DEBUG wsgi:app
 
-  - path: /etc/logrotate.d/carto
+  - path: /etc/logrotate.d/${user}
     content: |
-      /var/log/carto/*.log {
+      /var/log/${user}/*.log {
         weekly
         compress
         notifempty
@@ -59,8 +59,8 @@ write_files:
         dateyesterday
         rotate 12
       }
-  - path: /var/log/carto/gunicorn-access.log
-  - path: /var/log/carto/gunicorn-error.log
+  - path: /var/log/${user}/gunicorn-access.log
+  - path: /var/log/${user}/gunicorn-error.log
 
   - path: /etc/google-fluentd/config.d/gunicorn-log.conf
     content: |
@@ -71,14 +71,14 @@ write_files:
             @type none
         </parse>
         # The path of the log file.
-        path /var/log/carto/gunicorn-*.log
+        path /var/log/${user}/gunicorn-*.log
         # The path of the position file that records where in the log file
         # we have processed already. This is useful when the agent
         # restarts.
         pos_file /var/lib/google-fluentd/pos/gunicorn-error-log.pos
         read_from_head true
         # The log tag for this log input.
-        tag carto-api-log
+        tag ${user}-api-log
       </source>
 
 runcmd:
