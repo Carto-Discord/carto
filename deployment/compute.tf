@@ -40,7 +40,7 @@ data "template_cloudinit_config" "config" {
 
 resource "google_compute_instance" "server" {
   name                      = "${var.app_name}-server"
-  hostname                  = "${var.app_name}-api"
+  hostname                  = "${var.app_name}.api"
   machine_type              = "f1-micro"
   zone                      = "us-central1-a"
   tags                      = ["externalssh", "webserver"]
