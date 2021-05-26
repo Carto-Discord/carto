@@ -1,27 +1,13 @@
-import { createAuthenticatedClient } from "./authentication";
-import { handleRequest } from "./requestHandler";
+import fetch from "node-fetch";
+import { DiscordProps } from "./types";
 
-export type GetProps = {
-  applicationId: string;
+export type GetProps = DiscordProps & {
   channelId: string;
-  token: string;
 };
 
 export const getMap = async ({ applicationId, channelId, token }: GetProps) => {
-  const triggerUrl = process.env.CLIENT_TRIGGER_URL;
-  const client = await createAuthenticatedClient(triggerUrl);
+  const triggerUrl = `${process.env.API_TRIGGER_URL}/map/${channelId}?`;
+  const params = new URLSearchParams({ applicationId, token });
 
-  return handleRequest(() =>
-    client.request({
-      url: triggerUrl,
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      data: {
-        action: "get_map",
-        applicationId,
-        message: channelId,
-        token,
-      },
-    })
-  );
+  return fetch(triggerUrl + params);
 };

@@ -1,15 +1,16 @@
 import os
 import unittest
-from unittest.mock import patch
+
+from flask import Flask
 
 from api.commands.map import grid, Token
 
 
-@patch('logs.Logger.log')
 class GridTest(unittest.TestCase):
     os.environ['IS_TEST'] = 'true'
+    app = Flask(__name__)
 
-    def test_apply_grid(self, mock_log):
+    def test_apply_grid(self):
         url = 'https://i.pinimg.com/736x/ee/85/5d/ee855d7efa22f163fcd6f24560ce7128.jpg'
         tokens = [
             Token.Token(name='atoken', row=11, column='G', colour='white', size=Token.size['LARGE']),
@@ -20,22 +21,27 @@ class GridTest(unittest.TestCase):
             Token.Token(name='ftoken', row=3, column='C', colour='purple', size=Token.size['TINY']),
             Token.Token(name='gtoken', row=3, column='C', colour='purple', size=Token.size['TINY'])
         ]
-        grid.apply_grid(url, 28, 20, tokens=tokens)
+
+        with self.app.app_context():
+            grid.apply_grid(url, 28, 20, tokens=tokens)
+
         self.assertTrue(os.path.isfile("map.png"))
         self.assertFalse(os.path.isfile("downloaded.jpg"))
         os.remove("map.png")
 
-    def test_column_string(self, mock_log):
+    def test_column_string(self):
         self.assertEqual(grid.column_string(28), 'AB')
         self.assertEqual(grid.column_string(702), 'ZZ')
 
-    def test_column_number(self, mock_log):
+    def test_column_number(self):
         self.assertEqual(grid.column_number("A"), 1)
         self.assertEqual(grid.column_number("AB"), 28)
         self.assertEqual(grid.column_number("ZZ"), 702)
 
-    def test_find_font_size(self, mock_log):
-        font = grid.find_font_size('text', max_width=50, max_height=30)
+    def test_find_font_size(self):
+        with self.app.app_context():
+            font = grid.find_font_size('text', max_width=50, max_height=30)
+
         self.assertEqual(28, font.size)
 
 

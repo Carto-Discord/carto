@@ -1,33 +1,18 @@
-import { createAuthenticatedClient } from "./authentication";
-import { handleRequest } from "./requestHandler";
+import fetch from "node-fetch";
 import { addToken, deleteToken, moveToken } from "./token";
 
-jest.mock("./authentication");
-jest.mock("./requestHandler");
-
-const mockCreateAuthenticatedClient = createAuthenticatedClient as jest.MockedFunction<
-  typeof createAuthenticatedClient
->;
-const mockHandleRequest = handleRequest as jest.MockedFunction<
-  typeof handleRequest
->;
+jest.mock("node-fetch");
 
 describe("Token", () => {
-  const mockRequest = jest.fn();
-
-  jest.spyOn(console, "warn").mockImplementation(() => {});
-
   beforeEach(() => {
     jest.clearAllMocks();
-    //@ts-ignore
-    mockCreateAuthenticatedClient.mockResolvedValue({ request: mockRequest });
 
-    process.env.HTTP_TRIGGER_URL = "https://trigger.url";
+    process.env.API_TRIGGER_URL = "https://trigger.url";
   });
 
   describe("Add Token", () => {
     describe("given size is not provided", () => {
-      it("should call handleRequest with the appropriate request", async () => {
+      it("should call fetch with the appropriate request", async () => {
         await addToken({
           applicationId: "appId",
           channelId: "1234",
@@ -38,32 +23,26 @@ describe("Token", () => {
           token: "mockToken",
         });
 
-        expect(mockHandleRequest).toBeCalledTimes(1);
-        await mockHandleRequest.mock.calls[0][0]();
-
-        expect(mockRequest).toBeCalledWith({
-          url: "https://trigger.url",
+        expect(fetch).toBeCalledWith("https://trigger.url/token/1234", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          data: {
-            action: "addToken",
+          body: JSON.stringify({
             applicationId: "appId",
-            channelId: "1234",
             colour: "red",
             column: "A",
             name: "token",
             row: 1,
             size: "MEDIUM",
             token: "mockToken",
-          },
+          }),
         });
       });
     });
 
     describe("given size is provided", () => {
-      it("should call handleRequest with the appropriate request", async () => {
+      it("should call fetch with the appropriate request", async () => {
         await addToken({
           applicationId: "appId",
           channelId: "1234",
@@ -74,32 +53,26 @@ describe("Token", () => {
           token: "mockToken",
         });
 
-        expect(mockHandleRequest).toBeCalledTimes(1);
-        await mockHandleRequest.mock.calls[0][0]();
-
-        expect(mockRequest).toBeCalledWith({
-          url: "https://trigger.url",
+        expect(fetch).toBeCalledWith("https://trigger.url/token/1234", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          data: {
-            action: "addToken",
+          body: JSON.stringify({
             applicationId: "appId",
-            channelId: "1234",
             column: "A",
             name: "token",
             row: 1,
             size: "TINY",
             token: "mockToken",
-          },
+          }),
         });
       });
     });
   });
 
   describe("Move Token", () => {
-    it("should call handleRequest with the appropriate request", async () => {
+    it("should call fetch with the appropriate request", async () => {
       await moveToken({
         applicationId: "appId",
         channelId: "1234",
@@ -109,30 +82,24 @@ describe("Token", () => {
         token: "mockToken",
       });
 
-      expect(mockHandleRequest).toBeCalledTimes(1);
-      await mockHandleRequest.mock.calls[0][0]();
-
-      expect(mockRequest).toBeCalledWith({
-        url: "https://trigger.url",
-        method: "POST",
+      expect(fetch).toBeCalledWith("https://trigger.url/token/1234", {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        data: {
-          action: "moveToken",
+        body: JSON.stringify({
           applicationId: "appId",
-          channelId: "1234",
           column: "A",
           name: "token",
           row: 1,
           token: "mockToken",
-        },
+        }),
       });
     });
   });
 
   describe("Delete Token", () => {
-    it("should call handleRequest with the appropriate request", async () => {
+    it("should call fetch with the appropriate request", async () => {
       await deleteToken({
         applicationId: "appId",
         channelId: "1234",
@@ -140,22 +107,16 @@ describe("Token", () => {
         token: "mockToken",
       });
 
-      expect(mockHandleRequest).toBeCalledTimes(1);
-      await mockHandleRequest.mock.calls[0][0]();
-
-      expect(mockRequest).toBeCalledWith({
-        url: "https://trigger.url",
+      expect(fetch).toBeCalledWith("https://trigger.url/token/1234", {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
         },
-        data: {
-          action: "deleteToken",
+        body: JSON.stringify({
           applicationId: "appId",
-          channelId: "1234",
           name: "token",
           token: "mockToken",
-        },
+        }),
       });
     });
   });

@@ -1,6 +1,7 @@
-google-auth
+discord.py
+flask
+gunicorn
 google-cloud-firestore
-google-cloud-logging
 google-cloud-storage
 Pillow
 requests

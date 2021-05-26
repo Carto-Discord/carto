@@ -3,7 +3,6 @@ import { createMap } from "./create";
 import { getMap } from "./get";
 import { addToken, deleteToken, moveToken } from "./token";
 import { validateRequest } from "./validation";
-import { receiver } from "./receiver";
 import { slashFunction } from ".";
 import { InteractionResponseType, InteractionType } from "slash-commands";
 
@@ -12,8 +11,6 @@ jest.mock("./get");
 jest.mock("./delete");
 jest.mock("./token");
 jest.mock("./validation");
-jest.mock("./receiver");
-
 const mockCreateMap = createMap as jest.MockedFunction<typeof createMap>;
 const mockGetMap = getMap as jest.MockedFunction<typeof getMap>;
 const mockAddToken = addToken as jest.MockedFunction<typeof addToken>;
@@ -22,7 +19,6 @@ const mockMoveToken = moveToken as jest.MockedFunction<typeof moveToken>;
 const mockValidateRequest = validateRequest as jest.MockedFunction<
   typeof validateRequest
 >;
-const mockReceiver = receiver as jest.MockedFunction<typeof receiver>;
 
 describe("Slash Function", () => {
   const mockEnd = jest.fn();
@@ -58,19 +54,7 @@ describe("Slash Function", () => {
       mockValidateRequest.mockReturnValue(true);
     });
 
-    describe("given a PUT method type is sent", () => {
-      it("should call the receiver", async () => {
-        await slashFunction(
-          { body: { type: InteractionType.PING }, method: "PUT" } as Request,
-          mockResponse
-        );
-
-        expect(mockReceiver).toBeCalled();
-        expect(mockResponse.status).not.toBeCalledWith(200);
-      });
-    });
-
-    describe("given a method type other than POST or PUT is sent", () => {
+    describe("given a method type other than POST is sent", () => {
       it("should return a 405 response", async () => {
         await slashFunction(
           { body: { type: InteractionType.PING }, method: "GET" } as Request,

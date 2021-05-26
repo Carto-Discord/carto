@@ -27,7 +27,7 @@ export enum InteractionResponseType {
   DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE = 5,
 }
 
-export type PubSubProps = {
+export type DiscordProps = {
   applicationId: string;
   token: string;
 };

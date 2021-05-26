@@ -1,5 +1,4 @@
-import logging
-
+from flask import current_app
 from google.cloud import firestore
 
 channels_collection = 'channels'
@@ -35,14 +34,17 @@ def get_current_channel_map(channel_id):
     :param channel_id: The channel to search for
     :return: The map UUID, or None if it doesn't exist
     """
-    db = firestore.Client()
-    channel_doc_ref = db.collection(channels_collection).document(channel_id)
-    channel_doc = channel_doc_ref.get()
+    try:
+        db = firestore.Client()
+        channel_doc_ref = db.collection(channels_collection).document(channel_id)
+        channel_doc = channel_doc_ref.get()
 
-    if channel_doc.exists:
-        return channel_doc.to_dict()['current']
-    else:
-        return None
+        if channel_doc.exists:
+            return channel_doc.to_dict()['current']
+        else:
+            return None
+    except Exception as e:
+        current_app.logger.warn(e)
 
 
 def delete_channel_document(channel_id):

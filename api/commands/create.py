@@ -1,19 +1,24 @@
 import ntpath
 import uuid
 
+from discord import Embed
 from commands.map import database, grid, storage
 from commands import constants
 import publish
 
 
-def create_new_map(request_json):
-    keys = ['url', 'rows', 'columns', 'channelId', 'token', 'applicationId']
-    url, rows, columns, channel_id, token, application_id = [request_json.get(key) for key in keys]
+def create_new_map(channel_id, request_json):
+    keys = ['url', 'rows', 'columns', 'token', 'applicationId']
+    url, rows, columns, token, application_id = [request_json.get(key) for key in keys]
+
+    error_title = 'Map create error'
 
     source_file_name = grid.apply_grid(url, rows, columns)
     if source_file_name is None:
-        return publish.publish(token=token, application_id=application_id,
-                               message="Url {} could not be found".format(url))
+        embed = Embed(title=error_title,
+                      description="URL {} could not be found.\n"
+                                  "Make sure it is public and includes the file extension".format(url))
+        return publish.publish(token=token, application_id=application_id, embed=embed)
 
     map_uuid = str(uuid.uuid4())
     file_name = ntpath.basename(source_file_name)
@@ -21,9 +26,16 @@ def create_new_map(request_json):
                                source_file_name,
                                map_uuid + '.' + file_name.split('.')[-1])
     if file is None:
-        return publish.publish(token=token, application_id=application_id,
-                               message="Map could not be created".format(url))
+        embed = Embed(title=error_title,
+                      description="Map could not be created due to an internal error.\n"
+                                  "Try again later, or [report it](https://www.github.com/carto-discord/carto/issues).")
+        return publish.publish(token=token, application_id=application_id, embed=embed)
     else:
         database.update_channel_map(channel_id, map_uuid)
         database.create_map_info(uuid=map_uuid, url=url, rows=rows, columns=columns)
-        return publish.publish(token=token, application_id=application_id, message="Map created", image_url=file)
+
+        embed = Embed(title="Map created") \
+            .add_field(name='Rows', value=rows, inline=True) \
+            .add_field(name='Columns', value=columns, inline=True) \
+            .set_image(url=file)
+        return publish.publish(token=token, application_id=application_id, embed=embed)

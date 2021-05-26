@@ -1,27 +1,13 @@
-import os
-
-import google.auth.transport.requests
-import google.oauth2.id_token
+from discord import Embed
+from flask import current_app
 import requests
 
 
-def publish(token, application_id, message=None, image_url=None):
-    service_url = os.getenv('HTTP_TRIGGER_URL')
+def publish(token: str, application_id: str, embed: Embed):
+    current_app.logger.debug(embed.to_dict())
 
-    auth_req = google.auth.transport.requests.Request()
-    id_token = google.oauth2.id_token.fetch_id_token(auth_req, service_url)
+    requests.patch(f'https://discord.com/api/v9/webhooks/{application_id}/{token}/messages/@original',
+                   headers={'Content-Type': 'application/json'},
+                   json={'embeds': [embed.to_dict()]})
 
-    message_dict = {
-        'token': token,
-        'applicationId': application_id,
-    }
-
-    if image_url is not None:
-        message_dict['imageUrl'] = image_url
-
-    if message is not None:
-        message_dict['message'] = message
-
-    requests.put(service_url, json=message_dict, headers={'Authorization': f"Bearer {id_token}"})
-
-    return '', 200
+    return '', 204

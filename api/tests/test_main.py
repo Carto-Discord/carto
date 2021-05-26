@@ -1,116 +1,84 @@
+import json
+
 from unittest import TestCase
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
-from api.main import function
+from api.main import app
 
 
-@patch('logs.Logger.setup')
-@patch('logs.Logger.log')
 class MainTest(TestCase):
 
-    def test_unallowed_methods(self, mock_log, mock_setup):
-        request = Mock(method='PUT')
+    def setUp(self):
+        app.config['TESTING'] = True
+        self.app = app.test_client()
 
-        response = function(request)
-        self.assertEqual(response[1], 405)
-
-        mock_setup.assert_called()
-
-    def test_invalid_json(self, mock_log, mock_setup):
-        request = Mock(method='POST', get_json=Mock(return_value=None))
-
-        response = function(request)
-        self.assertEqual(response[1], 400)
+    def test_invalid_json(self):
+        self.assertEqual(self.app.post('/map/1234').status, '400 BAD REQUEST')
+        self.assertEqual(self.app.delete('/map/1234').status, '400 BAD REQUEST')
+        self.assertEqual(self.app.post('/token/1234').status, '400 BAD REQUEST')
+        self.assertEqual(self.app.put('/token/1234').status, '400 BAD REQUEST')
+        self.assertEqual(self.app.delete('/token/1234').status, '400 BAD REQUEST')
 
     @patch('commands.create.create_new_map')
-    def test_invalid_action(self, mock_create, mock_log, mock_setup):
+    def test_action_create(self, mock_create):
         params = {
-            'action': 'blah',
             'url': 'https://mock.url',
             'rows': 42,
             'columns': 24,
-            'channelId': '1234'
         }
+        mock_create.return_value = 'Complete', 200
 
-        request = Mock(method='POST', get_json=Mock(return_value=params))
-
-        function(request)
-        mock_create.assert_not_called()
-
-    @patch('commands.create.create_new_map')
-    def test_action_create(self, mock_create, mock_log, mock_setup):
-        params = {
-            'action': 'create',
-            'url': 'https://mock.url',
-            'rows': 42,
-            'columns': 24,
-            'channelId': '1234'
-        }
-
-        request = Mock(method='POST', get_json=Mock(return_value=params))
-
-        function(request)
-        mock_create.assert_called_with(params)
+        self.app.post('/map/1234', data=json.dumps(params), content_type='application/json')
+        mock_create.assert_called_with(channel_id='1234', request_json=params)
 
     @patch('commands.token.add_token')
-    def test_action_add_token(self, mock_add_token, mock_log, mock_setup):
+    def test_action_add_token(self, mock_add_token):
         params = {
-            'action': 'addToken',
             'name': 'token name',
             'row': 42,
             'column': 24,
-            'channelId': '1234',
             'size': 'MEDIUM',
             'colour': 'red'
         }
+        mock_add_token.return_value = 'Complete', 200
 
-        request = Mock(method='POST', get_json=Mock(return_value=params))
-
-        function(request)
-        mock_add_token.assert_called_with(params)
+        self.app.post('/token/1234', data=json.dumps(params), content_type='application/json')
+        mock_add_token.assert_called_with(channel_id='1234', request_json=params)
 
     @patch('commands.token.move_token')
-    def test_action_move_token(self, mock_move_token, mock_log, mock_setup):
+    def test_action_move_token(self, mock_move_token):
         params = {
-            'action': 'moveToken',
             'name': 'token name',
             'row': 42,
             'column': 24,
-            'channelId': '1234'
         }
+        mock_move_token.return_value = 'Complete', 200
 
-        request = Mock(method='POST', get_json=Mock(return_value=params))
-
-        function(request)
-        mock_move_token.assert_called_with(params)
+        self.app.put('/token/1234', data=json.dumps(params), content_type='application/json')
+        mock_move_token.assert_called_with(channel_id='1234', request_json=params)
 
     @patch('commands.get.get_channel_map')
-    def test_get_map(self, mock_get, mock_log, mock_setup):
+    def test_get_map(self, mock_get):
         params = {'channelId': '1234'}
+        mock_get.return_value = 'Complete', 200
 
-        request = Mock(method='GET', args=Mock(to_dict=Mock(return_value=params)))
-
-        function(request)
-        mock_get.assert_called_with(params)
+        self.app.get('/map/1234', query_string=params)
+        mock_get.assert_called_with(channel_id='1234', request_params=params)
 
     @patch('commands.token.delete_token')
-    def test_action_delete_token(self, mock_delete_token, mock_log, mock_setup):
+    def test_action_delete_token(self, mock_delete_token):
         params = {
-            'action': 'deleteToken',
             'name': 'token name',
-            'channelId': '1234'
         }
+        mock_delete_token.return_value = 'Complete', 200
 
-        request = Mock(method='DELETE', get_json=Mock(return_value=params))
-
-        function(request)
-        mock_delete_token.assert_called_with(params)
+        self.app.delete('/token/1234', data=json.dumps(params), content_type='application/json')
+        mock_delete_token.assert_called_with(channel_id='1234', request_json=params)
 
     @patch('commands.delete.delete_channel_data')
-    def test_delete_channel(self, mock_delete, mock_log, mock_setup):
-        params = {'channelId': '1234'}
+    def test_delete_channel(self, mock_delete):
+        params = {'token': '1234'}
+        mock_delete.return_value = 'Complete', 200
 
-        request = Mock(method='DELETE', get_json=Mock(return_value=params))
-
-        function(request)
-        mock_delete.assert_called_with(params)
+        self.app.delete('/map/1234', data=json.dumps(params), content_type='application/json')
+        mock_delete.assert_called_with(channel_id='1234', request_json=params)

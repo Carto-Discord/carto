@@ -1,44 +1,27 @@
-import { createAuthenticatedClient } from "./authentication";
-import { handleRequest } from "./requestHandler";
+import fetch from "node-fetch";
 import { deleteChannel } from "./delete";
 
-jest.mock("./authentication");
-jest.mock("./requestHandler");
-
-const mockCreateAuthenticatedClient = createAuthenticatedClient as jest.MockedFunction<
-  typeof createAuthenticatedClient
->;
-const mockHandleRequest = handleRequest as jest.MockedFunction<
-  typeof handleRequest
->;
+jest.mock("node-fetch");
 
 describe("Delete", () => {
-  const mockRequest = jest.fn();
-
   beforeEach(() => {
     jest.clearAllMocks();
-    //@ts-ignore
-    mockCreateAuthenticatedClient.mockResolvedValue({ request: mockRequest });
 
-    process.env.HTTP_TRIGGER_URL = "https://trigger.url";
+    process.env.API_TRIGGER_URL = "https://trigger.url";
   });
 
   describe("Delete Channel Map", () => {
-    it("should call handleRequest with the appropriate request", async () => {
+    it("should call fetch with the appropriate request", async () => {
       await deleteChannel({
         applicationId: "appId",
         channelId: "1234",
         token: "mockToken",
       });
 
-      expect(mockHandleRequest).toBeCalledTimes(1);
-      await mockHandleRequest.mock.calls[0][0]();
-
-      expect(mockRequest).toBeCalledWith({
-        url: "https://trigger.url",
+      expect(fetch).toBeCalledWith("https://trigger.url/map/1234", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        data: { applicationId: "appId", channelId: "1234", token: "mockToken" },
+        body: JSON.stringify({ applicationId: "appId", token: "mockToken" }),
       });
     });
   });

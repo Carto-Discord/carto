@@ -1,8 +1,7 @@
-import { createAuthenticatedClient } from "./authentication";
-import { handleRequest } from "./requestHandler";
-import { PubSubProps } from "./types";
+import fetch from "node-fetch";
+import { DiscordProps } from "./types";
 
-export type AddProps = PubSubProps & {
+export type AddProps = DiscordProps & {
   condition?: string;
   colour?: string;
   column: string;
@@ -12,14 +11,14 @@ export type AddProps = PubSubProps & {
   size?: string;
 };
 
-export type MoveProps = PubSubProps & {
+export type MoveProps = DiscordProps & {
   column: string;
   channelId: string;
   name: string;
   row: number;
 };
 
-export type DeleteProps = PubSubProps & {
+export type DeleteProps = DiscordProps & {
   channelId: string;
   name: string;
 };
@@ -35,28 +34,22 @@ export const addToken = async ({
   size = "MEDIUM",
   token,
 }: AddProps) => {
-  const triggerUrl = process.env.HTTP_TRIGGER_URL;
-  const client = await createAuthenticatedClient(triggerUrl);
+  const triggerUrl = `${process.env.API_TRIGGER_URL}/token/${channelId}`;
 
-  return handleRequest(() =>
-    client.request({
-      url: triggerUrl,
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      data: {
-        action: "addToken",
-        applicationId,
-        channelId,
-        colour,
-        column,
-        condition,
-        name,
-        row,
-        size,
-        token,
-      },
-    })
-  );
+  fetch(triggerUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      applicationId,
+      colour,
+      column,
+      condition,
+      name,
+      row,
+      size,
+      token,
+    }),
+  });
 };
 
 export const moveToken = async ({
@@ -67,25 +60,19 @@ export const moveToken = async ({
   row,
   token,
 }: MoveProps) => {
-  const triggerUrl = process.env.HTTP_TRIGGER_URL;
-  const client = await createAuthenticatedClient(triggerUrl);
+  const triggerUrl = `${process.env.API_TRIGGER_URL}/token/${channelId}`;
 
-  return handleRequest(() =>
-    client.request({
-      url: triggerUrl,
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      data: {
-        action: "moveToken",
-        applicationId,
-        channelId,
-        column,
-        name,
-        row,
-        token,
-      },
-    })
-  );
+  fetch(triggerUrl, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      applicationId,
+      column,
+      name,
+      row,
+      token,
+    }),
+  });
 };
 
 export const deleteToken = async ({
@@ -94,15 +81,15 @@ export const deleteToken = async ({
   name,
   token,
 }: DeleteProps) => {
-  const triggerUrl = process.env.HTTP_TRIGGER_URL;
-  const client = await createAuthenticatedClient(triggerUrl);
+  const triggerUrl = `${process.env.API_TRIGGER_URL}/token/${channelId}`;
 
-  return handleRequest(() =>
-    client.request({
-      url: triggerUrl,
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      data: { action: "deleteToken", applicationId, channelId, name, token },
-    })
-  );
+  fetch(triggerUrl, {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      applicationId,
+      name,
+      token,
+    }),
+  });
 };

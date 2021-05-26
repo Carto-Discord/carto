@@ -1,8 +1,7 @@
-import { createAuthenticatedClient } from "./authentication";
-import { handleRequest } from "./requestHandler";
-import { PubSubProps } from "./types";
+import fetch from "node-fetch";
+import { DiscordProps } from "./types";
 
-export type CreateProps = PubSubProps & {
+export type CreateProps = DiscordProps & {
   channelId: string;
   columns: number;
   rows: number;
@@ -17,23 +16,16 @@ export const createMap = async ({
   token,
   url,
 }: CreateProps) => {
-  const triggerUrl = process.env.HTTP_TRIGGER_URL;
-  const client = await createAuthenticatedClient(triggerUrl);
-
-  return handleRequest(() =>
-    client.request({
-      url: triggerUrl,
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      data: {
-        action: "create",
-        applicationId,
-        channelId,
-        columns,
-        rows,
-        token,
-        url,
-      },
-    })
-  );
+  const triggerUrl = `${process.env.API_TRIGGER_URL}/map/${channelId}`;
+  fetch(triggerUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      applicationId,
+      columns,
+      rows,
+      token,
+      url,
+    }),
+  });
 };

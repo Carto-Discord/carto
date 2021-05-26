@@ -1,32 +1,17 @@
-import { createAuthenticatedClient } from "./authentication";
-import { handleRequest } from "./requestHandler";
+import fetch from "node-fetch";
 import { createMap } from "./create";
 
-jest.mock("./authentication");
-jest.mock("./requestHandler");
-
-const mockCreateAuthenticatedClient = createAuthenticatedClient as jest.MockedFunction<
-  typeof createAuthenticatedClient
->;
-const mockHandleRequest = handleRequest as jest.MockedFunction<
-  typeof handleRequest
->;
+jest.mock("node-fetch");
 
 describe("Create", () => {
-  const mockRequest = jest.fn();
-
-  jest.spyOn(console, "warn").mockImplementation(() => {});
-
   beforeEach(() => {
     jest.clearAllMocks();
-    //@ts-ignore
-    mockCreateAuthenticatedClient.mockResolvedValue({ request: mockRequest });
 
-    process.env.HTTP_TRIGGER_URL = "https://trigger.url";
+    process.env.API_TRIGGER_URL = "https://trigger.url";
   });
 
   describe("Create Map", () => {
-    it("should call handleRequest with the appropriate request", async () => {
+    it("should call fetch with the appropriate request", async () => {
       await createMap({
         applicationId: "appId",
         token: "mockToken",
@@ -36,24 +21,18 @@ describe("Create", () => {
         channelId: "1234",
       });
 
-      expect(mockHandleRequest).toBeCalledTimes(1);
-      await mockHandleRequest.mock.calls[0][0]();
-
-      expect(mockRequest).toBeCalledWith({
-        url: "https://trigger.url",
+      expect(fetch).toBeCalledWith("https://trigger.url/map/1234", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        data: {
-          action: "create",
+        body: JSON.stringify({
           applicationId: "appId",
+          columns: 2,
+          rows: 1,
           token: "mockToken",
           url: "url",
-          rows: 1,
-          columns: 2,
-          channelId: "1234",
-        },
+        }),
       });
     });
   });

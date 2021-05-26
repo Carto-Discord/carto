@@ -11,6 +11,17 @@ variable "function_location" {
   default = "us-central1"
 }
 
-variable "public_key" {
+variable "discord_public_key" {
   description = "Discord App Public Key"
 }
+
+variable "api_port" {
+  default     = 5000
+  description = "Port on which to run the API"
+}
+
+variable "server_user" {
+  default = "carto"
+}
+
+
