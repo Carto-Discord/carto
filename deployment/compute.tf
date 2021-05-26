@@ -38,10 +38,6 @@ data "template_cloudinit_config" "config" {
   }
 }
 
-data "git_repository" "git" {
-  path = path.module
-}
-
 resource "google_compute_instance" "server" {
   name                      = "${var.app_name}-server"
   hostname                  = "${var.app_name}-api"
@@ -62,9 +58,9 @@ resource "google_compute_instance" "server" {
 
   metadata = {
     user-data = data.template_cloudinit_config.config.rendered
-    # Adding something that changes regularly to keep the server rebooting
+    # Adding something that changes when the code changes to keep the server rebooting
     # When updates are pushed. This will keep the internal git repo up to date too
-    git-hash = data.git_repository.git.commit_hash
+    source-hash = data.archive_file.api_zip.output_md5
   }
 
   service_account {
