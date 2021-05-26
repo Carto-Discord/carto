@@ -6,8 +6,8 @@ data "archive_file" "client_zip" {
 
 data "archive_file" "api_zip" {
   type        = "zip"
-  source_dir = "api_package/"
-  output_path = "api_package.zip"
+  source_dir = "../api_package/"
+  output_path = "../api_package.zip"
 }
 
 resource "google_storage_bucket" "map_storage" {
