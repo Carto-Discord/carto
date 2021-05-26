@@ -21,10 +21,10 @@ write_files:
       cd /carto
       git pull --rebase
       source venv/bin/activate
-      pip install -r requirements.txt
       cd api
+      pip install -r requirements.txt
 
-      MAP_BUCKET=${map_bucket}
+      export MAP_BUCKET=${map_bucket}
       gunicorn --bind 0.0.0.0:${port} \
       --access-logfile /var/log/${user}/gunicorn-access.log --error-logfile /var/log/${user}/gunicorn-error.log \
       --log-level DEBUG wsgi:app
@@ -39,10 +39,10 @@ write_files:
       cd carto
       python3 -m venv venv
       source venv/bin/activate
-      pip install -r requirements.txt
       cd api
+      pip install -r requirements.txt
 
-      MAP_BUCKET=${map_bucket}
+      export MAP_BUCKET=${map_bucket}
       gunicorn --bind 0.0.0.0:${port} \
         --access-logfile /var/log/${user}/gunicorn-access.log --error-logfile /var/log/${user}/gunicorn-error.log \
         --log-level DEBUG wsgi:app
