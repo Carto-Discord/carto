@@ -3,7 +3,7 @@ users:
   - name: ${user}
     groups: sudo
     shell: /bin/bash
-    sudo: [ "ALL=(ALL) NOPASSWD:ALL" ]
+    sudo: ["ALL=(ALL) NOPASSWD:ALL"]
 
 package_upgrade: true
 packages:
@@ -12,44 +12,56 @@ packages:
   - python3-venv
 
 write_files:
-  - path: /var/lib/cloud/scripts/per-boot/git-update.sh
-    permissions: 0744
-    owner: root
+  - path: /var/log/carto/gunicorn-access.log
+  - path: /var/log/carto/gunicorn-error.log
+  - path: /etc/systemd/system/gunicorn.service
     content: |
-      #!/bin/bash
+      [Unit]
+      Description=gunicorn daemon
+      After=network.target
 
-      cd /carto
-      git pull --rebase
-      source venv/bin/activate
-      cd api
-      pip install -r requirements.txt
+      [Service]
+      User=${user}
+      Environment="MAP_BUCKET=${map_bucket}"
+      WorkingDirectory=/home/${user}/carto/api
+      ExecStart=/home/${user}/carto/api/venv/bin/gunicorn --bind 0.0.0.0:${port} \
+          --access-logfile /var/log/carto/gunicorn-access.log --error-logfile /var/log/carto/gunicorn-error.log \
+          --log-level DEBUG wsgi:app
 
-      export MAP_BUCKET=${map_bucket}
-      gunicorn --bind 0.0.0.0:${port} \
-      --access-logfile /var/log/${user}/gunicorn-access.log --error-logfile /var/log/${user}/gunicorn-error.log \
-      --log-level DEBUG wsgi:app
-
+      [Install]
+      WantedBy=multi-user.target
   - path: /home/${user}/setup.sh
-    permissions: 0744
-    owner: root
+    permissions: 0777
     content: |
       #!/bin/bash
 
+      cd /home/${user}
       git clone https://github.com/Carto-Discord/carto.git
-      cd carto
+      cd carto/api
+
       python3 -m venv venv
       source venv/bin/activate
-      cd api
       pip install -r requirements.txt
-
-      export MAP_BUCKET=${map_bucket}
-      gunicorn --bind 0.0.0.0:${port} \
-        --access-logfile /var/log/${user}/gunicorn-access.log --error-logfile /var/log/${user}/gunicorn-error.log \
-        --log-level DEBUG wsgi:app
-
-  - path: /etc/logrotate.d/${user}
+      deactivate
+  - path: /home/${user}/sync.sh
+    permissions: 0777
     content: |
-      /var/log/${user}/*.log {
+      #!/bin/bash
+
+      cd /home/${user}/carto/api
+      if ! git diff-index --quiet HEAD --; then
+        sudo systemctl stop gunicorn
+        git pull --rebase
+        source venv/bin/activate
+        pip install -r requirements.txt
+        sudo systemctl start gunicorn
+      fi
+  - path: /etc/cron.d/syncjob
+    content: |
+      */15 * * * * [${user}] /home/${user}/sync.sh
+  - path: /etc/logrotate.d/carto
+    content: |
+      /var/log/carto/*.log {
         weekly
         compress
         notifempty
@@ -59,9 +71,6 @@ write_files:
         dateyesterday
         rotate 12
       }
-  - path: /var/log/${user}/gunicorn-access.log
-  - path: /var/log/${user}/gunicorn-error.log
-
   - path: /etc/google-fluentd/config.d/gunicorn-log.conf
     content: |
       <source>
@@ -71,17 +80,21 @@ write_files:
             @type none
         </parse>
         # The path of the log file.
-        path /var/log/${user}/gunicorn-*.log
+        path /var/log/carto/gunicorn-*.log
         # The path of the position file that records where in the log file
         # we have processed already. This is useful when the agent
         # restarts.
         pos_file /var/lib/google-fluentd/pos/gunicorn-error-log.pos
         read_from_head true
         # The log tag for this log input.
-        tag ${user}-api-log
+        tag carto-api-log
       </source>
 
 runcmd:
   - "curl -sSO https://dl.google.com/cloudagents/add-logging-agent-repo.sh"
   - "bash add-logging-agent-repo.sh --also-install"
-  - "/home/carto/setup.sh"
+  - "chown -R ${user}:${user} /var/log/carto"
+  - "chown -R ${user}:${user} /home/${user}"
+  - "/home/${user}/setup.sh"
+  - "sudo systemctl start gunicorn"
+  - "sudo systemctl enable gunicorn"
