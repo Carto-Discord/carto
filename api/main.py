@@ -40,7 +40,7 @@ def delete_map(channel_id):
     app.logger.debug("Received Map delete request with JSON {}".format(
         request_json))
 
-    return delete.delete_channel_data(channel_id=channel_id, request_json=request_json)
+    return delete.delete_channel_data(channel_id=channel_id)
 
 
 @app.route('/token/<channel_id>', methods=['POST'])

@@ -1,3 +1,5 @@
+import os
+
 from flask import current_app
 
 from google.cloud import storage
@@ -20,6 +22,9 @@ def upload_blob(bucket_name, source_file_name, destination_blob_name):
         current_app.logger.info("File {} uploaded to {}.".format(
             source_file_name, destination_blob_name
         ))
+
+        if os.path.exists(source_file_name):
+            os.remove(source_file_name)
 
         return blob.public_url
     except GoogleCloudError as e:

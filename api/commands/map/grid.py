@@ -170,9 +170,6 @@ def apply_grid(image_url: str, rows: int, cols: int, tokens: List[Token] = None)
 
         frame.paste(im, (int(col_width), 0))
 
-        if os.getenv('IS_TEST', 'false') == 'false':
-            file_name = '/tmp/' + file_name
-
         frame.save(file_name, 'PNG')
 
     delete_image(image_name)
