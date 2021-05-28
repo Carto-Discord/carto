@@ -130,6 +130,66 @@ def create_grid(image_url: str, rows: int, cols: int):
     return file_name, margin_x, margin_y
 
 
+def apply_tokens(base_url: str, margin_x: int, margin_y: int, tokens: List[Token]):
+    image_name = download_image(base_url)
+    if image_name == '':
+        return None
+
+    file_name = 'map.png'
+
+    with Image.open(image_name).convert('RGBA') as im:
+        token_layer = Image.new('RGBA', tuple(map(operator.sub, im.size, (margin_x, margin_y))), (0, 0, 0, 0))
+        token_draw = ImageDraw.Draw(token_layer)
+
+        # Up to 4 Tiny tokens can occupy a single square, so we need to track how many we have to know where to put them
+        tiny_tokens = {}
+
+        for token in tokens:
+            row = token.row
+            col = column_number(token.column)
+
+            token_text = token.name[:1]
+            token_font = find_font_size(token_text,
+                                        max_width=(margin_x * token.size * 0.7),
+                                        max_height=(margin_y * token.size * 0.7))
+
+            x0 = (col - 1) * margin_x
+            x1 = (col - 1 + token.size) * margin_x
+
+            y1 = im.size[1] - ((row - 1) * margin_y)
+            y0 = y1 - token.size * margin_y
+
+            if token.size == size['TINY']:
+                key = '{}{}'.format(token.column, token.row)
+                current = tiny_tokens.get(key, 0)
+                tiny_tokens[key] = current + 1
+
+                x0, y0, x1, y1 = place_tiny_token(tiny_tokens[key], ((col - 1) * margin_x,
+                                                                     im.size[1] - (row * margin_y),
+                                                                     col * margin_x,
+                                                                     im.size[1] - ((row - 1) * margin_y)))
+
+            tx = ((x0 + x1) / 2)
+            ty = ((y0 + y1) / 2)
+
+            token_draw.ellipse([x0, y0, x1, y1], fill=token.colour)
+
+            # Text with border
+            token_draw.text((tx - 1, ty), token_text, font=token_font, fill='black', anchor='mm')
+            token_draw.text((tx + 1, ty), token_text, font=token_font, fill='black', anchor='mm')
+            token_draw.text((tx, ty - 1), token_text, font=token_font, fill='black', anchor='mm')
+            token_draw.text((tx, ty + 1), token_text, font=token_font, fill='black', anchor='mm')
+
+            token_draw.text((tx, ty), token_text, font=token_font, fill='white', anchor='mm')
+
+        # This uses the mask option to paste the transparent token layer over the base image
+        im.paste(token_layer, (int(margin_x), 0), token_layer)
+        im.save(file_name, 'PNG')
+
+    delete_image(image_name)
+    return file_name
+
+
 def apply_grid(image_url: str, rows: int, cols: int, tokens: List[Token] = None):
     from PIL import Image, ImageDraw
 

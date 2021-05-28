@@ -10,8 +10,17 @@ class GridTest(unittest.TestCase):
     os.environ['IS_TEST'] = 'true'
     app = Flask(__name__)
 
-    def test_apply_grid(self):
+    def test_create_grid(self):
         url = 'https://i.pinimg.com/736x/ee/85/5d/ee855d7efa22f163fcd6f24560ce7128.jpg'
+        with self.app.app_context():
+            grid.create_grid(url, 28, 20)
+
+        self.assertTrue(os.path.isfile("map.png"))
+        self.assertFalse(os.path.isfile("downloaded.jpg"))
+        os.remove("map.png")
+
+    def test_apply_tokens(self):
+        url = 'https://i.imgur.com/WznAC6f.png'
         tokens = [
             Token.Token(name='atoken', row=11, column='G', colour='white', size=Token.size['LARGE']),
             Token.Token(name='btoken', row=17, column='A', colour='red', size=Token.size['MEDIUM']),
@@ -23,7 +32,7 @@ class GridTest(unittest.TestCase):
         ]
 
         with self.app.app_context():
-            grid.apply_grid(url, 28, 20, tokens=tokens)
+            grid.apply_tokens(url, 32, 32, tokens)
 
         self.assertTrue(os.path.isfile("map.png"))
         self.assertFalse(os.path.isfile("downloaded.jpg"))
