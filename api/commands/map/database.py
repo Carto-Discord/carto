@@ -5,9 +5,10 @@ channels_collection = 'channels'
 maps_collection = 'maps'
 
 
-def update_channel_map(channel_id, new_uuid):
+def update_channel_map(channel_id, new_uuid, is_base=False):
     """
     Updates the channel's current map ID, and adds the previous ID to the channel's history
+    :param is_base: (Optional) If True, mark this map as the base map for future tokens to be drawn on top of
     :param channel_id: Discord Channel to update
     :param new_uuid: The Map UUID that will replace the current UUID
     :return: The document Write Result
@@ -22,10 +23,15 @@ def update_channel_map(channel_id, new_uuid):
         history = channel_doc.to_dict()['history']
         history.insert(0, previous)
 
-    return channel_doc_ref.set({
+    new_dict = {
         'current': new_uuid,
         'history': history
-    }, merge=True)
+    }
+
+    if is_base:
+        new_dict['base'] = new_uuid
+
+    return channel_doc_ref.set(new_dict, merge=True)
 
 
 def get_current_channel_map(channel_id):
@@ -74,7 +80,7 @@ def create_map_info(uuid, url, rows, columns, tokens=None):
     if tokens is None:
         tokens = []
 
-    print("Uploading Tokens: {}".format(tokens))
+    current_app.logger.debug("Uploading Tokens: {}".format(tokens))
 
     db = firestore.Client()
     map_doc_ref = db.collection(maps_collection).document(uuid)

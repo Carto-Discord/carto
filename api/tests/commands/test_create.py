@@ -4,10 +4,11 @@ from unittest.mock import patch
 from api.commands.create import create_new_map
 
 
+@patch('commands.map.grid.create_grid')
+@patch('publish.publish')
 class CreateTest(unittest.TestCase):
-    @patch('commands.map.grid.apply_grid')
-    @patch('publish.publish')
-    def test_create_invalid_url(self, mock_publish, mock_apply_grid):
+
+    def test_create_invalid_url(self, mock_publish, mock_create_grid):
         params = {
             'url': 'https://mock.url',
             'rows': 42,
@@ -16,7 +17,7 @@ class CreateTest(unittest.TestCase):
             'applicationId': '456'
         }
         mock_publish.return_value = 'published'
-        mock_apply_grid.return_value = None
+        mock_create_grid.return_value = None
 
         create_new_map(channel_id='1234', request_json=params)
         args = mock_publish.call_args.kwargs
@@ -27,10 +28,8 @@ class CreateTest(unittest.TestCase):
                               'description': 'URL https://mock.url could not be found.\nMake sure it is public and includes the file extension'},
                              args['embed'].to_dict())
 
-    @patch('commands.map.grid.apply_grid')
     @patch('commands.map.storage.upload_blob')
-    @patch('publish.publish')
-    def test_create_unable_to_upload(self, mock_publish, mock_upload_blob, mock_apply_grid):
+    def test_create_unable_to_upload(self, mock_upload_blob, mock_publish, mock_create_grid):
         params = {
             'url': 'https://mock.url',
             'rows': 42,
@@ -38,7 +37,7 @@ class CreateTest(unittest.TestCase):
             'token': 'mockToken',
             'applicationId': '456'
         }
-        mock_apply_grid.return_value = 'map.png'
+        mock_create_grid.return_value = 'map.png'
         mock_upload_blob.return_value = None
 
         create_new_map(channel_id='1234', request_json=params)
@@ -50,13 +49,11 @@ class CreateTest(unittest.TestCase):
                               'description': 'Map could not be created due to an internal error.\nTry again later, or [report it](https://www.github.com/carto-discord/carto/issues).'},
                              args['embed'].to_dict())
 
-    @patch('commands.map.grid.apply_grid')
     @patch('commands.map.storage.upload_blob')
     @patch('commands.map.database.update_channel_map')
     @patch('commands.map.database.create_map_info')
-    @patch('publish.publish')
-    def test_create_success(self, mock_publish, mock_create_map_info, mock_update_channel_map, mock_upload_blob,
-                            mock_apply_grid):
+    def test_create_success(self, mock_create_map_info, mock_update_channel_map, mock_upload_blob,
+                            mock_publish, mock_create_grid):
         params = {
             'url': 'https://mock.url',
             'rows': 42,
@@ -64,7 +61,7 @@ class CreateTest(unittest.TestCase):
             'token': 'mockToken',
             'applicationId': '456'
         }
-        mock_apply_grid.return_value = 'map.png'
+        mock_create_grid.return_value = 'map.png'
         mock_upload_blob.return_value = 'gcs-file'
 
         create_new_map(channel_id='1234', request_json=params)

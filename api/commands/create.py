@@ -13,7 +13,7 @@ def create_new_map(channel_id, request_json):
 
     error_title = 'Map create error'
 
-    source_file_name = grid.apply_grid(url, rows, columns)
+    source_file_name = grid.create_grid(url, rows, columns)
     if source_file_name is None:
         embed = Embed(title=error_title,
                       description="URL {} could not be found.\n"
@@ -31,7 +31,7 @@ def create_new_map(channel_id, request_json):
                                   "Try again later, or [report it](https://www.github.com/carto-discord/carto/issues).")
         return publish.publish(token=token, application_id=application_id, embed=embed)
     else:
-        database.update_channel_map(channel_id, map_uuid)
+        database.update_channel_map(channel_id, map_uuid, is_base=True)
         database.create_map_info(uuid=map_uuid, url=url, rows=rows, columns=columns)
 
         embed = Embed(title="Map created") \
