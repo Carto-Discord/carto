@@ -37,7 +37,7 @@ class CreateTest(unittest.TestCase):
             'token': 'mockToken',
             'applicationId': '456'
         }
-        mock_create_grid.return_value = 'map.png'
+        mock_create_grid.return_value = 'map.png', 1, 2
         mock_upload_blob.return_value = None
 
         create_new_map(channel_id='1234', request_json=params)
@@ -61,7 +61,7 @@ class CreateTest(unittest.TestCase):
             'token': 'mockToken',
             'applicationId': '456'
         }
-        mock_create_grid.return_value = 'map.png'
+        mock_create_grid.return_value = 'map.png', 1, 2
         mock_upload_blob.return_value = 'gcs-file'
 
         create_new_map(channel_id='1234', request_json=params)

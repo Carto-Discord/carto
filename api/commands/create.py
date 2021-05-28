@@ -13,13 +13,14 @@ def create_new_map(channel_id, request_json):
 
     error_title = 'Map create error'
 
-    source_file_name, margin_x, margin_y = grid.create_grid(url, rows, columns)
-    if source_file_name is None:
+    grid_data = grid.create_grid(url, rows, columns)
+    if grid_data is None:
         embed = Embed(title=error_title,
                       description="URL {} could not be found.\n"
                                   "Make sure it is public and includes the file extension".format(url))
         return publish.publish(token=token, application_id=application_id, embed=embed)
 
+    source_file_name, margin_x, margin_y = grid_data
     map_uuid = str(uuid.uuid4())
     file_name = ntpath.basename(source_file_name)
     file = storage.upload_blob(constants.BUCKET,
