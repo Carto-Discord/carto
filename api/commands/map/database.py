@@ -46,7 +46,7 @@ def get_current_channel_map(channel_id):
         channel_doc = channel_doc_ref.get()
 
         if channel_doc.exists:
-            return channel_doc.to_dict()['current']
+            return channel_doc.to_dict()
         else:
             return None
     except Exception as e:

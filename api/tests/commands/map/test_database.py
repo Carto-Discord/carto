@@ -73,11 +73,13 @@ class DatabaseTest(unittest.TestCase):
         mock_client.return_value = self.mock_db
         self.mock_db.collection('channels').document('1234').set({
             'current': '4567',
-            'history': []
+            'history': [],
+            'base': '9876'
         })
 
         result = database.get_current_channel_map(channel_id='1234')
-        self.assertEqual(result, '4567')
+        self.assertEqual(result['current'], '4567')
+        self.assertEqual(result['base'], '9876')
 
     @patch('google.cloud.firestore.Client')
     def test_get_current_channel_map_not_exists(self, mock_client):
