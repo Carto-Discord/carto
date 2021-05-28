@@ -67,31 +67,18 @@ def delete_channel_document(channel_id):
         channel_doc_ref.delete()
 
 
-def create_map_info(uuid, url, rows, columns, tokens=None):
+def create_map_info(uuid: str, data: dict):
     """
     Creates a database entry for the map
-    :param uuid: The Map UUID that corresponds to this entry. It should be the same as the most recent map
-    :param url: URL for the map image
-    :param rows: The number of rows in the grid
-    :param columns: The number of columns in the grid
-    :param tokens: The tokens present on the map. If omitted, this is an empty array
+    :param uuid: Unique document ID that matches the map ID
+    :param data: Dictionary to enter as the map information
     :return: The document Write Result
     """
-    if tokens is None:
-        tokens = []
-
-    current_app.logger.debug("Uploading Tokens: {}".format(tokens))
-
     db = firestore.Client()
     map_doc_ref = db.collection(maps_collection).document(uuid)
 
     # If this UUID collides with another (unlikely, near impossible), we just overwrite it.
-    return map_doc_ref.set({
-        'url': url,
-        'rows': rows,
-        'columns': columns,
-        'tokens': tokens,
-    })
+    return map_doc_ref.set(data)
 
 
 def get_map_info(uuid):
