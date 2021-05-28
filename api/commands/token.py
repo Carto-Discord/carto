@@ -73,8 +73,10 @@ def create_new_grid(url, rows, columns, tokens, channel_id, discord_token, appli
         return publish.publish(token=discord_token, application_id=application_id, embed=embed)
     else:
         database.update_channel_map(channel_id, map_uuid)
-        database.create_map_info(uuid=map_uuid, url=url, rows=rows, columns=columns,
-                                 tokens=[t.to_dict() for t in tokens])
+        database.create_map_info(uuid=map_uuid,
+                                 data={
+                                     'tokens': [t.to_dict() for t in tokens]
+                                 })
         embed = Embed(title="Tokens updated", description="Token positions:").set_image(url=file)
         for t in tokens:
             embed.add_field(name=t.name, value=f"{t.column.upper()}{t.row}", inline=True)

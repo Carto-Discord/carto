@@ -4,6 +4,7 @@ import string
 from typing import List, Tuple
 
 from flask import current_app
+from PIL import Image, ImageDraw
 
 from commands.map.Token import Token, size
 from configuration import FONT_DIR
@@ -83,8 +84,6 @@ def place_tiny_token(no_on_square: int, coordinates: Tuple[float, float, float, 
 
 
 def create_grid(image_url: str, rows: int, cols: int):
-    from PIL import Image, ImageDraw
-
     image_name = download_image(image_url)
     if image_name == '':
         return None
@@ -96,17 +95,17 @@ def create_grid(image_url: str, rows: int, cols: int):
         col_width = im.size[0] / cols
         row_height = im.size[1] / rows
 
-        margin_left = int(col_width)
-        margin_top = int(row_height)
+        margin_x = int(col_width)
+        margin_y = int(row_height)
 
-        frame = Image.new('RGBA', tuple(map(operator.add, im.size, (margin_left, margin_top))), (0xff, 0xff, 0xff))
+        frame = Image.new('RGBA', tuple(map(operator.add, im.size, (margin_x, margin_y))), (0xff, 0xff, 0xff))
 
         map_draw = ImageDraw.Draw(im)
         frame_draw = ImageDraw.Draw(frame)
 
         reverse_row_values = range(rows, 0, -1)
-        row_font = find_font_size(str(reverse_row_values[0]), int(margin_left * 0.8), int(margin_top * 0.8))
-        col_font = find_font_size(column_string(cols), int(margin_left * 0.8), int(margin_top * 0.8))
+        row_font = find_font_size(str(reverse_row_values[0]), int(margin_x * 0.8), int(margin_y * 0.8))
+        col_font = find_font_size(column_string(cols), int(margin_x * 0.8), int(margin_y * 0.8))
 
         for i in range(0, rows):
             y = (i + 1) * row_height
@@ -114,21 +113,21 @@ def create_grid(image_url: str, rows: int, cols: int):
 
             label = str(reverse_row_values[i])
             y_label = y - (row_height / 2)
-            frame_draw.text((margin_left / 2, y_label), label, font=row_font, fill='black', anchor='mm')
+            frame_draw.text((margin_x / 2, y_label), label, font=row_font, fill='black', anchor='mm')
 
         for j in range(0, cols):
             x = (j + 1) * col_width
             map_draw.line([x, 0, x, im.size[1]], fill=line_colour)
 
             label = column_string(j + 1)
-            x_label = x - (col_width / 2) + margin_left
-            frame_draw.text((x_label, im.size[1] + margin_top / 2), label, font=col_font, fill='black', anchor='mm')
+            x_label = x - (col_width / 2) + margin_x
+            frame_draw.text((x_label, im.size[1] + margin_y / 2), label, font=col_font, fill='black', anchor='mm')
 
         frame.paste(im, (int(col_width), 0))
         frame.save(file_name, 'PNG')
 
     delete_image(image_name)
-    return file_name
+    return file_name, margin_x, margin_y
 
 
 def apply_grid(image_url: str, rows: int, cols: int, tokens: List[Token] = None):
