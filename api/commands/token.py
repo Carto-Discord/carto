@@ -106,7 +106,7 @@ def add_token(channel_id, request_json):
     base_map_data, base_map_url, current_map_data = validate_map_data(channel_id, discord_token, application_id)
 
     margin_x, margin_y, rows, columns = [base_map_data.get(key) for key in ['margin_x', 'margin_y', 'rows', 'columns']]
-    tokens = current_map_data['tokens']
+    tokens = current_map_data.get('tokens', [])
 
     validate_token_position(row, column, rows, columns, discord_token, application_id)
 
@@ -129,7 +129,7 @@ def move_token(channel_id, request_json):
     base_map_data, base_map_url, current_map_data = validate_map_data(channel_id, discord_token, application_id)
 
     margin_x, margin_y, rows, columns = [base_map_data.get(key) for key in ['margin_x', 'margin_y', 'rows', 'columns']]
-    tokens = current_map_data['tokens']
+    tokens = current_map_data.get('tokens', [])
 
     validate_token_position(row, column, rows, columns, discord_token, application_id)
 
@@ -158,7 +158,7 @@ def delete_token(channel_id, request_json):
     base_map_data, base_map_url, current_map_data = validate_map_data(channel_id, discord_token, application_id)
 
     margin_x, margin_y, rows, columns = [base_map_data.get(key) for key in ['margin_x', 'margin_y', 'rows', 'columns']]
-    tokens = current_map_data['tokens']
+    tokens = current_map_data.get('tokens', [])
 
     tokens = convert_to_tokens(tokens)
 
