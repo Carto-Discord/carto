@@ -7,6 +7,7 @@ users:
 
 package_upgrade: true
 packages:
+  - cron
   - git
   - python3-pip
   - python3-venv
@@ -49,7 +50,10 @@ write_files:
       #!/bin/bash
 
       cd /home/${user}/carto/api
-      if ! git diff-index --quiet HEAD --; then
+      LOCAL=$(git rev-parse @)
+      BASE=$(git merge-base @ "@{u}")
+
+      if [ $LOCAL = $BASE]; then
         sudo systemctl stop gunicorn
         git pull --rebase
         source venv/bin/activate
@@ -94,7 +98,8 @@ runcmd:
   - "curl -sSO https://dl.google.com/cloudagents/add-logging-agent-repo.sh"
   - "bash add-logging-agent-repo.sh --also-install"
   - "chown -R ${user}:${user} /var/log/carto"
-  - "chown -R ${user}:${user} /home/${user}"
   - "/home/${user}/setup.sh"
+  - "chown -R ${user}:${user} /home/${user}"
   - "sudo systemctl start gunicorn"
   - "sudo systemctl enable gunicorn"
+  - "sudo systemctl enable cron"
