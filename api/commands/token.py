@@ -14,24 +14,30 @@ error_title = 'Token Error'
 
 
 def validate_map_data(channel_id, discord_token, application_id):
-    channel_map_id = database.get_current_channel_map(channel_id)
+    channel_map_data = database.get_current_channel_map(channel_id)
 
-    if channel_map_id is None:
+    if channel_map_data is None:
         message = "No map exists for this channel.\nCreate one with the /map create command"
         embed = Embed(title=error_title, description=message)
         publish.publish(token=discord_token, application_id=application_id, embed=embed)
         abort(404)
 
-    channel_map_data = database.get_map_info(channel_map_id)
+    base_map_id = channel_map_data['base']
+    current_map_id = channel_map_data['current']
 
-    if 'rows' not in channel_map_data or 'columns' not in channel_map_data:
+    base_map_data = database.get_map_info(base_map_id)
+    current_map_data = database.get_map_info(current_map_id)
+
+    if 'rows' not in base_map_data or 'columns' not in base_map_data:
         message = "Map data for this channel is incomplete. " \
                   "Create the map again or [report it](https://www.github.com/carto-discord/carto/issues)."
         embed = Embed(title=error_title, description=message)
         publish.publish(token=discord_token, application_id=application_id, embed=embed)
         abort(500)
 
-    return channel_map_data
+    base_map_url = storage.get_public_url(constants.BUCKET, base_map_id + '.png')
+
+    return base_map_data, base_map_url, current_map_data
 
 
 def validate_token_position(token_row, token_column, grid_rows, grid_columns, discord_token, application_id):
@@ -52,11 +58,11 @@ def convert_to_tokens(tokens_array):
     return tokens
 
 
-def create_new_grid(url, rows, columns, tokens, channel_id, discord_token, application_id):
-    source_file_name = grid.apply_grid(image_url=url, rows=rows, cols=columns, tokens=tokens)
+def create_new_grid(url, margin_x, margin_y, tokens, channel_id, discord_token, application_id):
+    source_file_name = grid.apply_tokens(base_url=url, margin_x=margin_x, margin_y=margin_y, tokens=tokens)
 
     if source_file_name is None:
-        message = "Map could not be recreated. Reason: URL {} could not be found".format(url)
+        message = "Map could not be recreated. Reason: Original map could not be found"
         embed = Embed(title=error_title, description=message)
         publish.publish(token=discord_token, application_id=application_id, embed=embed)
         abort(404)
@@ -97,10 +103,10 @@ def add_token(channel_id, request_json):
         publish.publish(token=discord_token, application_id=application_id, embed=embed)
         abort(400)
 
-    channel_map_data = validate_map_data(channel_id, discord_token, application_id)
+    base_map_data, base_map_url, current_map_data = validate_map_data(channel_id, discord_token, application_id)
 
-    keys = ['url', 'rows', 'columns', 'tokens']
-    url, rows, columns, tokens = [channel_map_data.get(key) for key in keys]
+    margin_x, margin_y, rows, columns = [base_map_data.get(key) for key in ['margin_x', 'margin_y', 'rows', 'columns']]
+    tokens = current_map_data['tokens']
 
     validate_token_position(row, column, rows, columns, discord_token, application_id)
 
@@ -113,17 +119,17 @@ def add_token(channel_id, request_json):
     new_token = Token(name=name, row=int(row), column=column, size=size[token_size], colour=colour)
     tokens.append(new_token)
 
-    return create_new_grid(url, rows, columns, tokens, channel_id, discord_token, application_id)
+    return create_new_grid(base_map_url, margin_x, margin_y, tokens, channel_id, discord_token, application_id)
 
 
 def move_token(channel_id, request_json):
     keys = ['name', 'row', 'column', 'token', 'applicationId']
     name, row, column, discord_token, application_id = [request_json.get(key) for key in keys]
 
-    channel_map_data = validate_map_data(channel_id, discord_token, application_id)
+    base_map_data, base_map_url, current_map_data = validate_map_data(channel_id, discord_token, application_id)
 
-    keys = ['url', 'rows', 'columns', 'tokens']
-    url, rows, columns, tokens = [channel_map_data.get(key) for key in keys]
+    margin_x, margin_y, rows, columns = [base_map_data.get(key) for key in ['margin_x', 'margin_y', 'rows', 'columns']]
+    tokens = current_map_data['tokens']
 
     validate_token_position(row, column, rows, columns, discord_token, application_id)
 
@@ -142,17 +148,17 @@ def move_token(channel_id, request_json):
             token.column = column
             break
 
-    return create_new_grid(url, rows, columns, tokens, channel_id, discord_token, application_id)
+    return create_new_grid(base_map_url, margin_x, margin_y, tokens, channel_id, discord_token, application_id)
 
 
 def delete_token(channel_id, request_json):
     keys = ['name', 'token', 'applicationId']
     name, discord_token, application_id = [request_json.get(key) for key in keys]
 
-    channel_map_data = validate_map_data(channel_id, discord_token, application_id)
+    base_map_data, base_map_url, current_map_data = validate_map_data(channel_id, discord_token, application_id)
 
-    keys = ['url', 'rows', 'columns', 'tokens']
-    url, rows, columns, tokens = [channel_map_data.get(key) for key in keys]
+    margin_x, margin_y, rows, columns = [base_map_data.get(key) for key in ['margin_x', 'margin_y', 'rows', 'columns']]
+    tokens = current_map_data['tokens']
 
     tokens = convert_to_tokens(tokens)
 
@@ -168,4 +174,4 @@ def delete_token(channel_id, request_json):
             tokens.remove(token)
             break
 
-    return create_new_grid(url, rows, columns, tokens, channel_id, discord_token, application_id)
+    return create_new_grid(base_map_url, margin_x, margin_y, tokens, channel_id, discord_token, application_id)
