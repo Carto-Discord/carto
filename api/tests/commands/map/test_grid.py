@@ -36,7 +36,7 @@ class GridTest(unittest.TestCase):
 
         self.assertTrue(os.path.isfile("map.png"))
         self.assertFalse(os.path.isfile("downloaded.jpg"))
-        os.remove("map.png")
+        # os.remove("map.png")
 
     def test_column_string(self):
         self.assertEqual(grid.column_string(28), 'AB')

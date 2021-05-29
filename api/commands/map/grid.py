@@ -153,21 +153,21 @@ def apply_tokens(base_url: str, margin_x: int, margin_y: int, tokens: List[Token
                                         max_width=(margin_x * token.size * 0.7),
                                         max_height=(margin_y * token.size * 0.7))
 
-            x0 = (col - 1) * margin_x
-            x1 = (col - 1 + token.size) * margin_x
-
-            y1 = im.size[1] - ((row - 1) * margin_y)
-            y0 = y1 - token.size * margin_y
-
             if token.size == size['TINY']:
                 key = '{}{}'.format(token.column, token.row)
                 current = tiny_tokens.get(key, 0)
                 tiny_tokens[key] = current + 1
 
                 x0, y0, x1, y1 = place_tiny_token(tiny_tokens[key], ((col - 1) * margin_x,
-                                                                     im.size[1] - (row * margin_y),
+                                                                     im.size[1] - ((row + 1) * margin_y),
                                                                      col * margin_x,
-                                                                     im.size[1] - ((row - 1) * margin_y)))
+                                                                     im.size[1] - (row * margin_y)))
+            else:
+                x0 = (col - 1) * margin_x
+                x1 = (col - 1 + token.size) * margin_x
+
+                y1 = im.size[1] - (row * margin_y)
+                y0 = y1 - token.size * margin_y
 
             tx = ((x0 + x1) / 2)
             ty = ((y0 + y1) / 2)
