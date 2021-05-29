@@ -53,7 +53,7 @@ write_files:
       LOCAL=$(git rev-parse @)
       BASE=$(git merge-base @ "@{u}")
 
-      if [ $LOCAL = $BASE]; then
+      if [ $LOCAL = $BASE ]; then
         sudo systemctl stop gunicorn
         git pull --rebase
         source venv/bin/activate
