@@ -18,7 +18,7 @@ variable "port" {
 }
 
 variable "project-id" {
-  default = "carto-bot",
+  default     = "carto-bot"
   description = "GCP Project for tagging purposes"
 }
 
