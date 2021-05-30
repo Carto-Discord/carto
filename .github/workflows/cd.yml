@@ -5,30 +5,22 @@ on:
     branches: main
 
 jobs:
-  deploy:
+  test:
     runs-on: ubuntu-latest
     env:
       PYTHONPATH: api
     steps:
       - uses: actions/checkout@v2
 
-      - name: Set up Python 3.9
+      - name: Set up Python
         uses: actions/setup-python@v2
         with:
           python-version: "3.9"
 
-      - name: Set up Node.JS 14
+      - name: Set up Node.JS
         uses: actions/setup-node@v2
         with:
           node-version: "14"
-
-      - uses: hashicorp/setup-terraform@v1
-
-      - uses: google-github-actions/setup-gcloud@master
-        with:
-          service_account_key: ${{ secrets.GCP_SA_KEY }}
-          project_id: ${{ secrets.GCP_PROJECT_ID }}
-          export_default_credentials: true
 
       - name: Install python dependencies
         run: |
@@ -37,13 +29,12 @@ jobs:
           pip install -r api/dev_requirements.txt
           pip install -r api/requirements.txt
 
-      - name: Package api application
+      - name: Lint with flake8
         run: |
-          mkdir api_package
-          cp -r api/assets/ api_package/
-          cp -r api/commands/ api_package/
-          cp api/*.py api_package/
-          cp api/requirements.txt api_package/
+          # stop the build if there are Python syntax errors or undefined names
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
       - name: Build client application
         run: |
@@ -51,13 +42,6 @@ jobs:
           npm ci
           npm run build
           npm run build:package
-
-      - name: Lint with flake8
-        run: |
-          # stop the build if there are Python syntax errors or undefined names
-          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-          # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
       - name: Test with unittest
         run: |
@@ -68,14 +52,64 @@ jobs:
           cd client
           npm run test:coverage
 
-      - name: Initialise terraform
+      - name: Archive Client package
+        uses: actions/upload-artifact@v2
+        with:
+          name: carto-client
+          path: client/package
+
+  deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: deployment
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: hashicorp/setup-terraform@v1
+
+      - uses: google-github-actions/setup-gcloud@master
+        with:
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          export_default_credentials: true
+
+      - name: Authenticate Docker
         run: |
-          cd deployment
-          terraform init
+          gcloud auth configure-docker
+
+      - name: Validate Packer Template
+        uses: hashicorp/packer-github-actions@master
+        with:
+          command: validate
+          arguments: -syntax-only
+          target: carto.pkr.hcl
+
+      - name: Build Container
+        uses: hashicorp/packer-github-actions@master
+        with:
+          command: build
+          arguments: "-color=false -on-error=abort"
+          target: carto.pkr.hcl
+        env:
+          PACKER_LOG: 1
+
+      - name: Upload Container to GCR
+        run: |
+          - docker push gcr.io/$GCP_PROJECT/api
+        env:
+          GCP_PROJECT: ${{ secrets.GCP_PROJECT_ID }}
+
+      - name: Download Client Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: carto-client
+          path: client/package
+
+      - name: Initialise terraform
+        run: terraform init
 
       - name: Apply terraform
-        run: |
-          cd deployment
-          terraform apply -var="discord_public_key=$DISCORD_PUBLIC_KEY" -auto-approve
+        run: terraform apply -var="discord_public_key=$DISCORD_PUBLIC_KEY" -auto-approve
         env:
           DISCORD_PUBLIC_KEY: ${{ secrets.PUBLIC_KEY }}
