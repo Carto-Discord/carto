@@ -15,13 +15,14 @@ def get_channel_map(channel_id, request_params):
         embed = Embed(title=error_title, description="Channel ID not found")
         return publish.publish(token=discord_token, application_id=application_id, embed=embed)
 
-    uuid = database.get_current_channel_map(channel_id)
-    current_app.logger.info("Getting map for channel UUID: {}".format(uuid))
+    channel_data = database.get_current_channel_map(channel_id)
 
-    if uuid is None:
+    if channel_data is None:
         embed = Embed(title=error_title, description="This channel has no map associated with it")
         return publish.publish(token=discord_token, application_id=application_id, embed=embed)
 
+    uuid = channel_data['current']
+    current_app.logger.info("Getting map for channel UUID: {}".format(uuid))
     channel_map_data = database.get_map_info(uuid)
     embed = Embed(title="Retrieved Map")
 

@@ -8,7 +8,7 @@ resource "google_cloud_run_service" "api" {
         image = "gcr.io/${var.app_name}/api"
 
         ports {
-          name = "gunicorn"
+          name           = "http1"
           container_port = 8080
         }
 
