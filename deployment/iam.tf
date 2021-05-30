@@ -8,11 +8,11 @@ resource "google_cloudfunctions_function_iam_member" "client_invoker" {
 }
 
 resource "google_cloud_run_service_iam_member" "api_invoker" {
-  location = google_cloud_run_service.api.location
-  project = google_cloud_run_service.api.project
-  service = google_cloud_run_service.api.name
-  role = "roles/run.invoker"
-  member = "allUsers"
+  location  = google_cloud_run_service.api.location
+  project   = google_cloud_run_service.api.project
+  service   = google_cloud_run_service.api.name
+  role      = "roles/run.invoker"
+  member    = "allUsers"
 }
 
 resource "google_storage_bucket_iam_member" "public_rule" {
