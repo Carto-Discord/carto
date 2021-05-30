@@ -5,7 +5,7 @@ resource "google_cloud_run_service" "api" {
   template {
     spec {
       containers {
-        image = "gcr.io/${var.app_name}/api"
+        image = data.google_container_registry_image.api.image_url
 
         ports {
           name           = "http1"
