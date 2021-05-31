@@ -94,14 +94,14 @@ jobs:
         with:
           command: validate
           arguments: -syntax-only
-          target: carto.pkr.hcl
+          target: deployment/carto.pkr.hcl
 
       - name: Build Container
         uses: hashicorp/packer-github-actions@master
         with:
           command: build
           arguments: "-color=false -on-error=abort"
-          target: carto.pkr.hcl
+          target: deployment/carto.pkr.hcl
         env:
           PACKER_LOG: 1
 
