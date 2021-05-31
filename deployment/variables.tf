@@ -15,13 +15,12 @@ variable "discord_public_key" {
   description = "Discord App Public Key"
 }
 
-variable "api_port" {
-  default     = 5000
-  description = "Port on which to run the API"
+variable "container_repo" {
+  description = "Name of the container repository to load"
 }
 
-variable "server_user" {
-  default = "carto"
+variable "container_tag" {
+  description = "Version of the container to deploy"
 }
 
 

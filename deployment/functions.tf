@@ -10,7 +10,6 @@ resource "google_cloudfunctions_function" "carto_client" {
 
   environment_variables = {
     PUBLIC_KEY          = var.discord_public_key
-    API_TRIGGER_URL    = "http://${google_compute_instance.server.network_interface.0.access_config.0.nat_ip}:${var.api_port}"
-    MAP_BUCKET          = google_storage_bucket.map_storage.name
+    API_TRIGGER_URL     = google_cloud_run_service.api.status.0.url
   }
 }

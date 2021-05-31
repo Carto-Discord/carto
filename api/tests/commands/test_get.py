@@ -15,7 +15,7 @@ class GetTest(unittest.TestCase):
     @patch('publish.publish')
     @patch('commands.constants.BUCKET', 'bucket')
     def test_get_channel_map(self, mock_publish, mock_public_url, mock_map_info, mock_get_map):
-        mock_get_map.return_value = '1234'
+        mock_get_map.return_value = {'current': '1234'}
         mock_map_info.return_value = {
             'tokens': [
                 {
@@ -63,7 +63,7 @@ class GetTest(unittest.TestCase):
     @patch('publish.publish')
     @patch('commands.constants.BUCKET', 'bucket')
     def test_get_channel_map_no_tokens(self, mock_publish, mock_public_url, mock_map_info, mock_get_map):
-        mock_get_map.return_value = '1234'
+        mock_get_map.return_value = {'current': '1234'}
         mock_map_info.return_value = {}
         mock_public_url.return_value = 'public url'
 
