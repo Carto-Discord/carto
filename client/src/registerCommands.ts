@@ -39,6 +39,11 @@ const mapCommand: PartialApplicationCommand = {
       description: "Get the map in its current state",
       type: ApplicationCommandOptionType.SUB_COMMAND,
     },
+    {
+      name: SubCommand.MAP_DELETE,
+      description: "Delete all map data associated with this channel",
+      type: ApplicationCommandOptionType.SUB_COMMAND,
+    },
   ],
 };
 
