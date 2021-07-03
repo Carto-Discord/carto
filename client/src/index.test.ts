@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { createMap } from "./create";
 import { getMap } from "./get";
 import { addToken, deleteToken, moveToken } from "./token";
+import { deleteChannel } from "./delete";
 import { validateRequest } from "./validation";
 import { slashFunction } from ".";
 import { InteractionResponseType, InteractionType } from "slash-commands";
@@ -11,8 +12,12 @@ jest.mock("./get");
 jest.mock("./delete");
 jest.mock("./token");
 jest.mock("./validation");
+
 const mockCreateMap = createMap as jest.MockedFunction<typeof createMap>;
 const mockGetMap = getMap as jest.MockedFunction<typeof getMap>;
+const mockDeleteChannel = deleteChannel as jest.MockedFunction<
+  typeof deleteChannel
+>;
 const mockAddToken = addToken as jest.MockedFunction<typeof addToken>;
 const mockDeleteToken = deleteToken as jest.MockedFunction<typeof deleteToken>;
 const mockMoveToken = moveToken as jest.MockedFunction<typeof moveToken>;
@@ -20,14 +25,14 @@ const mockValidateRequest = validateRequest as jest.MockedFunction<
   typeof validateRequest
 >;
 
+jest.spyOn(console, "log").mockImplementation(jest.fn());
+
 describe("Slash Function", () => {
   const mockEnd = jest.fn();
   const mockJson = jest.fn().mockReturnValue({ end: mockEnd });
   const mockResponse = {
     status: jest.fn().mockReturnValue({ end: mockEnd, json: mockJson }),
   } as unknown as Response;
-
-  jest.spyOn(console, "log").mockImplementation(jest.fn());
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -185,6 +190,38 @@ describe("Slash Function", () => {
           );
 
           expect(mockGetMap).toBeCalledWith({
+            channelId: "mockChannel",
+            applicationId: "1234",
+            token: "mockToken",
+          });
+        });
+      });
+
+      describe("given a delete subcommand is received", () => {
+        it("should call deleteChannel", async () => {
+          await slashFunction(
+            {
+              body: {
+                type: InteractionType.APPLICATION_COMMAND,
+                application_id: "1234",
+                token: "mockToken",
+                channel_id: "mockChannel",
+                data: {
+                  name: "map",
+                  options: [
+                    {
+                      name: "delete",
+                      options: [],
+                    },
+                  ],
+                },
+              },
+              method: "POST",
+            } as Request,
+            mockResponse
+          );
+
+          expect(mockDeleteChannel).toBeCalledWith({
             channelId: "mockChannel",
             applicationId: "1234",
             token: "mockToken",

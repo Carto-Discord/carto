@@ -21,6 +21,7 @@ import {
   InteractionResponseType,
   InteractionType,
 } from "./types";
+import { deleteChannel } from "./delete";
 
 type CommandProps = {
   applicationId: string;
@@ -66,6 +67,15 @@ const handleMapCommands = async ({
     case SubCommand.MAP_GET:
       console.log("Received Map get request");
       getMap({ applicationId, channelId, token });
+      break;
+
+    case SubCommand.MAP_DELETE:
+      console.log("Received Map deletion request");
+      deleteChannel({
+        applicationId,
+        channelId,
+        token,
+      });
       break;
 
     default:
