@@ -81,4 +81,4 @@ class MainTest(TestCase):
         mock_delete.return_value = 'Complete', 200
 
         self.app.delete('/map/1234', data=json.dumps(params), content_type='application/json')
-        mock_delete.assert_called_with(channel_id='1234')
+        mock_delete.assert_called_with(channel_id='1234', request_json=params)
