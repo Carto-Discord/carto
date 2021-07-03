@@ -1,9 +1,7 @@
 import fetch from "node-fetch";
 import { DiscordProps } from "./types";
 
-export type DeleteProps = DiscordProps & {
-  channelId: string;
-};
+export type DeleteProps = DiscordProps;
 
 export const deleteChannel = async ({
   applicationId,

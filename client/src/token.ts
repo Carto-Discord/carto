@@ -5,7 +5,6 @@ export type AddProps = DiscordProps & {
   condition?: string;
   colour?: string;
   column: string;
-  channelId: string;
   name: string;
   row: number;
   size?: string;
@@ -13,13 +12,11 @@ export type AddProps = DiscordProps & {
 
 export type MoveProps = DiscordProps & {
   column: string;
-  channelId: string;
   name: string;
   row: number;
 };
 
 export type DeleteProps = DiscordProps & {
-  channelId: string;
   name: string;
 };
 

@@ -2,7 +2,6 @@ import fetch from "node-fetch";
 import { DiscordProps } from "./types";
 
 export type CreateProps = DiscordProps & {
-  channelId: string;
   columns: number;
   rows: number;
   url: string;

@@ -30,6 +30,7 @@ export enum InteractionResponseType {
 
 export type DiscordProps = {
   applicationId: string;
+  channelId: string;
   token: string;
 };
 
