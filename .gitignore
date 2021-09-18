@@ -20,3 +20,4 @@ __pycache__
 !package.json
 !package-lock.json
 !tsconfig.json
+!renovate.json
