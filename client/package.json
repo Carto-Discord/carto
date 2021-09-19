@@ -23,7 +23,7 @@
   "devDependencies": {
     "@google-cloud/functions-framework": "1.9.0",
     "@types/express": "4.17.13",
-    "@types/jest": "26.0.24",
+    "@types/jest": "27.0.1",
     "@types/node": "15.0.3",
     "@types/node-fetch": "2.5.12",
     "concurrently": "6.2.1",
