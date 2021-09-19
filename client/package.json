@@ -21,18 +21,18 @@
     "tweetnacl": "^1.0.3"
   },
   "devDependencies": {
-    "@google-cloud/functions-framework": "^1.7.1",
-    "@types/express": "^4.17.11",
-    "@types/jest": "^26.0.23",
-    "@types/node": "^15.0.3",
-    "@types/node-fetch": "^2.5.10",
-    "concurrently": "^6.1.0",
-    "copyfiles": "^2.4.1",
-    "jest": "^26.6.3",
-    "nodemon": "^2.0.7",
-    "rimraf": "^3.0.2",
-    "slash-commands": "^1.4.0",
-    "ts-jest": "^26.5.6",
-    "typescript": "^4.2.3"
+    "@google-cloud/functions-framework": "1.7.1",
+    "@types/express": "4.17.11",
+    "@types/jest": "26.0.23",
+    "@types/node": "15.0.3",
+    "@types/node-fetch": "2.5.10",
+    "concurrently": "6.1.0",
+    "copyfiles": "2.4.1",
+    "jest": "26.6.3",
+    "nodemon": "2.0.7",
+    "rimraf": "3.0.2",
+    "slash-commands": "1.4.0",
+    "ts-jest": "26.5.6",
+    "typescript": "4.2.4"
   }
 }
