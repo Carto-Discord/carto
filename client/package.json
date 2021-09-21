@@ -2,6 +2,7 @@
   "name": "carto-client",
   "version": "0.1.0",
   "main": "build/src/index.js",
+  "type": "module",
   "scripts": {
     "prebuild": "rimraf build/",
     "postbuild": "copyfiles .env build/",
@@ -39,6 +40,6 @@
     "preset": "ts-jest/presets/js-with-ts-esm",
     "transformIgnorePatterns": [
       "node_modules/(?!(fetch-blob|node-fetch)/)"
-  ]
+    ]
   }
 }
