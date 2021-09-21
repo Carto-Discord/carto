@@ -2,7 +2,6 @@
   "compilerOptions": {
     "module": "es2020",
     "moduleResolution": "node",
-    "target": "es2017",
     "outDir": "build",
     "rootDir": ".",
     "sourceMap": true,

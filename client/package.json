@@ -38,6 +38,9 @@
   },
   "jest": {
     "preset": "ts-jest/presets/js-with-ts-esm",
+    "moduleNameMapper": {
+      "(.*)\\.js$": "$1"
+    },
     "transformIgnorePatterns": [
       "node_modules/(?!(fetch-blob|node-fetch)/)"
     ]
