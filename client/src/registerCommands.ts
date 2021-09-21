@@ -3,7 +3,7 @@ import {
   DiscordInteractions,
   PartialApplicationCommand,
 } from "slash-commands";
-import { CommandGroup, SubCommand } from "./types";
+import { CommandGroup, SubCommand } from "./types.js";
 
 const mapCommand: PartialApplicationCommand = {
   name: CommandGroup.MAP,

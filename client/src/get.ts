@@ -1,5 +1,5 @@
 import fetch from "node-fetch";
-import { DiscordProps } from "./types";
+import { DiscordProps } from "./types.js";
 
 export type GetProps = DiscordProps;
 

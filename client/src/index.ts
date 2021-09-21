@@ -3,8 +3,8 @@ import {
   Interaction,
 } from "slash-commands";
 import { Request, Response } from "express";
-import { createMap, CreateProps } from "./create";
-import { getMap } from "./get";
+import { createMap, CreateProps } from "./create.js";
+import { getMap } from "./get.js";
 import {
   AddProps,
   addToken,
@@ -12,16 +12,16 @@ import {
   deleteToken,
   MoveProps,
   moveToken,
-} from "./token";
-import { validateRequest } from "./validation";
+} from "./token.js";
+import { validateRequest } from "./validation.js";
+import { deleteChannel } from "./delete.js";
 import {
   CommandGroup,
   SubCommand,
   CommandOptions,
   InteractionResponseType,
   InteractionType,
-} from "./types";
-import { deleteChannel } from "./delete";
+} from "./types.js";
 
 type CommandProps = {
   applicationId: string;
