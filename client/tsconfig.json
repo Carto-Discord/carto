@@ -1,14 +1,14 @@
 {
-    "compilerOptions": {
-        "module": "commonjs",
-        "target": "es2017",
-        "outDir": "build",
-        "rootDir": ".",
-        "sourceMap": true,
-        "strict": false,
-        "esModuleInterop": true
-    },
-    "exclude": [
-        "**/*.test.ts"
-    ]
+  "compilerOptions": {
+    "module": "es2020",
+    "moduleResolution": "node",
+    "target": "es2017",
+    "outDir": "build",
+    "rootDir": ".",
+    "sourceMap": true,
+    "strict": false,
+    "esModuleInterop": true,
+    "allowJs": true
+  },
+  "exclude": ["**/*.test.ts"]
 }
