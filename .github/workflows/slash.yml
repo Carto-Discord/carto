@@ -15,22 +15,19 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Set up Node.JS 14
+      - name: Set up Node.JS
         uses: actions/setup-node@v2
         with:
           node-version: "14"
 
       - name: Install node depedencies
-        run: |
-          cd client
-          npm ci
+        working-directory: client
+        run: npm ci
 
       - name: Build node application
-        run: |
-          cd client
-          npm run build
+        working-directory: client
+        run: npm run build
 
       - name: Register Slash Commands
-        run: |
-          cd client
-          npm run register
+        working-directory: client
+        run: npm run register
