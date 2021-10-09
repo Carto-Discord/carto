@@ -8,7 +8,7 @@ on:
 jobs:
   test:
     test:
-    uses: carto-discord/carto/.github/workflows/tests.yml@main
+    uses: carto-discord/carto/.github/workflows/tests.yml@chore/reuse-workflows
 
   deploy:
     needs: test
