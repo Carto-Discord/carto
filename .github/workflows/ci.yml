@@ -4,4 +4,4 @@ on: pull_request
 
 jobs:
   test:
-    uses: carto-discord/carto/.github/workflows/test.yml@main
+    uses: carto-discord/carto/.github/workflows/tests.yml@main
