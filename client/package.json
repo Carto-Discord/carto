@@ -29,7 +29,7 @@
     "@types/node-fetch": "3.0.2",
     "concurrently": "6.3.0",
     "copyfiles": "2.4.1",
-    "jest": "27.2.4",
+    "jest": "27.2.5",
     "nodemon": "2.0.13",
     "rimraf": "3.0.2",
     "slash-commands": "1.5.0",
