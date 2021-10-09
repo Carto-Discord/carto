@@ -7,7 +7,6 @@ on:
 
 jobs:
   test:
-    test:
     uses: carto-discord/carto/.github/workflows/tests.yml@main
 
   deploy:
