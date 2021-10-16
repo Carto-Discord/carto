@@ -4,10 +4,10 @@ on: pull_request
 
 jobs:
   build:
-    uses: carto-discord/carto/.github/workflows/build.yml@build-test-workflows
+    uses: carto-discord/carto/.github/workflows/build.yml@main
   lint:
     needs: build
-    uses: carto-discord/carto/.github/workflows/lint.yml@build-test-workflows
+    uses: carto-discord/carto/.github/workflows/lint.yml@main
   test:
     needs: build
-    uses: carto-discord/carto/.github/workflows/test.yml@build-test-workflows
+    uses: carto-discord/carto/.github/workflows/test.yml@main
