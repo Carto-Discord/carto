@@ -1,13 +1,13 @@
 {
   "compilerOptions": {
+    "allowJs": true,
+    "esModuleInterop": true,
     "module": "es2020",
     "moduleResolution": "node",
     "outDir": "build",
     "rootDir": ".",
     "sourceMap": true,
-    "strict": false,
-    "esModuleInterop": true,
-    "allowJs": true
+    "strict": false
   },
-  "exclude": ["**/*.test.ts"]
+  "include": ["src"]
 }

@@ -19,5 +19,6 @@ __pycache__
 
 !package.json
 !package-lock.json
-!tsconfig.json
+!.eslintrc.json
+!tsconfig*.json
 !renovate.json
