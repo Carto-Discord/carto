@@ -2,7 +2,7 @@ import {
   ApplicationCommandInteractionDataOption,
   Interaction,
 } from "slash-commands";
-import { Request, Response } from "express";
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { createMap, CreateProps } from "./create.js";
 import { getMap } from "./get.js";
 import {
@@ -131,21 +131,32 @@ const handleTokenCommands = ({
   }
 };
 
-export const slashFunction = async (req: Request, res: Response) => {
-  if (req.method !== "POST") {
-    return res.status(405).end();
+export const slashFunction = async (
+  event: APIGatewayProxyEvent
+): Promise<APIGatewayProxyResult> => {
+  if (event.httpMethod !== "POST") {
+    return {
+      statusCode: 405,
+      body: "",
+    };
   }
 
-  const isVerified = validateRequest(req);
+  const isVerified = validateRequest(event);
 
   if (!isVerified) {
-    return res.status(401).end("invalid request signature");
+    return {
+      statusCode: 401,
+      body: "invalid request signature",
+    };
   }
 
-  const body: Interaction = req.body;
+  const body: Interaction = JSON.parse(event.body);
 
   if (body.type === InteractionType.PING) {
-    return res.status(200).json({ type: InteractionResponseType.PONG }).end();
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ type: InteractionResponseType.PONG }),
+    };
   }
 
   const commandGroup = body.data;
@@ -179,11 +190,11 @@ export const slashFunction = async (req: Request, res: Response) => {
         break;
     }
 
-    res
-      .status(200)
-      .json({
+    return {
+      statusCode: 200,
+      body: JSON.stringify({
         type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
-      })
-      .end();
+      }),
+    };
   }
 };

@@ -1,11 +1,11 @@
-import { Request, Response } from "express";
+import { APIGatewayProxyEvent } from "aws-lambda";
+import { InteractionResponseType, InteractionType } from "slash-commands";
 import { createMap } from "./create";
 import { getMap } from "./get";
 import { addToken, deleteToken, moveToken } from "./token";
 import { deleteChannel } from "./delete";
 import { validateRequest } from "./validation";
 import { slashFunction } from ".";
-import { InteractionResponseType, InteractionType } from "slash-commands";
 
 jest.mock("./create");
 jest.mock("./get");
@@ -21,135 +21,129 @@ const mockDeleteChannel = deleteChannel as jest.MockedFunction<
 const mockAddToken = addToken as jest.MockedFunction<typeof addToken>;
 const mockDeleteToken = deleteToken as jest.MockedFunction<typeof deleteToken>;
 const mockMoveToken = moveToken as jest.MockedFunction<typeof moveToken>;
-const mockValidateRequest = validateRequest as jest.MockedFunction<
+const mockValidateAPIGatewayProxyEvent = validateRequest as jest.MockedFunction<
   typeof validateRequest
 >;
 
 jest.spyOn(console, "log").mockImplementation(jest.fn());
 
 describe("Slash Function", () => {
-  const mockEnd = jest.fn();
-  const mockJson = jest.fn().mockReturnValue({ end: mockEnd });
-  const mockResponse = {
-    status: jest.fn().mockReturnValue({ end: mockEnd, json: mockJson }),
-  } as unknown as Response;
-
   beforeEach(() => {
     jest.clearAllMocks();
 
     process.env.BOT_TOKEN = "bot token";
   });
 
-  describe("given the request cannot be validated", () => {
+  describe("given the APIGatewayProxyEvent cannot be validated", () => {
     beforeEach(() => {
-      mockValidateRequest.mockReturnValue(false);
+      mockValidateAPIGatewayProxyEvent.mockReturnValue(false);
     });
 
     it("should return a 401 response", async () => {
-      await slashFunction({ method: "POST" } as Request, mockResponse);
+      const response = await slashFunction({
+        httpMethod: "POST",
+      } as APIGatewayProxyEvent);
 
-      expect(mockResponse.status).toBeCalledWith(401);
-      expect(mockEnd).toBeCalledWith("invalid request signature");
-      expect(mockResponse.status).not.toBeCalledWith(200);
+      expect(response.statusCode).toBe(401);
+      expect(response.body).toBe("invalid request signature");
     });
   });
 
-  describe("given the request is valid", () => {
+  describe("given the APIGatewayProxyEvent is valid", () => {
     beforeEach(() => {
-      mockValidateRequest.mockReturnValue(true);
+      mockValidateAPIGatewayProxyEvent.mockReturnValue(true);
     });
 
-    describe("given a method type other than POST is sent", () => {
+    describe("given a httpMethod type other than POST is sent", () => {
       it("should return a 405 response", async () => {
-        await slashFunction(
-          { body: { type: InteractionType.PING }, method: "GET" } as Request,
-          mockResponse
-        );
+        const response = await slashFunction({
+          body: JSON.stringify({ type: InteractionType.PING }),
+          httpMethod: "GET",
+        } as APIGatewayProxyEvent);
 
-        expect(mockResponse.status).toBeCalledWith(405);
-        expect(mockResponse.status).not.toBeCalledWith(200);
+        expect(response.statusCode).toBe(405);
       });
     });
 
     describe("given a body type of PING is sent", () => {
       it("should return a 200 response with a type of PONG", async () => {
-        await slashFunction(
-          { body: { type: InteractionType.PING }, method: "POST" } as Request,
-          mockResponse
-        );
+        const response = await slashFunction({
+          body: JSON.stringify({ type: InteractionType.PING }),
+          httpMethod: "POST",
+        } as APIGatewayProxyEvent);
 
-        expect(mockResponse.status).toBeCalledWith(200);
-        expect(mockJson).toBeCalledWith({ type: InteractionResponseType.PONG });
-        expect(mockJson).not.toBeCalledWith({
-          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-        });
+        expect(response.statusCode).toBe(200);
+        expect(response.body).toBe(
+          JSON.stringify({ type: InteractionResponseType.PONG })
+        );
       });
     });
 
     describe("given an unknown command is recieved", () => {
       it("should end without doing anything", async () => {
-        await slashFunction(
-          {
-            body: {
-              type: InteractionType.APPLICATION_COMMAND,
-              id: "1234",
-              token: "mockToken",
-              channel_id: "mockChannel",
-              data: {
-                name: "unknown",
-                options: [],
-              },
+        const response = await slashFunction({
+          body: JSON.stringify({
+            type: InteractionType.APPLICATION_COMMAND,
+            id: "1234",
+            token: "mockToken",
+            channel_id: "mockChannel",
+            data: {
+              name: "unknown",
+              options: [],
             },
-            method: "POST",
-          } as Request,
-          mockResponse
-        );
+          }),
+          httpMethod: "POST",
+        } as APIGatewayProxyEvent);
 
         expect(mockAddToken).not.toBeCalled();
         expect(mockDeleteToken).not.toBeCalled();
         expect(mockMoveToken).not.toBeCalled();
         expect(mockCreateMap).not.toBeCalled();
         expect(mockGetMap).not.toBeCalled();
+
+        expect(response.statusCode).toBe(200);
+        expect(response.body).toBe(
+          JSON.stringify({
+            type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+          })
+        );
       });
     });
 
     describe("given a map command is received", () => {
       describe("given a create subcommand is received", () => {
         it("should send a message back to the channel", async () => {
-          await slashFunction(
-            {
-              body: {
-                type: InteractionType.APPLICATION_COMMAND,
-                application_id: "1234",
-                token: "mockToken",
-                channel_id: "mockChannel",
-                data: {
-                  name: "map",
-                  options: [
-                    {
-                      name: "create",
-                      options: [
-                        {
-                          name: "url",
-                          value: "some.url",
-                        },
-                        {
-                          name: "rows",
-                          value: 3,
-                        },
-                        {
-                          name: "columns",
-                          value: 5,
-                        },
-                      ],
-                    },
-                  ],
-                },
+          const response = await slashFunction({
+            body: JSON.stringify({
+              type: InteractionType.APPLICATION_COMMAND,
+              application_id: "1234",
+              token: "mockToken",
+              channel_id: "mockChannel",
+              data: {
+                name: "map",
+                options: [
+                  {
+                    name: "create",
+                    options: [
+                      {
+                        name: "url",
+                        value: "some.url",
+                      },
+                      {
+                        name: "rows",
+                        value: 3,
+                      },
+                      {
+                        name: "columns",
+                        value: 5,
+                      },
+                    ],
+                  },
+                ],
               },
-              method: "POST",
-            } as Request,
-            mockResponse
-          );
+            }),
+            httpMethod: "POST",
+          } as APIGatewayProxyEvent);
 
           expect(mockCreateMap).toBeCalledWith({
             applicationId: "1234",
@@ -159,35 +153,34 @@ describe("Slash Function", () => {
             url: "some.url",
             token: "mockToken",
           });
-          expect(mockJson).toBeCalledWith({
-            type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
-          });
+          expect(response.body).toBe(
+            JSON.stringify({
+              type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+            })
+          );
         });
       });
 
       describe("given a get subcommand is received", () => {
         it("should call getMap", async () => {
-          await slashFunction(
-            {
-              body: {
-                type: InteractionType.APPLICATION_COMMAND,
-                application_id: "1234",
-                token: "mockToken",
-                channel_id: "mockChannel",
-                data: {
-                  name: "map",
-                  options: [
-                    {
-                      name: "get",
-                      options: [],
-                    },
-                  ],
-                },
+          await slashFunction({
+            body: JSON.stringify({
+              type: InteractionType.APPLICATION_COMMAND,
+              application_id: "1234",
+              token: "mockToken",
+              channel_id: "mockChannel",
+              data: {
+                name: "map",
+                options: [
+                  {
+                    name: "get",
+                    options: [],
+                  },
+                ],
               },
-              method: "POST",
-            } as Request,
-            mockResponse
-          );
+            }),
+            httpMethod: "POST",
+          } as APIGatewayProxyEvent);
 
           expect(mockGetMap).toBeCalledWith({
             channelId: "mockChannel",
@@ -199,27 +192,24 @@ describe("Slash Function", () => {
 
       describe("given a delete subcommand is received", () => {
         it("should call deleteChannel", async () => {
-          await slashFunction(
-            {
-              body: {
-                type: InteractionType.APPLICATION_COMMAND,
-                application_id: "1234",
-                token: "mockToken",
-                channel_id: "mockChannel",
-                data: {
-                  name: "map",
-                  options: [
-                    {
-                      name: "delete",
-                      options: [],
-                    },
-                  ],
-                },
+          await slashFunction({
+            body: JSON.stringify({
+              type: InteractionType.APPLICATION_COMMAND,
+              application_id: "1234",
+              token: "mockToken",
+              channel_id: "mockChannel",
+              data: {
+                name: "map",
+                options: [
+                  {
+                    name: "delete",
+                    options: [],
+                  },
+                ],
               },
-              method: "POST",
-            } as Request,
-            mockResponse
-          );
+            }),
+            httpMethod: "POST",
+          } as APIGatewayProxyEvent);
 
           expect(mockDeleteChannel).toBeCalledWith({
             channelId: "mockChannel",
@@ -231,27 +221,24 @@ describe("Slash Function", () => {
 
       describe("given an unknown subcommand is received", () => {
         it("should do nothing", async () => {
-          await slashFunction(
-            {
-              body: {
-                type: InteractionType.APPLICATION_COMMAND,
-                application_id: "1234",
-                token: "mockToken",
-                channel_id: "mockChannel",
-                data: {
-                  name: "map",
-                  options: [
-                    {
-                      name: "unknown",
-                      options: [],
-                    },
-                  ],
-                },
+          await slashFunction({
+            body: JSON.stringify({
+              type: InteractionType.APPLICATION_COMMAND,
+              application_id: "1234",
+              token: "mockToken",
+              channel_id: "mockChannel",
+              data: {
+                name: "map",
+                options: [
+                  {
+                    name: "unknown",
+                    options: [],
+                  },
+                ],
               },
-              method: "POST",
-            } as Request,
-            mockResponse
-          );
+            }),
+            httpMethod: "POST",
+          } as APIGatewayProxyEvent);
 
           expect(mockAddToken).not.toBeCalled();
           expect(mockDeleteToken).not.toBeCalled();
@@ -265,44 +252,41 @@ describe("Slash Function", () => {
     describe("given a token command is received", () => {
       describe("given an add subcommand is received", () => {
         it("should send a message back to the channel", async () => {
-          await slashFunction(
-            {
-              body: {
-                type: InteractionType.APPLICATION_COMMAND,
-                data: {
-                  name: "token",
-                  options: [
-                    {
-                      name: "add",
-                      options: [
-                        {
-                          name: "name",
-                          value: "token name",
-                        },
-                        {
-                          name: "row",
-                          value: 3,
-                        },
-                        {
-                          name: "column",
-                          value: "AA",
-                        },
-                        {
-                          name: "colour",
-                          value: "red",
-                        },
-                      ],
-                    },
-                  ],
-                },
-                application_id: "1234",
-                token: "mockToken",
-                channel_id: "mockChannel",
+          const response = await slashFunction({
+            body: JSON.stringify({
+              type: InteractionType.APPLICATION_COMMAND,
+              data: {
+                name: "token",
+                options: [
+                  {
+                    name: "add",
+                    options: [
+                      {
+                        name: "name",
+                        value: "token name",
+                      },
+                      {
+                        name: "row",
+                        value: 3,
+                      },
+                      {
+                        name: "column",
+                        value: "AA",
+                      },
+                      {
+                        name: "colour",
+                        value: "red",
+                      },
+                    ],
+                  },
+                ],
               },
-              method: "POST",
-            } as Request,
-            mockResponse
-          );
+              application_id: "1234",
+              token: "mockToken",
+              channel_id: "mockChannel",
+            }),
+            httpMethod: "POST",
+          } as APIGatewayProxyEvent);
 
           expect(mockAddToken).toBeCalledWith({
             applicationId: "1234",
@@ -313,48 +297,47 @@ describe("Slash Function", () => {
             row: 3,
             token: "mockToken",
           });
-          expect(mockJson).toBeCalledWith({
-            type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
-          });
+          expect(response.body).toBe(
+            JSON.stringify({
+              type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+            })
+          );
         });
       });
 
       describe("given an move subcommand is received", () => {
         it("should send a message back to the channel", async () => {
-          await slashFunction(
-            {
-              body: {
-                type: InteractionType.APPLICATION_COMMAND,
-                data: {
-                  name: "token",
-                  options: [
-                    {
-                      name: "move",
-                      options: [
-                        {
-                          name: "name",
-                          value: "token name",
-                        },
-                        {
-                          name: "row",
-                          value: 3,
-                        },
-                        {
-                          name: "column",
-                          value: "AA",
-                        },
-                      ],
-                    },
-                  ],
-                },
-                application_id: "1234",
-                token: "mockToken",
-                channel_id: "mockChannel",
+          const response = await slashFunction({
+            body: JSON.stringify({
+              type: InteractionType.APPLICATION_COMMAND,
+              data: {
+                name: "token",
+                options: [
+                  {
+                    name: "move",
+                    options: [
+                      {
+                        name: "name",
+                        value: "token name",
+                      },
+                      {
+                        name: "row",
+                        value: 3,
+                      },
+                      {
+                        name: "column",
+                        value: "AA",
+                      },
+                    ],
+                  },
+                ],
               },
-              method: "POST",
-            } as Request,
-            mockResponse
-          );
+              application_id: "1234",
+              token: "mockToken",
+              channel_id: "mockChannel",
+            }),
+            httpMethod: "POST",
+          } as APIGatewayProxyEvent);
 
           expect(mockMoveToken).toBeCalledWith({
             applicationId: "1234",
@@ -364,40 +347,39 @@ describe("Slash Function", () => {
             row: 3,
             token: "mockToken",
           });
-          expect(mockJson).toBeCalledWith({
-            type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
-          });
+          expect(response.body).toBe(
+            JSON.stringify({
+              type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+            })
+          );
         });
       });
 
       describe("given an delete subcommand is received", () => {
         it("should send a message back to the channel", async () => {
-          await slashFunction(
-            {
-              body: {
-                type: InteractionType.APPLICATION_COMMAND,
-                application_id: "1234",
-                token: "mockToken",
-                channel_id: "mockChannel",
-                data: {
-                  name: "token",
-                  options: [
-                    {
-                      name: "delete",
-                      options: [
-                        {
-                          name: "name",
-                          value: "token name",
-                        },
-                      ],
-                    },
-                  ],
-                },
+          const response = await slashFunction({
+            body: JSON.stringify({
+              type: InteractionType.APPLICATION_COMMAND,
+              application_id: "1234",
+              token: "mockToken",
+              channel_id: "mockChannel",
+              data: {
+                name: "token",
+                options: [
+                  {
+                    name: "delete",
+                    options: [
+                      {
+                        name: "name",
+                        value: "token name",
+                      },
+                    ],
+                  },
+                ],
               },
-              method: "POST",
-            } as Request,
-            mockResponse
-          );
+            }),
+            httpMethod: "POST",
+          } as APIGatewayProxyEvent);
 
           expect(mockDeleteToken).toBeCalledWith({
             applicationId: "1234",
@@ -405,35 +387,34 @@ describe("Slash Function", () => {
             name: "token name",
             token: "mockToken",
           });
-          expect(mockJson).toBeCalledWith({
-            type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
-          });
+          expect(response.body).toBe(
+            JSON.stringify({
+              type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+            })
+          );
         });
       });
 
       describe("given an unknown subcommand is received", () => {
         it("should do nothing", async () => {
-          await slashFunction(
-            {
-              body: {
-                type: InteractionType.APPLICATION_COMMAND,
-                id: "1234",
-                token: "mockToken",
-                channel_id: "mockChannel",
-                data: {
-                  name: "token",
-                  options: [
-                    {
-                      name: "unknown",
-                      options: [],
-                    },
-                  ],
-                },
+          await slashFunction({
+            body: JSON.stringify({
+              type: InteractionType.APPLICATION_COMMAND,
+              id: "1234",
+              token: "mockToken",
+              channel_id: "mockChannel",
+              data: {
+                name: "token",
+                options: [
+                  {
+                    name: "unknown",
+                    options: [],
+                  },
+                ],
               },
-              method: "POST",
-            } as Request,
-            mockResponse
-          );
+            }),
+            httpMethod: "POST",
+          } as APIGatewayProxyEvent);
 
           expect(mockAddToken).not.toBeCalled();
           expect(mockDeleteToken).not.toBeCalled();

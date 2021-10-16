@@ -1,4 +1,4 @@
-import { Request } from "express";
+import { APIGatewayProxyEvent } from "aws-lambda";
 import nacl from "tweetnacl";
 import { validateRequest } from "./validation";
 
@@ -16,30 +16,22 @@ describe("Validation", () => {
   });
 
   it("should verify the request", () => {
-    const mockRequest = {
-      get: (header: string) => {
-        if (header === "X-Signature-Ed25519") {
-          return "signature";
-        } else if (header === "X-Signature-Timestamp") {
-          return "timestamp";
-        } else {
-          return "";
-        }
-      },
-      body: {
-        data: true,
-      },
-    } as Request;
+    const body = JSON.stringify({
+      data: true,
+    });
 
-    const result = validateRequest(mockRequest);
+    const mockEvent = {
+      headers: {
+        "X-Signature-Ed25519": "signature",
+        "X-Signature-Timestamp": "timestamp",
+      },
+      body,
+    } as unknown as APIGatewayProxyEvent;
+
+    const result = validateRequest(mockEvent);
 
     expect(mockVerify).toBeCalledWith(
-      Buffer.from(
-        "timestamp" +
-          JSON.stringify({
-            data: true,
-          })
-      ),
+      Buffer.from("timestamp" + body),
       Buffer.from("signature", "hex"),
       Buffer.from("public key", "hex")
     );

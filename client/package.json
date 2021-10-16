@@ -10,11 +10,9 @@
     "build:package": "copyfiles --exclude build/src/registerCommands* build/**/* package.json package-lock.json package",
     "lint": "eslint ./src/**/*",
     "register": "node ./build/src/registerCommands.js",
-    "start": "functions-framework --source=build/src/ --target=slashFunction",
     "test": "jest --watch",
     "test:ci": "jest",
-    "test:coverage": "jest --collectCoverage",
-    "watch": "concurrently \"tsc -w\" \"nodemon --watch ./build/ --exec npm run start\""
+    "test:coverage": "jest --collectCoverage"
   },
   "author": "Tohaker",
   "license": "ISC",
@@ -24,6 +22,7 @@
   },
   "devDependencies": {
     "@google-cloud/functions-framework": "2.1.0",
+    "@types/aws-lambda": "8.10.84",
     "@types/express": "4.17.13",
     "@types/jest": "27.4.0",
     "@types/node": "16.11.19",
