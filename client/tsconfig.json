@@ -2,7 +2,7 @@
   "compilerOptions": {
     "allowJs": true,
     "esModuleInterop": true,
-    "module": "es2020",
+    "module": "commonjs",
     "moduleResolution": "node",
     "outDir": "build",
     "rootDir": ".",

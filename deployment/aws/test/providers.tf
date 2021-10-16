@@ -11,6 +11,7 @@ provider "aws" {
     apigateway     = "http://localhost:4566"
     cloudformation = "http://localhost:4566"
     cloudwatch     = "http://localhost:4566"
+    cloudwatchlogs = "http://localhost:4566"
     dynamodb       = "http://localhost:4566"
     es             = "http://localhost:4566"
     firehose       = "http://localhost:4566"
