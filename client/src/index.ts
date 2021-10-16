@@ -47,12 +47,13 @@ const handleMapCommands = async ({
   command,
   token,
 }: CommandProps) => {
+  const { url, rows, columns } = extractParameters<CreateProps>(command);
+
   // We can be confident that each subcommand will have the correct parameters,
   // as this is type checked by Discord before reaching here.
   switch (command.name) {
     case SubCommand.MAP_CREATE:
       console.log("Received creation request");
-      const { url, rows, columns } = extractParameters<CreateProps>(command);
 
       createMap({
         applicationId,

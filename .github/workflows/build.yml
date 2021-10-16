@@ -1,0 +1,52 @@
+name: Build
+
+on:
+  workflow_call:
+    inputs:
+      python-version:
+        default: "3.10"
+        required: false
+        type: string
+      node-version:
+        default: "14"
+        required: false
+        type: string
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ inputs.python-version }}
+
+      - name: Set up Node.JS
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ inputs.node-version }}
+
+      - name: Cache node_modules
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+
+      - name: Build client application
+        working-directory: client
+        run: |
+          npm ci
+          npm run build
+          npm run build:package
+
+      - name: Archive Client package
+        uses: actions/upload-artifact@v2
+        with:
+          name: carto-client
+          path: client/package

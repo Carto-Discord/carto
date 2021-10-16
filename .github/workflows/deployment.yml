@@ -1,0 +1,23 @@
+name: Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    uses: carto-discord/carto/.github/workflows/build.yml@build-test-workflows
+  lint:
+    needs: build
+    uses: carto-discord/carto/.github/workflows/lint.yml@build-test-workflows
+  test:
+    needs: build
+    uses: carto-discord/carto/.github/workflows/test.yml@build-test-workflows
+  deploy:
+    needs: [test, lint]
+    uses: carto-discord/carto/.github/workflows/deploy.yml@build-test-workflows
+    secrets:
+      service_account_key: ${{ secrets.GCP_SA_KEY }}
+      project_id: ${{ secrets.GCP_PROJECT_ID }}
+      discord_public_key: ${{ secrets.PUBLIC_KEY }}
