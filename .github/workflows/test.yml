@@ -55,9 +55,15 @@ jobs:
         working-directory: client
         run: npm ci
 
+      - name: Start Localstack
+        run: docker-compose -f localstack.yml up -d
+
       - name: Test with unittest
         run: python -m unittest
 
       - name: Test client with jest
         working-directory: client
         run: npm run test:coverage
+
+      - name: Stop Localstack
+        run: docker-compose down
