@@ -1,0 +1,13 @@
+name: pr-checks
+
+on: pull_request
+
+jobs:
+  build:
+    uses: carto-discord/carto/.github/workflows/build.yml@build-test-workflows
+  lint:
+    needs: build
+    uses: carto-discord/carto/.github/workflows/lint.yml@build-test-workflows
+  test:
+    needs: build
+    uses: carto-discord/carto/.github/workflows/test.yml@build-test-workflows
