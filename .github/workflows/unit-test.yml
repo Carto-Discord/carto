@@ -56,6 +56,8 @@ jobs:
 
       - name: Test with unittest
         run: python -m unittest
+        env:
+          AWS_DEFAULT_REGION: us-east-1
 
       - name: Test client with jest
         working-directory: client
