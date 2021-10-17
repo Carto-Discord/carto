@@ -31,8 +31,7 @@ jobs:
           export_default_credentials: true
 
       - name: Authenticate Docker
-        run: |
-          gcloud auth configure-docker
+        run: gcloud auth configure-docker
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
@@ -55,9 +54,7 @@ jobs:
       - name: Apply terraform
         run: |
           terraform apply \
-            -var="discord_public_key=$DISCORD_PUBLIC_KEY" \
+            -var="discord_public_key=${{ secrets.discord_public_key }}" \
             -var="container_repo=${{ env.DOCKER_REPO }}" \
             -var="container_tag=${{ env.DOCKER_TAG }}" \
             -auto-approve
-        env:
-          DISCORD_PUBLIC_KEY: ${{ secrets.discord_public_key }}

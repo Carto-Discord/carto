@@ -5,3 +5,7 @@ variable "app_name" {
 variable "discord_public_key" {
   description = "Discord App Public Key"
 }
+
+variable "api_trigger_url" {
+  description = "API trigger URL"
+}

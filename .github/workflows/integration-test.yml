@@ -1,4 +1,4 @@
-name: Test
+name: IntegrationTest
 
 on:
   workflow_call:
@@ -11,6 +11,9 @@ on:
         default: "14"
         required: false
         type: string
+    secrets:
+      discord_public_key:
+        required: true
 
 jobs:
   test:
@@ -29,6 +32,8 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: ${{ inputs.node-version }}
+
+      - uses: hashicorp/setup-terraform@v1
 
       - uses: actions/cache@v2
         with:
@@ -58,12 +63,23 @@ jobs:
       - name: Start Localstack
         run: docker-compose -f localstack.yml up -d
 
-      - name: Test with unittest
-        run: python -m unittest
+      - name: Build test environment
+        working-directory: deployment/aws/test
+        run: |
+          terraform init
+          terraform apply \
+            -var="discord_public_key=${{ secrets.discord_public_key }}" \
+            -var="api_trigger_url=http://localhost:8080" \
+            -auto-approve
 
-      - name: Test client with jest
-        working-directory: client
-        run: npm run test:coverage
+      - name: Build Docker image
+        uses: docker/build-push-action@v2
+        with:
+          push: false
+          tags: carto/api:latest
+
+      - name: Run API Container
+        run: docker run -d -p 8080:8080 carto/api:latest
 
       - name: Stop Localstack
-        run: docker-compose down
+        run: docker-compose -f localstack.yml down

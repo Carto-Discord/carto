@@ -11,11 +11,14 @@ jobs:
   lint:
     needs: build
     uses: carto-discord/carto/.github/workflows/lint.yml@main
-  test:
+  unit:
     needs: build
-    uses: carto-discord/carto/.github/workflows/test.yml@main
+    uses: carto-discord/carto/.github/workflows/unit-test.yml@localstack-integration
+  integration:
+    needs: build
+    uses: carto-discord/carto/.github/workflows/integration-test.yml@localstack-integration
   deploy:
-    needs: [test, lint]
+    needs: [unit, integration, lint]
     uses: carto-discord/carto/.github/workflows/deploy.yml@main
     secrets:
       service_account_key: ${{ secrets.GCP_SA_KEY }}

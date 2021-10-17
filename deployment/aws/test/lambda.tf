@@ -38,6 +38,7 @@ resource "aws_lambda_function" "client_lambda" {
   environment {
     variables = {
       PUBLIC_KEY = var.discord_public_key
+      API_TRIGGER_URL = var.api_trigger_url
     }
   }
 
