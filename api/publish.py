@@ -1,7 +1,7 @@
 import os
 
 from discord import Embed
-from flask import current_app
+from flask import current_app, jsonify
 import requests
 
 
@@ -10,7 +10,7 @@ def publish(token: str, application_id: str, embed: Embed):
     is_test = os.getenv('DRY_RUN') == 'true'
 
     # Dry runs should not call the Discord API
-    if is_test: return '', 204
+    if is_test: return jsonify(token=token, application_id=application_id, embed=embed), 200
 
     requests.patch(f'https://discord.com/api/v9/webhooks/{application_id}/{token}/messages/@original',
                    headers={'Content-Type': 'application/json'},
