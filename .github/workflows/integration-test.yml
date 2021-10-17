@@ -80,11 +80,7 @@ jobs:
           tags: carto/api:latest
 
       - name: Run API Container
-        run: |
-          docker run -d -p 8080:8080 \ 
-            -e DRY_RUN='true' \ 
-            -e AWS_ENDPOINT='http://localhost:4566' \
-            carto/api:latest
+        run: docker run -d -p 8080:8080 -e DRY_RUN='true' -e AWS_ENDPOINT='http://localhost:4566' carto/api:latest
 
       - name: Stop Localstack
         run: docker-compose -f localstack.yml down
