@@ -1,8 +1,10 @@
+import boto3
 from flask import current_app
-from google.cloud import firestore
 
-channels_collection = 'channels'
-maps_collection = 'maps'
+channels_table = 'channels'
+maps_table = 'maps'
+
+dynamodb = boto3.resource('dynamodb')
 
 
 def update_channel_map(channel_id, new_uuid, is_base=False):
@@ -13,25 +15,38 @@ def update_channel_map(channel_id, new_uuid, is_base=False):
     :param new_uuid: The Map UUID that will replace the current UUID
     :return: The document Write Result
     """
-    db = firestore.Client()
-    channel_doc_ref = db.collection(channels_collection).document(channel_id)
-    channel_doc = channel_doc_ref.get()
+    table = dynamodb.Table(channels_table)
+    channel = table.get_item(
+        Key={
+            'id': channel_id
+        }
+    )
 
     history = []
-    if channel_doc.exists:
-        previous = channel_doc.to_dict()['current']
-        history = channel_doc.to_dict()['history']
+    if 'Item' in channel:
+        previous = channel['Item']['currentMap']
+        history = channel['Item']['history']
         history.insert(0, previous)
 
-    new_dict = {
-        'current': new_uuid,
-        'history': history
-    }
+    table.update_item(
+        Key={
+            'id': channel_id
+        },
+        UpdateExpression='SET currentMap = :current, history = :history',
+        ExpressionAttributeValues={
+            ':current': new_uuid,
+            ':history': history
+        })
 
     if is_base:
-        new_dict['base'] = new_uuid
-
-    return channel_doc_ref.set(new_dict, merge=True)
+        table.update_item(
+            Key={
+                'id': channel_id
+            },
+            UpdateExpression='SET baseMap = :base',
+            ExpressionAttributeValues={
+                ':base': new_uuid,
+            })
 
 
 def get_current_channel_map(channel_id):
@@ -41,12 +56,15 @@ def get_current_channel_map(channel_id):
     :return: The map UUID, or None if it doesn't exist
     """
     try:
-        db = firestore.Client()
-        channel_doc_ref = db.collection(channels_collection).document(channel_id)
-        channel_doc = channel_doc_ref.get()
+        table = dynamodb.Table(channels_table)
+        channel = table.get_item(
+            Key={
+                'id': channel_id
+            }
+        )
 
-        if channel_doc.exists:
-            return channel_doc.to_dict()
+        if 'Item' in channel:
+            return channel['Item']
         else:
             return None
     except Exception as e:
@@ -59,12 +77,12 @@ def delete_channel_document(channel_id):
     :param channel_id: The channel's document to delete
     :return:
     """
-    db = firestore.Client()
-    channel_doc_ref = db.collection(channels_collection).document(channel_id)
-    channel_doc = channel_doc_ref.get()
-
-    if channel_doc.exists:
-        channel_doc_ref.delete()
+    table = dynamodb.Table(channels_table)
+    table.delete_item(
+        Key={
+            'id': channel_id
+        }
+    )
 
 
 def create_map_info(uuid: str, data: dict):
@@ -74,11 +92,13 @@ def create_map_info(uuid: str, data: dict):
     :param data: Dictionary to enter as the map information
     :return: The document Write Result
     """
-    db = firestore.Client()
-    map_doc_ref = db.collection(maps_collection).document(uuid)
-
-    # If this UUID collides with another (unlikely, near impossible), we just overwrite it.
-    return map_doc_ref.set(data)
+    table = dynamodb.Table(maps_table)
+    table.put_item(
+        Item={
+            'id': uuid,
+            **data
+        }
+    )
 
 
 def get_map_info(uuid):
@@ -88,11 +108,14 @@ def get_map_info(uuid):
     :return: The contents of the document as a dict, or an empty dict if the map doesn't exist.
     """
 
-    db = firestore.Client()
-    map_doc_ref = db.collection(maps_collection).document(uuid)
-    map_doc = map_doc_ref.get()
+    table = dynamodb.Table(maps_table)
+    map = table.get_item(
+        Key={
+            'id': uuid
+        }
+    )
 
-    if map_doc.exists:
-        return map_doc.to_dict()
+    if 'Item' in map:
+        return map['Item']
     else:
         return {}

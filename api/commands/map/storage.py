@@ -4,10 +4,8 @@ import boto3
 from botocore.exceptions import ClientError
 from flask import current_app
 
-from google.cloud import storage
-from google.cloud.exceptions import GoogleCloudError, NotFound
-
 client = boto3.client('s3')
+
 
 def upload_blob(bucket_name, source_file_name, destination_blob_name):
     """Uploads a file to the bucket."""
@@ -16,7 +14,8 @@ def upload_blob(bucket_name, source_file_name, destination_blob_name):
     # destination_blob_name = "storage-object-name"
 
     try:
-        client.upload_file(source_file_name, bucket_name, destination_blob_name)
+        client.upload_file(source_file_name, bucket_name,
+                           destination_blob_name)
 
         current_app.logger.info("File {} uploaded to {}.".format(
             source_file_name, destination_blob_name
@@ -26,7 +25,7 @@ def upload_blob(bucket_name, source_file_name, destination_blob_name):
             os.remove(source_file_name)
 
         return get_public_url(bucket_name, destination_blob_name)
-    except ClientError as e:
+    except Exception as e:
         current_app.logger.warn("File {} could not be uploaded to {}. Reason: {}".format(
             source_file_name, destination_blob_name, e
         ))
@@ -40,7 +39,8 @@ def download_blob(bucket_name, source_blob_name, destination_file_name):
     # destination_file_name = "local/path/to/file"
 
     try:
-        client.download_file(bucket_name, source_blob_name, destination_file_name)
+        client.download_file(bucket_name, source_blob_name,
+                             destination_file_name)
 
         current_app.logger.info("Blob {} downloaded to {}.".format(
             source_blob_name, destination_file_name

@@ -2,5 +2,6 @@ boto3
 discord.py
 flask
 gunicorn
+moto[s3,dynamodb]
 Pillow
 requests

@@ -22,3 +22,5 @@ __pycache__
 !.eslintrc.json
 !tsconfig*.json
 !renovate.json
+
+!test_map.png
