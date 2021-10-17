@@ -16,6 +16,7 @@ class StorageTest(unittest.TestCase):
     bucket_name = 'maps'
 
     def setUp(self) -> None:
+        os.environ['AWS_REGION'] = 'us-east-1'
         self.s3 = boto3.resource('s3')
         bucket = self.s3.Bucket(self.bucket_name)
         bucket.create(CreateBucketConfiguration={
@@ -39,7 +40,7 @@ class StorageTest(unittest.TestCase):
                 self.bucket_name, new_file, 'test_map.png')
 
         self.assertEquals(
-            url, 'https://maps.s3.amazonaws.com/test_map.png')
+            url, 'https://s3.us-east-1.amazonaws.com/maps/test_map.png')
 
     def test_upload_blob_unsuccessful(self):
         from api.commands.map import storage

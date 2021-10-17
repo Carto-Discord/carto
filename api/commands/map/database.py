@@ -1,10 +1,9 @@
-import boto3
 from flask import current_app
+
+from api.commands.map.client import dynamodb
 
 channels_table = 'channels'
 maps_table = 'maps'
-
-dynamodb = boto3.resource('dynamodb')
 
 
 def update_channel_map(channel_id, new_uuid, is_base=False):
