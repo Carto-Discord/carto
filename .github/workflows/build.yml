@@ -44,6 +44,7 @@ jobs:
           npm ci
           npm run build
           npm run build:package
+          cp -r ./node_modules ./package/node_modules
 
       - name: Archive Client package
         uses: actions/upload-artifact@v2
