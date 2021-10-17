@@ -55,12 +55,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-build-${{ env.cache-name }}-
 
-      - name: Build Client
-        working-directory: client
-        run: |
-          npm ci
-          npm run build
-          npm run build:package
+      - name: Download Client Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: carto-client
+          path: client/package
 
       - name: Start Localstack
         run: docker-compose -f localstack.yml up -d
