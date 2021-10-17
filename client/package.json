@@ -6,7 +6,7 @@
     "prebuild": "rimraf build/",
     "postbuild": "copyfiles .env build/",
     "build": "tsc -p tsconfig.prod.json",
-    "build:package": "copyfiles --exclude build/src/registerCommands* build/**/* package.json package-lock.json package",
+    "build:package": "copyfiles --exclude build/src/registerCommands* build/**/* node_modules/**/* package",
     "lint": "eslint ./src/**/*",
     "register": "node ./build/src/registerCommands.js",
     "test": "jest --watch",
