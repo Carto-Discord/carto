@@ -24,3 +24,5 @@ __pycache__
 !renovate.json
 
 !test_map.png
+
+!cypress.json

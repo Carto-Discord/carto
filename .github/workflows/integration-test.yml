@@ -65,7 +65,7 @@ jobs:
         run: docker-compose -f localstack.yml up -d
 
       - name: Build test environment
-        working-directory: deployment/aws/test
+        working-directory: integration/deployment
         run: |
           terraform init
           terraform apply \
