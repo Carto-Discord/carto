@@ -3,8 +3,8 @@ import {
   Interaction,
 } from "slash-commands";
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
-import { createMap, CreateProps } from "./create.js";
-import { getMap } from "./get.js";
+import { createMap, CreateProps } from "./create";
+import { getMap } from "./get";
 import {
   AddProps,
   addToken,
@@ -12,16 +12,16 @@ import {
   deleteToken,
   MoveProps,
   moveToken,
-} from "./token.js";
-import { validateRequest } from "./validation.js";
-import { deleteChannel } from "./delete.js";
+} from "./token";
+import { validateRequest } from "./validation";
+import { deleteChannel } from "./delete";
 import {
   CommandGroup,
   SubCommand,
   CommandOptions,
   InteractionResponseType,
   InteractionType,
-} from "./types.js";
+} from "./types";
 
 type CommandProps = {
   applicationId: string;

@@ -16,6 +16,7 @@
   "author": "Tohaker",
   "license": "ISC",
   "dependencies": {
+    "axios": "^0.23.0",
     "node-fetch": "^3.0.0",
     "tweetnacl": "^1.0.3"
   },
@@ -44,12 +45,6 @@
     "typescript": "4.5.4"
   },
   "jest": {
-    "preset": "ts-jest/presets/js-with-ts-esm",
-    "moduleNameMapper": {
-      "(.*)\\.js$": "$1"
-    },
-    "transformIgnorePatterns": [
-      "node_modules/(?!(fetch-blob|node-fetch)/)"
-    ]
+    "preset": "ts-jest"
   }
 }

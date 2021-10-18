@@ -1,4 +1,4 @@
-import fetch from "node-fetch";
+import axios from "axios";
 import { DiscordProps } from "./types.js";
 
 export type AddProps = DiscordProps & {
@@ -32,20 +32,15 @@ export const addToken = async ({
   token,
 }: AddProps) => {
   const triggerUrl = `${process.env.API_TRIGGER_URL}/token/${channelId}`;
-
-  fetch(triggerUrl, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      applicationId,
-      colour,
-      column,
-      condition,
-      name,
-      row,
-      size,
-      token,
-    }),
+  axios.post(triggerUrl, {
+    applicationId,
+    colour,
+    column,
+    condition,
+    name,
+    row,
+    size,
+    token,
   });
 };
 
@@ -58,17 +53,12 @@ export const moveToken = async ({
   token,
 }: MoveProps) => {
   const triggerUrl = `${process.env.API_TRIGGER_URL}/token/${channelId}`;
-
-  fetch(triggerUrl, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      applicationId,
-      column,
-      name,
-      row,
-      token,
-    }),
+  axios.put(triggerUrl, {
+    applicationId,
+    column,
+    name,
+    row,
+    token,
   });
 };
 
@@ -79,14 +69,11 @@ export const deleteToken = async ({
   token,
 }: DeleteProps) => {
   const triggerUrl = `${process.env.API_TRIGGER_URL}/token/${channelId}`;
-
-  fetch(triggerUrl, {
-    method: "DELETE",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
+  axios.delete(triggerUrl, {
+    data: {
       applicationId,
       name,
       token,
-    }),
+    },
   });
 };

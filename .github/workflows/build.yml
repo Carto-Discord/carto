@@ -41,7 +41,7 @@ jobs:
       - name: Build client application
         working-directory: client
         run: |
-          npm ci
+          npm ci --only=prod
           npm run build
           npm run build:package
           cp -r ./node_modules ./package/node_modules

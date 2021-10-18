@@ -1,17 +1,17 @@
-import fetch from "node-fetch";
+import mockAxios from "jest-mock-axios";
 import { createMap } from "./create";
-
-jest.mock("node-fetch");
 
 describe("Create", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
-
     process.env.API_TRIGGER_URL = "https://trigger.url";
   });
 
+  afterEach(() => {
+    mockAxios.reset();
+  });
+
   describe("Create Map", () => {
-    it("should call fetch with the appropriate request", async () => {
+    it("should call axios with the appropriate request", async () => {
       await createMap({
         applicationId: "appId",
         token: "mockToken",
@@ -21,18 +21,12 @@ describe("Create", () => {
         channelId: "1234",
       });
 
-      expect(fetch).toBeCalledWith("https://trigger.url/map/1234", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          applicationId: "appId",
-          columns: 2,
-          rows: 1,
-          token: "mockToken",
-          url: "url",
-        }),
+      expect(mockAxios.post).toBeCalledWith("https://trigger.url/map/1234", {
+        applicationId: "appId",
+        columns: 2,
+        rows: 1,
+        token: "mockToken",
+        url: "url",
       });
     });
   });

@@ -1,4 +1,4 @@
-import fetch from "node-fetch";
+import axios from "axios";
 import { DiscordProps } from "./types.js";
 
 export type CreateProps = DiscordProps & {
@@ -16,15 +16,11 @@ export const createMap = async ({
   url,
 }: CreateProps) => {
   const triggerUrl = `${process.env.API_TRIGGER_URL}/map/${channelId}`;
-  fetch(triggerUrl, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      applicationId,
-      columns,
-      rows,
-      token,
-      url,
-    }),
+  axios.post(triggerUrl, {
+    applicationId,
+    columns,
+    rows,
+    token,
+    url,
   });
 };

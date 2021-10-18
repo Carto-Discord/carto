@@ -1,18 +1,18 @@
-import fetch from "node-fetch";
+import mockAxios from "jest-mock-axios";
 import { addToken, deleteToken, moveToken } from "./token";
-
-jest.mock("node-fetch");
 
 describe("Token", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
-
     process.env.API_TRIGGER_URL = "https://trigger.url";
+  });
+
+  afterEach(() => {
+    mockAxios.reset();
   });
 
   describe("Add Token", () => {
     describe("given size is not provided", () => {
-      it("should call fetch with the appropriate request", async () => {
+      it("should call axios with the appropriate request", async () => {
         await addToken({
           applicationId: "appId",
           channelId: "1234",
@@ -23,12 +23,9 @@ describe("Token", () => {
           token: "mockToken",
         });
 
-        expect(fetch).toBeCalledWith("https://trigger.url/token/1234", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
+        expect(mockAxios.post).toBeCalledWith(
+          "https://trigger.url/token/1234",
+          {
             applicationId: "appId",
             colour: "red",
             column: "A",
@@ -36,13 +33,13 @@ describe("Token", () => {
             row: 1,
             size: "MEDIUM",
             token: "mockToken",
-          }),
-        });
+          }
+        );
       });
     });
 
     describe("given size is provided", () => {
-      it("should call fetch with the appropriate request", async () => {
+      it("should call axios with the appropriate request", async () => {
         await addToken({
           applicationId: "appId",
           channelId: "1234",
@@ -53,26 +50,23 @@ describe("Token", () => {
           token: "mockToken",
         });
 
-        expect(fetch).toBeCalledWith("https://trigger.url/token/1234", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
+        expect(mockAxios.post).toBeCalledWith(
+          "https://trigger.url/token/1234",
+          {
             applicationId: "appId",
             column: "A",
             name: "token",
             row: 1,
             size: "TINY",
             token: "mockToken",
-          }),
-        });
+          }
+        );
       });
     });
   });
 
   describe("Move Token", () => {
-    it("should call fetch with the appropriate request", async () => {
+    it("should call axios with the appropriate request", async () => {
       await moveToken({
         applicationId: "appId",
         channelId: "1234",
@@ -82,24 +76,18 @@ describe("Token", () => {
         token: "mockToken",
       });
 
-      expect(fetch).toBeCalledWith("https://trigger.url/token/1234", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          applicationId: "appId",
-          column: "A",
-          name: "token",
-          row: 1,
-          token: "mockToken",
-        }),
+      expect(mockAxios.put).toBeCalledWith("https://trigger.url/token/1234", {
+        applicationId: "appId",
+        column: "A",
+        name: "token",
+        row: 1,
+        token: "mockToken",
       });
     });
   });
 
   describe("Delete Token", () => {
-    it("should call fetch with the appropriate request", async () => {
+    it("should call axios with the appropriate request", async () => {
       await deleteToken({
         applicationId: "appId",
         channelId: "1234",
@@ -107,17 +95,16 @@ describe("Token", () => {
         token: "mockToken",
       });
 
-      expect(fetch).toBeCalledWith("https://trigger.url/token/1234", {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          applicationId: "appId",
-          name: "token",
-          token: "mockToken",
-        }),
-      });
+      expect(mockAxios.delete).toBeCalledWith(
+        "https://trigger.url/token/1234",
+        {
+          data: {
+            applicationId: "appId",
+            name: "token",
+            token: "mockToken",
+          },
+        }
+      );
     });
   });
 });
