@@ -1,6 +1,7 @@
 .idea
 venv
 .terraform
+.vscode
 
 node_modules
 package
@@ -12,17 +13,6 @@ __pycache__
 *.png
 *.zip
 *.env
-*.json
 
 *.pub
 *.pem
-
-!package.json
-!package-lock.json
-!.eslintrc.json
-!tsconfig*.json
-!renovate.json
-
-!test_map.png
-
-!cypress.json

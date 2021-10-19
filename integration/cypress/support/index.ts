@@ -1,25 +1,23 @@
 /// <reference types="cypress" />
-// ***********************************************************
-// This example support/index.js is processed and
-// loaded automatically before your test files.
-//
-// This is a great place to put global configuration and
-// behavior that modifies Cypress.
-//
-// You can change the location of this file or turn off
-// automatically serving support files with the
-// 'supportFile' configuration option.
-//
-// You can read more here:
-// https://on.cypress.io/configuration
-// ***********************************************************
 
-import "./commands";
+import {
+  APIGatewayClient,
+  APIGatewayClientConfig,
+  GetRestApisCommand,
+} from "@aws-sdk/client-api-gateway";
 
-declare global {
-  namespace Cypress {
-    interface Chainable {
-      invokeClient(Payload: Uint8Array): Chainable<Promise<void>>;
-    }
-  }
-}
+const config: APIGatewayClientConfig = {
+  region: "us-east-1",
+  endpoint: "http://localhost:4566",
+  credentials: { accessKeyId: "test", secretAccessKey: "test" },
+};
+
+export const getLambdaInvokeUrl = async () => {
+  const client = new APIGatewayClient(config);
+  const command = new GetRestApisCommand({});
+
+  const response = await client.send(command);
+
+  const { id } = response.items[0];
+  return `http://${id}.execute-api.localhost.localstack.cloud:4566/prod/resource`;
+};
