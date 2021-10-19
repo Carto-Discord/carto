@@ -22,8 +22,8 @@ describe("Validation", () => {
 
     const mockEvent = {
       headers: {
-        "X-Signature-Ed25519": "signature",
-        "X-Signature-Timestamp": "timestamp",
+        "x-signature-ed25519": "signature",
+        "x-signature-timestamp": "timestamp",
       },
       body,
     } as unknown as APIGatewayProxyEvent;
