@@ -5,6 +5,7 @@ import {
   APIGatewayClientConfig,
   GetRestApisCommand,
 } from "@aws-sdk/client-api-gateway";
+import nacl from "tweetnacl";
 
 const config: APIGatewayClientConfig = {
   region: "us-east-1",
@@ -20,4 +21,12 @@ export const getLambdaInvokeUrl = async () => {
 
   const { id } = response.items[0];
   return `http://${id}.execute-api.localhost.localstack.cloud:4566/prod/resource`;
+};
+
+export const generateSignature = (body: string, timestamp: string) => {
+  const secretKey = Buffer.from(Cypress.env("PRIVATE_KEY"), "hex");
+  const messageBuffer = Buffer.from(timestamp + body);
+  return Buffer.from(
+    nacl.sign(messageBuffer, secretKey).slice(0, nacl.sign.signatureLength)
+  ).toString("hex");
 };
