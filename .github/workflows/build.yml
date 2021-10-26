@@ -41,9 +41,14 @@ jobs:
       - name: Build client application
         working-directory: client
         run: |
-          npm ci --only=prod
+          npm ci
           npm run build
           npm run build:package
+
+      - name: Package node_modules
+        working-directory: client
+        run: |
+          npm ci --only=prod
           cp -r ./node_modules ./package/node_modules
 
       - name: Archive Client package
