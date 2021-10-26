@@ -13,10 +13,10 @@ jobs:
     uses: carto-discord/carto/.github/workflows/lint.yml@main
   unit:
     needs: build
-    uses: carto-discord/carto/.github/workflows/unit-test.yml@localstack-integration
+    uses: carto-discord/carto/.github/workflows/unit-test.yml@main
   integration:
     needs: build
-    uses: carto-discord/carto/.github/workflows/integration-test.yml@localstack-integration
+    uses: carto-discord/carto/.github/workflows/integration-test.yml@main
   deploy:
     needs: [unit, integration, lint]
     uses: carto-discord/carto/.github/workflows/deploy.yml@main
