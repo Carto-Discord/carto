@@ -3,30 +3,20 @@ name: IntegrationTest
 on:
   workflow_call:
     inputs:
-      python-version:
-        default: "3.10"
-        required: false
-        type: string
       node-version:
         default: "14"
         required: false
         type: string
-    secrets:
-      discord_public_key:
-        required: true
 
 jobs:
   test:
     runs-on: ubuntu-latest
     env:
-      PYTHONPATH: api
+      # These aren't actually secret, they're just for testing purposes.
+      PUBLIC_KEY: a58293d7fa04d53ab90108be275a87fe890eece595962273a93e1f87d398df74
+      PRIVATE_KEY: 814d1a8737ba28a2ae72e39cac46468002525a64e4f002d7b52dd06efb9dc4b8a58293d7fa04d53ab90108be275a87fe890eece595962273a93e1f87d398df74
     steps:
       - uses: actions/checkout@v2
-
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ inputs.python-version }}
 
       - name: Set up Node.JS
         uses: actions/setup-node@v2
@@ -34,16 +24,6 @@ jobs:
           node-version: ${{ inputs.node-version }}
 
       - uses: hashicorp/setup-terraform@v1
-
-      - uses: actions/cache@v2
-        with:
-          path: ${{ env.pythonLocation }}
-          key: ${{ env.pythonLocation }}-${{ hashFiles('requirements.txt') }}-${{ hashFiles('dev-requirements.txt') }}
-
-      - name: Install python dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r api/requirements.txt
 
       - name: Cache node_modules
         uses: actions/cache@v2
@@ -69,7 +49,7 @@ jobs:
         run: |
           terraform init
           terraform apply \
-            -var="discord_public_key=${{ secrets.discord_public_key }}" \
+            -var="discord_public_key=${{ env.PUBLIC_KEY }}" \
             -var="api_trigger_url=http://localhost:8080" \
             -auto-approve
 
@@ -81,6 +61,13 @@ jobs:
 
       - name: Run API Container
         run: docker run -d -p 8080:8080 -e DRY_RUN='true' -e AWS_ENDPOINT='http://localhost:4566' -e PORT='8080' carto/api:latest
+
+      - name: Run tests
+        uses: cypress-io/github-action@v2
+        with:
+          working-directory: integration
+        env:
+          CYPRESS_PRIVATE_KEY: ${{ env.PRIVATE_KEY }}
 
       - name: Stop Localstack
         run: docker-compose -f localstack.yml down

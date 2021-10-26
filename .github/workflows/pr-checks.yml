@@ -14,5 +14,3 @@ jobs:
   integration:
     needs: build
     uses: carto-discord/carto/.github/workflows/integration-test.yml@localstack-integration
-    secrets:
-      discord_public_key: ${{ secrets.PUBLIC_KEY }}
