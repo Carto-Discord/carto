@@ -10,7 +10,7 @@ coverage
 
 __pycache__
 
-*.png
+api/**/*.png
 *.zip
 *.env
 

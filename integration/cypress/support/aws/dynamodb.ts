@@ -9,7 +9,7 @@ import {
 import { AWSConfig } from "./common";
 import { CartoMap, CartoBaseMap, DiscordChannel } from "./types";
 
-enum Table {
+export enum Table {
   MAPS = "maps",
   CHANNELS = "channels",
 }
