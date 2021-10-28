@@ -11,22 +11,15 @@ resource "aws_dynamodb_table" "map-table" {
   }
 }
 
-resource "aws_dynamodb_table_item" "map-1" {
-  table_name = aws_dynamodb_table.map-table.name
-  hash_key   = aws_dynamodb_table.map-table.hash_key
+resource "aws_dynamodb_table" "channel-table" {
+  name           = "channels"
+  billing_mode   = "PROVISIONED"
+  read_capacity  = 20
+  write_capacity = 20
+  hash_key       = "id"
 
-  item = <<ITEM
-{
-  "id": {"S": "123"},
-  "tokens": {
-      "L": [
-          {
-              "M": {
-                "colour": {"S": "blue"}
-              }
-            }
-        ]
-    }
-}
-ITEM
+  attribute {
+    name = "id"
+    type = "S"
+  }
 }
