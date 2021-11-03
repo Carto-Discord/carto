@@ -1,5 +1,4 @@
 import { v4 as uuid } from "uuid";
-import { resolve } from "path";
 
 import {
   getLambdaInvokeUrl,
@@ -78,14 +77,11 @@ describe("Get Map", () => {
         contents: mapContents,
       });
 
-      await Promise.all(
-        [baseMapId, currentMapId, previousMapId].map((id, index) =>
-          uploadToS3(
-            resolve(__dirname, `../fixtures/test-map-${index + 1}.png`),
-            id
-          )
-        )
-      );
+      let index = 1;
+
+      for (const id of [baseMapId, currentMapId, previousMapId]) {
+        await uploadToS3(`cypress/fixtures/test-map-${index++}.png`, id);
+      }
     });
 
     it("should retrieve map data", () => {
@@ -114,6 +110,14 @@ describe("Get Map", () => {
         "x-signature-timestamp": timestamp,
       };
 
+      cy.intercept({
+        url: `https://discord.com/api/v9/webhooks/${body.application_id}/${body.token}/messages/@original`,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        method: "PATCH",
+      }).as("webhook");
+
       // Send the request and wait for the deferred response
       cy.request({
         method: "POST",
@@ -125,7 +129,12 @@ describe("Get Map", () => {
         .its("type")
         .should("eq", 5);
 
-      // Wait for a response from the API... somehow
+      // Wait for a response from the API
+      cy.wait("@webhook", { timeout: 30000 })
+        .its("request.body")
+        .should("eq", {
+          embeds: [{ name: "Alvyn", value: "C7", inline: true }],
+        });
     });
   });
 });

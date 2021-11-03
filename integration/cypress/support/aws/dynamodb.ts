@@ -1,10 +1,10 @@
+import { DynamoDBClient, WriteRequest } from "@aws-sdk/client-dynamodb";
 import {
-  DynamoDBClient,
-  PutItemCommand,
+  DynamoDBDocumentClient,
   ScanCommand,
-  BatchWriteItemCommand,
-  WriteRequest,
-} from "@aws-sdk/client-dynamodb";
+  PutCommand,
+  BatchWriteCommand,
+} from "@aws-sdk/lib-dynamodb";
 
 import { AWSConfig } from "./common";
 import { CartoMap, CartoBaseMap, DiscordChannel } from "./types";
@@ -26,11 +26,12 @@ type Entries =
 
 export const initialiseDynamoDB = async ({ table, contents }: Entries) => {
   const client = new DynamoDBClient(AWSConfig);
+  const ddbDocClient = DynamoDBDocumentClient.from(client);
   const commands = contents.map(
-    (item) => new PutItemCommand({ TableName: table, Item: item })
+    (item) => new PutCommand({ TableName: table, Item: item })
   );
 
-  await Promise.all(commands.map((command) => client.send(command)));
+  await Promise.all(commands.map((command) => ddbDocClient.send(command)));
 };
 
 export const teardownDynamoDB = async () => {
@@ -48,7 +49,7 @@ export const teardownDynamoDB = async () => {
     DeleteRequest: { Key: { id: item.id } },
   }));
 
-  const deleteCommand = new BatchWriteItemCommand({
+  const deleteCommand = new BatchWriteCommand({
     RequestItems: {
       [Table.MAPS]: mapsRequest,
       [Table.CHANNELS]: channelsRequest,

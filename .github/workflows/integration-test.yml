@@ -15,7 +15,7 @@ jobs:
       # These aren't actually secret, they're just for testing purposes.
       PUBLIC_KEY: a58293d7fa04d53ab90108be275a87fe890eece595962273a93e1f87d398df74
       CYPRESS_PRIVATE_KEY: 814d1a8737ba28a2ae72e39cac46468002525a64e4f002d7b52dd06efb9dc4b8a58293d7fa04d53ab90108be275a87fe890eece595962273a93e1f87d398df74
-      CYPRESS_MAP_BUCKET: maps
+      CYPRESS_MAP_BUCKET: carto-bot-maps
     steps:
       - uses: actions/checkout@v2
 
@@ -43,6 +43,7 @@ jobs:
           path: client/package
 
       - name: Start Localstack
+        working-directory: integration
         run: docker-compose -f localstack.yml up -d
 
       - name: Build test environment
@@ -51,7 +52,7 @@ jobs:
           terraform init
           terraform apply \
             -var="discord_public_key=${{ env.PUBLIC_KEY }}" \
-            -var="api_trigger_url=http://localhost:8080" \
+            -var="api_trigger_url=http://host.docker.internal:8080" \
             -auto-approve
 
       - name: Build Docker image
@@ -61,7 +62,7 @@ jobs:
           tags: carto/api:latest
 
       - name: Run API Container
-        run: docker run -d -p 8080:8080 -e DRY_RUN='true' -e AWS_ENDPOINT='http://localhost:4566' -e PORT='8080' carto/api:latest
+        run: docker run -d -p 8080:8080 -e AWS_ENDPOINT=http://host.docker.internal:4566 -e PORT=8080 carto/api:latest
 
       - name: Run tests
         uses: cypress-io/github-action@v2
