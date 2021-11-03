@@ -4,13 +4,15 @@ FROM python:3.10-slim
 ENV PYTHONUNBUFFERED True
 
 # Copy local code to the container image.
-ENV APP_HOME /api
+ENV APP_HOME /
 WORKDIR $APP_HOME
-COPY ./api ./
+COPY ./api ./api
 
 # Install production dependencies.
 RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
+RUN pip install -r api/requirements.txt
+
+ENV PYTHONPATH api
 
 # Run the web service on container startup. Here we use the gunicorn
 # webserver, with one worker process and 8 threads.
