@@ -67,13 +67,6 @@ jobs:
           name: cypress-snapshots
           path: integration/cypress/screenshots
 
-      - name: Upload videos
-        uses: actions/upload-artifact@v2
-        if: failure()
-        with:
-          name: cypress-videos
-          path: integration/cypress/videos
-
       - name: Stop Localstack
         working-directory: integration
         run: docker-compose -f localstack.yml down

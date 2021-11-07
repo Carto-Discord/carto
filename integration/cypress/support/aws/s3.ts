@@ -10,8 +10,11 @@ const config = { ...AWSConfig, forcePathStyle: true };
 export const uploadToS3 = async (filePath: string, id: string) => {
   const client = new S3Client(config);
 
+  cy.log("Reading: ", filePath);
+  cy.log("Bucket: ", Cypress.env("MAP_BUCKET"));
+
   await cy
-    .readFile(filePath, "binary")
+    .readFile(filePath, "binary", { log: true, timeout: 10000 })
     .then(
       (fileContent) =>
         new PutObjectCommand({
