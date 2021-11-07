@@ -5,9 +5,10 @@ import {
 } from "@aws-sdk/client-s3";
 import { AWSConfig } from "./common";
 
+const config = { ...AWSConfig, forcePathStyle: true };
+
 export const uploadToS3 = async (filePath: string, id: string) => {
-  const client = new S3Client({ ...AWSConfig, forcePathStyle: true });
-  console.log(Cypress.env("MAP_BUCKET"));
+  const client = new S3Client(config);
 
   await cy
     .readFile(filePath, "binary")
@@ -24,7 +25,7 @@ export const uploadToS3 = async (filePath: string, id: string) => {
 };
 
 export const deleteObject = (id: string) => {
-  const client = new S3Client(AWSConfig);
+  const client = new S3Client(config);
   const command = new DeleteObjectCommand({
     Bucket: Cypress.env("MAP_BUCKET"),
     Key: id,
