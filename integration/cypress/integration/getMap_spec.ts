@@ -73,7 +73,7 @@ describe("Get Map", () => {
   describe("given the channel has an associated map", () => {
     const mapIds = [baseMapId, currentMapId, previousMapId];
 
-    before(async () => {
+    beforeEach(async () => {
       await initialiseDynamoDB({
         table: Table.CHANNELS,
         contents: channelContents,
@@ -91,7 +91,7 @@ describe("Get Map", () => {
       }
     });
 
-    after(async () => {
+    afterEach(async () => {
       await teardownDynamoDB();
 
       for (const id of mapIds) {
