@@ -7,22 +7,16 @@ import { AWSConfig } from "./common";
 
 const config = { ...AWSConfig, forcePathStyle: true };
 
-export const uploadToS3 = (filePath: string, id: string) => {
+export const uploadToS3 = async (fileContent: string, id: string) => {
   const client = new S3Client(config);
 
-  return cy.wrap(
-    cy
-      .readFile(filePath, "binary")
-      .then(
-        (fileContent) =>
-          new PutObjectCommand({
-            Bucket: Cypress.env("MAP_BUCKET"),
-            Key: id,
-            Body: fileContent,
-          })
-      )
-      .then((command) => client.send(command))
-  );
+  const command = new PutObjectCommand({
+    Bucket: Cypress.env("MAP_BUCKET"),
+    Key: id,
+    Body: fileContent,
+  });
+
+  await client.send(command);
 };
 
 export const deleteObject = (id: string) => {

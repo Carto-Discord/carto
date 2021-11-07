@@ -87,7 +87,9 @@ describe("Get Map", () => {
       let index = 1;
 
       for (const id of mapIds) {
-        uploadToS3(`cypress/fixtures/test-map-${index++}.png`, id);
+        cy.readFile(`cypress/fixtures/test-map-${index++}.png`, "binary").then(
+          (fileContent) => uploadToS3(fileContent, id)
+        );
       }
     });
 
