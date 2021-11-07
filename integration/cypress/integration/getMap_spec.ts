@@ -73,7 +73,7 @@ describe("Get Map", () => {
   describe("given the channel has an associated map", () => {
     const mapIds = [baseMapId, currentMapId, previousMapId];
 
-    beforeEach(async () => {
+    before(async () => {
       await initialiseDynamoDB({
         table: Table.CHANNELS,
         contents: channelContents,
@@ -87,11 +87,11 @@ describe("Get Map", () => {
       let index = 1;
 
       for (const id of mapIds) {
-        await uploadToS3(`cypress/fixtures/test-map-${index++}.png`, id);
+        uploadToS3(`cypress/fixtures/test-map-${index++}.png`, id);
       }
     });
 
-    afterEach(async () => {
+    after(async () => {
       await teardownDynamoDB();
 
       for (const id of mapIds) {
