@@ -1,21 +1,14 @@
-import { v4 as uuid } from "uuid";
-
+import { baseMapId, currentMapId, previousMapId } from "../fixtures/maps.json";
 import {
   getLambdaInvokeUrl,
   generateSignature,
   initialiseDynamoDB,
   teardownDynamoDB,
   Table,
-  uploadToS3,
-  deleteObject,
 } from "../support";
 
 describe("Get Map", () => {
   let url: string;
-
-  const baseMapId = uuid();
-  const currentMapId = uuid();
-  const previousMapId = uuid();
 
   const channelId = "123456789012345678";
   const token = "mockToken";
@@ -83,22 +76,10 @@ describe("Get Map", () => {
         table: Table.MAPS,
         contents: mapContents,
       });
-
-      let index = 1;
-
-      for (const id of mapIds) {
-        cy.readFile(`cypress/fixtures/test-map-${index++}.png`, "binary").then(
-          (fileContent) => uploadToS3(fileContent, id)
-        );
-      }
     });
 
     after(async () => {
       await teardownDynamoDB();
-
-      for (const id of mapIds) {
-        await deleteObject(`${id}.png`);
-      }
     });
 
     it("should return a deferred response from the client", () => {
