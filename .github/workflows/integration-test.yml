@@ -65,7 +65,7 @@ jobs:
         if: failure()
         with:
           name: cypress-snapshots
-          path: integration/cypress/snapshots
+          path: integration/cypress/screenshots
 
       - name: Stop Localstack
         working-directory: integration
