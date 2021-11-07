@@ -5,7 +5,7 @@ from flask import current_app
 
 from api.commands.map.client import s3
 
-region = os.getenv('AWS_REGION')
+region = os.getenv('AWS_DEFAULT_REGION')
 
 
 def upload_blob(bucket_name, source_file_name, destination_blob_name):

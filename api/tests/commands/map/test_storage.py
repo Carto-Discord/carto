@@ -16,7 +16,7 @@ class StorageTest(unittest.TestCase):
     bucket_name = 'maps'
 
     def setUp(self) -> None:
-        os.environ['AWS_REGION'] = 'us-east-1'
+        os.environ['AWS_DEFAULT_REGION'] = 'us-east-1'
         self.s3 = boto3.resource('s3')
         bucket = self.s3.Bucket(self.bucket_name)
         bucket.create(CreateBucketConfiguration={
