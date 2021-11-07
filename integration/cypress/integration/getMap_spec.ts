@@ -4,8 +4,10 @@ import {
   getLambdaInvokeUrl,
   generateSignature,
   initialiseDynamoDB,
+  teardownDynamoDB,
   Table,
   uploadToS3,
+  deleteObject,
 } from "../support";
 
 describe("Get Map", () => {
@@ -16,6 +18,9 @@ describe("Get Map", () => {
   const previousMapId = uuid();
 
   const channelId = "123456789012345678";
+  const token = "mockToken";
+  const application_id = "mockApplicationId";
+
   const channelContents = [
     {
       id: channelId,
@@ -60,13 +65,15 @@ describe("Get Map", () => {
     },
   ];
 
-  beforeEach(async () => {
+  before(async () => {
     url = await getLambdaInvokeUrl();
     cy.log(`Client URL: ${url}`);
   });
 
   describe("given the channel has an associated map", () => {
-    beforeEach(async () => {
+    const mapIds = [baseMapId, currentMapId, previousMapId];
+
+    before(async () => {
       await initialiseDynamoDB({
         table: Table.CHANNELS,
         contents: channelContents,
@@ -79,17 +86,25 @@ describe("Get Map", () => {
 
       let index = 1;
 
-      for (const id of [baseMapId, currentMapId, previousMapId]) {
+      for (const id of mapIds) {
         await uploadToS3(`cypress/fixtures/test-map-${index++}.png`, id);
       }
     });
 
-    it("should retrieve map data", () => {
+    after(async () => {
+      await teardownDynamoDB();
+
+      for (const id of mapIds) {
+        await deleteObject(`${id}.png`);
+      }
+    });
+
+    it("should return a deferred response from the client", () => {
       const body = {
         type: 2,
         channel_id: channelId,
-        token: "fake-discord-token",
-        application_id: "parent-application-id",
+        token,
+        application_id,
         data: {
           options: [
             {
@@ -110,15 +125,6 @@ describe("Get Map", () => {
         "x-signature-timestamp": timestamp,
       };
 
-      cy.intercept({
-        url: `https://discord.com/api/v9/webhooks/${body.application_id}/${body.token}/messages/@original`,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        method: "PATCH",
-      }).as("webhook");
-
-      // Send the request and wait for the deferred response
       cy.request({
         method: "POST",
         url,
@@ -128,13 +134,32 @@ describe("Get Map", () => {
         .its("body")
         .its("type")
         .should("eq", 5);
+    });
 
-      // Wait for a response from the API
-      cy.wait("@webhook", { timeout: 30000 })
-        .its("request.body")
-        .should("eq", {
-          embeds: [{ name: "Alvyn", value: "C7", inline: true }],
+    describe("given the API is called", () => {
+      describe("given the channel ID is valid", () => {
+        it("should respond with the map image and details", () => {
+          cy.request({
+            method: "GET",
+            url: `http://localhost:8080/map/${channelId}?applicationId=${application_id}&token=${token}`,
+          }).then((response) => {
+            expect(response.body.url).to.eq(
+              `https://discord.com/api/v9/webhooks/${application_id}/${token}/messages/@original`
+            );
+            const embed = response.body.json.embeds[0];
+
+            expect(embed.image.url).to.eq(
+              `https://s3.us-east-1.amazonaws.com/carto-bot-maps/${currentMapId}.png`
+            );
+            expect(embed.fields).to.have.length(1);
+            expect(embed.fields[0].inline).to.be.true;
+            expect(embed.fields[0].name).to.eq("Alvyn");
+            expect(embed.fields[0].value).to.eq("C7");
+            expect(embed.type).to.eq("rich");
+            expect(embed.title).to.eq("Retrieved Map");
+          });
         });
+      });
     });
   });
 });
