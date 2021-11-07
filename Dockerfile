@@ -19,4 +19,4 @@ ENV PYTHONPATH api
 # For environments with multiple CPU cores, increase the number of workers
 # to be equal to the cores available.
 # Timeout is set to 0 to disable the timeouts of the workers to allow instance scaling.
-CMD exec gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 wsgi:app
+CMD exec gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 --log-level $LEVEL wsgi:app

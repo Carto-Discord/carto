@@ -52,17 +52,8 @@ jobs:
           terraform init
           terraform apply \
             -var="discord_public_key=${{ env.PUBLIC_KEY }}" \
-            -var="api_trigger_url=http://host.docker.internal:8080" \
+            -var="api_trigger_url=http://api:8080" \
             -auto-approve
-
-      - name: Build Docker image
-        uses: docker/build-push-action@v2
-        with:
-          push: false
-          tags: carto/api:latest
-
-      - name: Run API Container
-        run: docker run -d -p 8080:8080 -e AWS_ENDPOINT=http://host.docker.internal:4566 -e PORT=8080 carto/api:latest
 
       - name: Run tests
         uses: cypress-io/github-action@v2
@@ -70,4 +61,5 @@ jobs:
           working-directory: integration
 
       - name: Stop Localstack
+        working-directory: integration
         run: docker-compose -f localstack.yml down
