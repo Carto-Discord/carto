@@ -6,7 +6,7 @@
     "prebuild": "rimraf build/",
     "postbuild": "copyfiles .env build/",
     "build": "tsc -p tsconfig.prod.json",
-    "build:package": "copyfiles --exclude build/src/registerCommands* build/**/* package",
+    "build:package": "copyfiles --exclude build/src/registerCommands* --exclude build/__mocks__/* build/**/* package",
     "lint": "eslint ./src/**/*",
     "register": "node ./build/src/registerCommands.js",
     "test": "jest --watch",
@@ -16,7 +16,7 @@
   "author": "Tohaker",
   "license": "ISC",
   "dependencies": {
-    "axios": "^0.23.0",
+    "axios": "^0.24.0",
     "tweetnacl": "^1.0.3"
   },
   "devDependencies": {

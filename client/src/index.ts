@@ -41,7 +41,7 @@ const extractParameters = <T extends CommandOptions>(
   }
 };
 
-const handleMapCommands = async ({
+const handleMapCommands = ({
   applicationId,
   channelId,
   command,
@@ -169,7 +169,7 @@ export const slashFunction = async (
   if ("options" in commandGroup) {
     switch (commandGroup.name) {
       case CommandGroup.MAP:
-        await handleMapCommands({
+        handleMapCommands({
           applicationId: application_id,
           channelId: channel_id,
           command: commandGroup.options[0],
@@ -197,4 +197,9 @@ export const slashFunction = async (
       }),
     };
   }
+
+  return {
+    statusCode: 400,
+    body: "no options provided",
+  };
 };

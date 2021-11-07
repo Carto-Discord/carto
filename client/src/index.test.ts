@@ -110,6 +110,30 @@ describe("Slash Function", () => {
       });
     });
 
+    describe("given a command with no options is recieved", () => {
+      it("should return a 400 response", async () => {
+        const response = await slashFunction({
+          body: JSON.stringify({
+            type: InteractionType.APPLICATION_COMMAND,
+            id: "1234",
+            token: "mockToken",
+            channel_id: "mockChannel",
+            data: {},
+          }),
+          httpMethod: "POST",
+        } as APIGatewayProxyEvent);
+
+        expect(mockAddToken).not.toBeCalled();
+        expect(mockDeleteToken).not.toBeCalled();
+        expect(mockMoveToken).not.toBeCalled();
+        expect(mockCreateMap).not.toBeCalled();
+        expect(mockGetMap).not.toBeCalled();
+
+        expect(response.statusCode).toBe(400);
+        expect(response.body).toBe("no options provided");
+      });
+    });
+
     describe("given a map command is received", () => {
       describe("given a create subcommand is received", () => {
         it("should send a message back to the channel", async () => {
