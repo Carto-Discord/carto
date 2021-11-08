@@ -3,6 +3,7 @@ import {
   DynamoDBDocumentClient,
   ScanCommand,
   PutCommand,
+  GetCommand,
   BatchWriteCommand,
 } from "@aws-sdk/lib-dynamodb";
 
@@ -23,6 +24,13 @@ type Entries =
       table: Table.MAPS;
       contents: Array<CartoBaseMap | CartoMap>;
     };
+
+type Document = {
+  table: Table;
+  key: {
+    [key: string]: string;
+  };
+};
 
 export const initialiseDynamoDB = async ({ table, contents }: Entries) => {
   const client = new DynamoDBClient(AWSConfig);
@@ -57,4 +65,11 @@ export const teardownDynamoDB = async () => {
   });
 
   return client.send(deleteCommand);
+};
+
+export const getDocument = ({ table, key }: Document) => {
+  const client = new DynamoDBClient(AWSConfig);
+  const command = new GetCommand({ TableName: table, Key: key });
+
+  return client.send(command);
 };
