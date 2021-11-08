@@ -22,7 +22,7 @@ export type CartoBaseMap = {
 
 export type DiscordChannel = {
   id: string;
-  base: string;
-  current: string;
+  baseMap: string;
+  currentMap: string;
   history: string[];
 };

@@ -17,8 +17,8 @@ describe("Get Map", () => {
   const channelContents = [
     {
       id: channelId,
-      base: baseMapId,
-      current: currentMapId,
+      baseMap: baseMapId,
+      currentMap: currentMapId,
       history: [previousMapId],
     },
   ];
@@ -61,28 +61,24 @@ describe("Get Map", () => {
   before(async () => {
     url = await getLambdaInvokeUrl();
     cy.log(`Client URL: ${url}`);
+
+    await initialiseDynamoDB({
+      table: Table.CHANNELS,
+      contents: channelContents,
+    });
+
+    await initialiseDynamoDB({
+      table: Table.MAPS,
+      contents: mapContents,
+    });
   });
 
-  describe("given the channel has an associated map", () => {
-    const mapIds = [baseMapId, currentMapId, previousMapId];
+  after(async () => {
+    await teardownDynamoDB();
+  });
 
-    before(async () => {
-      await initialiseDynamoDB({
-        table: Table.CHANNELS,
-        contents: channelContents,
-      });
-
-      await initialiseDynamoDB({
-        table: Table.MAPS,
-        contents: mapContents,
-      });
-    });
-
-    after(async () => {
-      await teardownDynamoDB();
-    });
-
-    it("should return a deferred response from the client", () => {
+  describe("given the Client is called", () => {
+    it("should return a deferred response", () => {
       const body = {
         type: 2,
         channel_id: channelId,
@@ -118,29 +114,50 @@ describe("Get Map", () => {
         .its("type")
         .should("eq", 5);
     });
+  });
 
-    describe("given the API is called", () => {
-      describe("given the channel ID is valid", () => {
-        it("should respond with the map image and details", () => {
-          cy.request({
-            method: "GET",
-            url: `http://localhost:8080/map/${channelId}?applicationId=${application_id}&token=${token}`,
-          }).then((response) => {
-            expect(response.body.url).to.eq(
-              `https://discord.com/api/v9/webhooks/${application_id}/${token}/messages/@original`
-            );
-            const embed = response.body.json.embeds[0];
+  describe("given the API is called", () => {
+    describe("given the channel ID is valid", () => {
+      it("should respond with the map image and details", () => {
+        cy.request({
+          method: "GET",
+          url: `http://localhost:8080/map/${channelId}?applicationId=${application_id}&token=${token}`,
+        }).then((response) => {
+          expect(response.body.url).to.eq(
+            `https://discord.com/api/v9/webhooks/${application_id}/${token}/messages/@original`
+          );
+          const embed = response.body.json.embeds[0];
 
-            expect(embed.image.url).to.eq(
-              `https://s3.us-east-1.amazonaws.com/carto-bot-maps/${currentMapId}.png`
-            );
-            expect(embed.fields).to.have.length(1);
-            expect(embed.fields[0].inline).to.be.true;
-            expect(embed.fields[0].name).to.eq("Alvyn");
-            expect(embed.fields[0].value).to.eq("C7");
-            expect(embed.type).to.eq("rich");
-            expect(embed.title).to.eq("Retrieved Map");
-          });
+          expect(embed.image.url).to.eq(
+            `https://s3.us-east-1.amazonaws.com/carto-bot-maps/${currentMapId}.png`
+          );
+          expect(embed.fields).to.have.length(1);
+          expect(embed.fields[0].inline).to.be.true;
+          expect(embed.fields[0].name).to.eq("Alvyn");
+          expect(embed.fields[0].value).to.eq("C7");
+          expect(embed.type).to.eq("rich");
+          expect(embed.title).to.eq("Retrieved Map");
+        });
+      });
+    });
+
+    describe("given the channel ID is invalid", () => {
+      it("should respond with an error message", () => {
+        cy.request({
+          method: "GET",
+          url: `http://localhost:8080/map/badchannelid?applicationId=${application_id}&token=${token}`,
+        }).then((response) => {
+          console.log(response);
+          expect(response.body.url).to.eq(
+            `https://discord.com/api/v9/webhooks/${application_id}/${token}/messages/@original`
+          );
+          const embed = response.body.json.embeds[0];
+
+          expect(embed.description).to.eq(
+            "This channel has no map associated with it"
+          );
+          expect(embed.type).to.eq("rich");
+          expect(embed.title).to.eq("Error retrieving map");
         });
       });
     });
