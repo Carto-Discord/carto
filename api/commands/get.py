@@ -18,10 +18,11 @@ def get_channel_map(channel_id, request_params):
     channel_data = database.get_current_channel_map(channel_id)
 
     if channel_data is None:
-        embed = Embed(title=error_title, description="This channel has no map associated with it")
+        embed = Embed(title=error_title,
+                      description="This channel has no map associated with it")
         return publish.publish(token=discord_token, application_id=application_id, embed=embed)
 
-    uuid = channel_data['current']
+    uuid = channel_data['currentMap']
     current_app.logger.info("Getting map for channel UUID: {}".format(uuid))
     channel_map_data = database.get_map_info(uuid)
     embed = Embed(title="Retrieved Map")
@@ -29,9 +30,11 @@ def get_channel_map(channel_id, request_params):
     if 'tokens' in channel_map_data:
         tokens = channel_map_data['tokens']
         for token in tokens:
-            embed.add_field(name=token['name'], value=f"{token['column'].upper()}{token['row']}", inline=True)
+            embed.add_field(
+                name=token['name'], value=f"{token['column'].upper()}{token['row']}", inline=True)
 
-    image_url = storage.get_public_url(bucket_name=constants.BUCKET, file_name=uuid + '.png')
+    image_url = storage.get_public_url(
+        bucket_name=constants.BUCKET, file_name=uuid + '.png')
     embed.set_image(url=image_url)
 
     return publish.publish(token=discord_token, application_id=application_id, embed=embed)
