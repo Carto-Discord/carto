@@ -15,7 +15,7 @@ class GetTest(unittest.TestCase):
     @patch('publish.publish')
     @patch('commands.constants.BUCKET', 'bucket')
     def test_get_channel_map(self, mock_publish, mock_public_url, mock_map_info, mock_get_map):
-        mock_get_map.return_value = {'current': '1234'}
+        mock_get_map.return_value = {'currentMap': '1234'}
         mock_map_info.return_value = {
             'tokens': [
                 {
@@ -33,7 +33,8 @@ class GetTest(unittest.TestCase):
         mock_public_url.return_value = 'public url'
 
         with self.app.app_context():
-            get_channel_map(channel_id='4567', request_params={'token': 'mockToken', 'applicationId': '456'})
+            get_channel_map(channel_id='4567', request_params={
+                            'token': 'mockToken', 'applicationId': '456'})
 
         args = mock_publish.call_args.kwargs
         self.assertEqual('mockToken', args['token'])
@@ -63,12 +64,13 @@ class GetTest(unittest.TestCase):
     @patch('publish.publish')
     @patch('commands.constants.BUCKET', 'bucket')
     def test_get_channel_map_no_tokens(self, mock_publish, mock_public_url, mock_map_info, mock_get_map):
-        mock_get_map.return_value = {'current': '1234'}
+        mock_get_map.return_value = {'currentMap': '1234'}
         mock_map_info.return_value = {}
         mock_public_url.return_value = 'public url'
 
         with self.app.app_context():
-            get_channel_map(channel_id='4567', request_params={'token': 'mockToken', 'applicationId': '456'})
+            get_channel_map(channel_id='4567', request_params={
+                            'token': 'mockToken', 'applicationId': '456'})
 
         args = mock_publish.call_args.kwargs
         self.assertEqual('mockToken', args['token'])
@@ -86,7 +88,8 @@ class GetTest(unittest.TestCase):
         mock_get_map.return_value = None
 
         with self.app.app_context():
-            get_channel_map(channel_id='4567', request_params={'token': 'mockToken', 'applicationId': '456'})
+            get_channel_map(channel_id='4567', request_params={
+                            'token': 'mockToken', 'applicationId': '456'})
 
         args = mock_publish.call_args.kwargs
         self.assertEqual('mockToken', args['token'])
@@ -100,7 +103,8 @@ class GetTest(unittest.TestCase):
     @patch('publish.publish')
     def test_get_channel_map_no_channel(self, mock_publish, mock_get_map):
         with self.app.app_context():
-            get_channel_map(channel_id=None, request_params={'token': 'mockToken', 'applicationId': '456'})
+            get_channel_map(channel_id=None, request_params={
+                            'token': 'mockToken', 'applicationId': '456'})
 
         mock_get_map.assert_not_called()
 

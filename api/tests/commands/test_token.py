@@ -75,7 +75,7 @@ class TokenAddTest(unittest.TestCase):
             'applicationId': '5678'
         }
 
-        mock_get_map.return_value = {'current': '4567', 'base': '9876'}
+        mock_get_map.return_value = {'currentMap': '4567', 'baseMap': '9876'}
 
         def map_info_side_effect(*args, **kwargs):
             if args[0] == '9876':
@@ -120,7 +120,7 @@ class TokenAddTest(unittest.TestCase):
             'applicationId': '5678'
         }
 
-        mock_get_map.return_value = {'current': '4567', 'base': '9876'}
+        mock_get_map.return_value = {'currentMap': '4567', 'baseMap': '9876'}
 
         def map_info_side_effect(*args, **kwargs):
             if args[0] == '9876':
@@ -169,7 +169,7 @@ class TokenAddTest(unittest.TestCase):
             'applicationId': '5678'
         }
 
-        mock_get_map.return_value = {'current': '4567', 'base': '9876'}
+        mock_get_map.return_value = {'currentMap': '4567', 'baseMap': '9876'}
 
         def map_info_side_effect(*args, **kwargs):
             if args[0] == '9876':
@@ -221,7 +221,7 @@ class TokenAddTest(unittest.TestCase):
             'applicationId': '5678'
         }
 
-        mock_get_map.return_value = {'current': '4567', 'base': '9876'}
+        mock_get_map.return_value = {'currentMap': '4567', 'baseMap': '9876'}
 
         def map_info_side_effect(*args, **kwargs):
             if args[0] == '9876':
@@ -276,7 +276,7 @@ class TokenAddTest(unittest.TestCase):
             'applicationId': '5678'
         }
 
-        mock_get_map.return_value = {'current': '4567', 'base': '9876'}
+        mock_get_map.return_value = {'currentMap': '4567', 'baseMap': '9876'}
 
         def map_info_side_effect(*args, **kwargs):
             if args[0] == '9876':
@@ -350,7 +350,8 @@ class TokenMoveTest(unittest.TestCase):
             'applicationId': '5678'
         }
 
-        mock_get_channel_map.return_value = {'current': '4567', 'base': '9876'}
+        mock_get_channel_map.return_value = {
+            'currentMap': '4567', 'baseMap': '9876'}
 
         def map_info_side_effect(*args, **kwargs):
             if args[0] == '9876':
@@ -408,7 +409,8 @@ class TokenMoveTest(unittest.TestCase):
             'applicationId': '5678'
         }
 
-        mock_get_channel_map.return_value = {'current': '4567', 'base': '9876'}
+        mock_get_channel_map.return_value = {
+            'currentMap': '4567', 'baseMap': '9876'}
 
         def map_info_side_effect(*args, **kwargs):
             if args[0] == '9876':
@@ -458,7 +460,8 @@ class TokenDeleteTest(unittest.TestCase):
             'applicationId': '5678'
         }
 
-        mock_get_channel_map.return_value = {'current': '4567', 'base': '9876'}
+        mock_get_channel_map.return_value = {
+            'currentMap': '4567', 'baseMap': '9876'}
 
         def map_info_side_effect(*args, **kwargs):
             if args[0] == '9876':
@@ -514,7 +517,8 @@ class TokenDeleteTest(unittest.TestCase):
             'applicationId': '5678'
         }
 
-        mock_get_channel_map.return_value = {'current': '4567', 'base': '9876'}
+        mock_get_channel_map.return_value = {
+            'currentMap': '4567', 'baseMap': '9876'}
 
         def map_info_side_effect(*args, **kwargs):
             if args[0] == '9876':
