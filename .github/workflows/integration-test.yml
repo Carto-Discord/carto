@@ -60,8 +60,6 @@ jobs:
         with:
           working-directory: integration
           build: npm run setup
-        env:
-          MAP_BUCKET: ${{ env.CYPRESS_MAP_BUCKET }}
 
       - name: Upload screenshots
         uses: actions/upload-artifact@v2

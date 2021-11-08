@@ -30,7 +30,7 @@ export const uploadToS3 = async (fileContent: string, id: string) => {
   const client = new S3Client(AWSConfig);
 
   const command = new PutObjectCommand({
-    Bucket: process.env.MAP_BUCKET,
+    Bucket: process.env.CYPRESS_MAP_BUCKET,
     Key: id,
     Body: fileContent,
   });
@@ -41,7 +41,7 @@ export const uploadToS3 = async (fileContent: string, id: string) => {
 export const deleteObject = (id: string) => {
   const client = new S3Client(AWSConfig);
   const command = new DeleteObjectCommand({
-    Bucket: process.env.MAP_BUCKET,
+    Bucket: process.env.CYPRESS_MAP_BUCKET,
     Key: id,
   });
 
@@ -59,5 +59,5 @@ mapIds.forEach(async (id, i) => {
     .readFileSync(resolve(__dirname, `assets/test-map-${i + 1}.png`))
     .toString();
 
-  await uploadToS3(content, id);
+  await uploadToS3(content, `${id}.png`);
 });
