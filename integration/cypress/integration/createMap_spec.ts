@@ -137,7 +137,7 @@ describe("Create Map", () => {
         await teardownDynamoDB();
       });
 
-      describe("given the channel ID is valid", () => {
+      describe("given all data is valid", () => {
         it("should create a map and overwrite the existing map config", () => {
           let newImageId: string;
           const mapUrl = "https://i.redd.it/hfoxphcnnix61.jpg";
@@ -215,6 +215,55 @@ describe("Create Map", () => {
               expect(columns).to.eq(6);
               expect(rows).to.eq(9);
               expect(url).to.eq(mapUrl);
+            });
+        });
+      });
+
+      describe("given the url is invalid", () => {
+        it("should respond with an error", () => {
+          cy.request({
+            method: "POST",
+            url: `http://localhost:8080/map/${channelId}`,
+            body: {
+              applicationId,
+              columns: 6,
+              rows: 9,
+              token,
+              url: "bad.url",
+            },
+          })
+            .then((response) => {
+              const embed = response.body.json.embeds[0];
+
+              expect(embed.title).to.eq("Map create error");
+              expect(embed.description).to.include(
+                "URL bad.url could not be found"
+              );
+            })
+            // Inspect S3 bucket
+            .then(() => listObjects())
+            .then(({ Contents }) => {
+              // A new item should not have been created since
+              // the last test
+              expect(Contents).to.have.length(4);
+            })
+            // Inspect Channel document
+            .then(() =>
+              getDocument({
+                table: Table.CHANNELS,
+                key: {
+                  id: channelId,
+                },
+              })
+            )
+            .then(({ Item }) => {
+              // Make sure nothing has changed
+              const { baseMap, currentMap, history } = Item as DiscordChannel;
+              expect(baseMap).to.eq(baseMapId);
+              expect(currentMap).to.eq(currentMapId);
+
+              expect(history).to.have.length(1);
+              expect(history).to.include(previousMapId);
             });
         });
       });
