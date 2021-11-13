@@ -1,6 +1,5 @@
 /// <reference types="cypress" />
 
-import "cypress-promise/register";
 import nacl from "tweetnacl";
 
 export * from "./aws";

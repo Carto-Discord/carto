@@ -57,14 +57,19 @@ export const teardownDynamoDB = async () => {
     DeleteRequest: { Key: { id: item.id } },
   }));
 
-  const deleteCommand = new BatchWriteCommand({
-    RequestItems: {
-      [Table.MAPS]: mapsRequest,
-      [Table.CHANNELS]: channelsRequest,
-    },
-  });
+  const RequestItems = {
+    [Table.MAPS]: mapsRequest.length ? mapsRequest : undefined,
+    [Table.CHANNELS]: channelsRequest.length ? channelsRequest : undefined,
+  };
 
-  return client.send(deleteCommand);
+  const deleteCommand =
+    mapsRequest.length &&
+    channelsRequest.length &&
+    new BatchWriteCommand({
+      RequestItems,
+    });
+
+  deleteCommand && (await client.send(deleteCommand));
 };
 
 export const getDocument = ({ table, key }: Document) => {
