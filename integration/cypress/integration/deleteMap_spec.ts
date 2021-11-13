@@ -7,7 +7,6 @@ import {
   getDocument,
   Table,
 } from "../support";
-import { DiscordChannel } from "../support/aws/types";
 
 describe("Delete Map", () => {
   let url: string;
@@ -121,8 +120,8 @@ describe("Delete Map", () => {
     });
   });
 
-  describe("given the channel has an associated map", () => {
-    describe("given the API is called", () => {
+  describe("given the API is called", () => {
+    describe("given the channel has an associated map", () => {
       it("should delete the existing map config", () => {
         cy.request({
           method: "DELETE",
