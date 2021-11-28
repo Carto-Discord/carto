@@ -5,7 +5,10 @@ import {
   initialiseDynamoDB,
   teardownDynamoDB,
   Table,
+  listObjects,
+  getDocument,
 } from "../support";
+import { CartoMap, DiscordChannel } from "../support/aws/types";
 
 describe("Tokens", () => {
   let url: string;
@@ -136,6 +139,96 @@ describe("Tokens", () => {
           .its("body")
           .its("type")
           .should("eq", 5);
+      });
+    });
+
+    describe("given the API is called", () => {
+      it("should add a new map with new tokens and default optional properties", () => {
+        let newImageId: string;
+
+        cy.request({
+          method: "POST",
+          url: `http://localhost:8080/token/${channelId}`,
+          body: {
+            applicationId: application_id,
+            token,
+            column: "A",
+            name: "New Token",
+            row: 1,
+            size: "MEDIUM",
+          },
+        })
+          .then((response) => {
+            expect(response.body.url).to.eq(
+              `https://discord.com/api/v9/webhooks/${application_id}/${token}/messages/@original`
+            );
+            const embed = response.body.json.embeds[0];
+            newImageId = embed.image.url.replace(/^.*[\\\/]/, "").split(".")[0];
+
+            expect(embed.image.url).to.eq(
+              `https://s3.us-east-1.amazonaws.com/carto-bot-maps/${newImageId}.png`
+            );
+            expect(embed.title).to.eq("Tokens updated");
+            expect(embed.description).to.eq("Token positions:");
+
+            expect(embed.fields).to.have.length(2);
+            expect(embed.fields[0].inline).to.be.true;
+            expect(embed.fields[0].name).to.eq("Alvyn");
+            expect(embed.fields[0].value).to.eq("C7");
+            expect(embed.fields[1].inline).to.be.true;
+            expect(embed.fields[1].name).to.eq("New Token");
+            expect(embed.fields[1].value).to.eq("A1");
+
+            expect(embed.type).to.eq("rich");
+          })
+          // Inspect S3 bucket
+          .then(() => listObjects())
+          .then(({ Contents }) => {
+            expect(Contents.map(({ Key }) => Key)).to.include(
+              `${newImageId}.png`
+            );
+          })
+          // Inspect Channel document
+          .then(() =>
+            getDocument({
+              table: Table.CHANNELS,
+              key: {
+                id: channelId,
+              },
+            })
+          )
+          .then(({ Item }) => {
+            const { baseMap, currentMap, history } = Item as DiscordChannel;
+
+            expect(baseMap).to.eq(baseMapId);
+            expect(currentMap).to.eq(newImageId);
+            expect(history).to.have.length(2);
+          })
+          // Inspect Map document
+          .then(() =>
+            getDocument({
+              table: Table.MAPS,
+              key: {
+                id: newImageId,
+              },
+            })
+          )
+          .then(({ Item }) => {
+            const { tokens } = Item as CartoMap;
+
+            expect(tokens).to.have.length(2);
+            expect(tokens[0].colour).to.eq("Blue");
+            expect(tokens[0].column).to.eq("C");
+            expect(tokens[0].name).to.eq("Alvyn");
+            expect(tokens[0].row).to.eq(7);
+            expect(tokens[0].size).to.eq(1);
+
+            expect(tokens[1].colour).to.be.a("string");
+            expect(tokens[1].column).to.eq("A");
+            expect(tokens[1].name).to.eq("New Token");
+            expect(tokens[1].row).to.eq(1);
+            expect(tokens[1].size).to.eq(1);
+          });
       });
     });
   });
