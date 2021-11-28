@@ -26,13 +26,15 @@ const uuids = [
   "482d01d3-67f2-46d2-9c78-3bef8618f39a",
 ];
 
-export const uploadToS3 = async (fileContent: string, id: string) => {
+export const uploadToS3 = async (fileContent: Buffer, id: string) => {
   const client = new S3Client(AWSConfig);
 
   const command = new PutObjectCommand({
     Bucket: process.env.CYPRESS_MAP_BUCKET,
     Key: id,
     Body: fileContent,
+    ContentType: "image/png",
+    ContentEncoding: "base64",
   });
 
   await client.send(command);
@@ -55,9 +57,9 @@ const previousMapId = uuids[2];
 const mapIds = [baseMapId, currentMapId, previousMapId];
 
 mapIds.forEach(async (id, i) => {
-  const content = fs
-    .readFileSync(resolve(__dirname, `assets/test-map-${i + 1}.png`))
-    .toString();
+  const content = fs.readFileSync(
+    resolve(__dirname, `assets/test-map-${i + 1}.png`)
+  );
 
   await uploadToS3(content, `${id}.png`);
 });
