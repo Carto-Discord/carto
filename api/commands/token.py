@@ -37,10 +37,9 @@ def validate_map_data(channel_id, discord_token, application_id):
                         application_id=application_id, embed=embed)
         abort(500)
 
-    base_map_url = storage.get_public_url(
-        constants.BUCKET, base_map_id + '.png')
+    base_map_object = base_map_id + '.png'
 
-    return base_map_data, base_map_url, current_map_data
+    return base_map_data, base_map_object, current_map_data
 
 
 def validate_token_position(token_row, token_column, grid_rows, grid_columns, discord_token, application_id):
@@ -66,7 +65,7 @@ def convert_to_tokens(tokens_array):
 
 def create_new_grid(url, margin_x, margin_y, tokens, channel_id, discord_token, application_id):
     source_file_name = grid.apply_tokens(
-        base_url=url, margin_x=margin_x, margin_y=margin_y, tokens=tokens)
+        base_map_object=url, margin_x=int(margin_x), margin_y=int(margin_y), tokens=tokens)
 
     if source_file_name is None:
         message = "Map could not be recreated. Reason: Original map could not be found"
@@ -116,7 +115,7 @@ def add_token(channel_id, request_json):
                         application_id=application_id, embed=embed)
         abort(400)
 
-    base_map_data, base_map_url, current_map_data = validate_map_data(
+    base_map_data, base_map_object, current_map_data = validate_map_data(
         channel_id, discord_token, application_id)
 
     margin_x, margin_y, rows, columns = [base_map_data.get(
@@ -136,7 +135,7 @@ def add_token(channel_id, request_json):
                       size=size[token_size], colour=colour)
     tokens.append(new_token)
 
-    return create_new_grid(base_map_url, margin_x, margin_y, tokens, channel_id, discord_token, application_id)
+    return create_new_grid(base_map_object, margin_x, margin_y, tokens, channel_id, discord_token, application_id)
 
 
 def move_token(channel_id, request_json):
@@ -144,7 +143,7 @@ def move_token(channel_id, request_json):
     name, row, column, discord_token, application_id = [
         request_json.get(key) for key in keys]
 
-    base_map_data, base_map_url, current_map_data = validate_map_data(
+    base_map_data, base_map_object, current_map_data = validate_map_data(
         channel_id, discord_token, application_id)
 
     margin_x, margin_y, rows, columns = [base_map_data.get(
@@ -170,7 +169,7 @@ def move_token(channel_id, request_json):
             token.column = column
             break
 
-    return create_new_grid(base_map_url, margin_x, margin_y, tokens, channel_id, discord_token, application_id)
+    return create_new_grid(base_map_object, margin_x, margin_y, tokens, channel_id, discord_token, application_id)
 
 
 def delete_token(channel_id, request_json):
@@ -178,11 +177,11 @@ def delete_token(channel_id, request_json):
     name, discord_token, application_id = [
         request_json.get(key) for key in keys]
 
-    base_map_data, base_map_url, current_map_data = validate_map_data(
+    base_map_data, base_map_object, current_map_data = validate_map_data(
         channel_id, discord_token, application_id)
 
-    margin_x, margin_y, rows, columns = [base_map_data.get(
-        key) for key in ['margin_x', 'margin_y', 'rows', 'columns']]
+    margin_x, margin_y = [base_map_data.get(
+        key) for key in ['margin_x', 'margin_y']]
     tokens = current_map_data.get('tokens', [])
 
     tokens = convert_to_tokens(tokens)
@@ -200,4 +199,4 @@ def delete_token(channel_id, request_json):
             tokens.remove(token)
             break
 
-    return create_new_grid(base_map_url, margin_x, margin_y, tokens, channel_id, discord_token, application_id)
+    return create_new_grid(base_map_object, margin_x, margin_y, tokens, channel_id, discord_token, application_id)

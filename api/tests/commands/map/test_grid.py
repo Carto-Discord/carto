@@ -1,9 +1,14 @@
 import os
+from shutil import copyfile
 import unittest
+from unittest.mock import patch
 
 from flask import Flask
 
 from api.commands.map import grid, Token
+
+__location__ = os.path.realpath(
+    os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
 
 class GridTest(unittest.TestCase):
@@ -19,20 +24,34 @@ class GridTest(unittest.TestCase):
         self.assertFalse(os.path.isfile("downloaded.jpg"))
         os.remove("map.png")
 
-    def test_apply_tokens(self):
-        url = 'https://i.imgur.com/WznAC6f.png'
+    @patch('commands.map.storage.download_blob')
+    def test_apply_tokens(self, mock_download_blob):
+        # Mock downloading the file
+        original_file = os.path.join(__location__, 'test_map.png')
+        new_file = 'downloaded.png'
+        copyfile(original_file, new_file)
+
+        mock_download_blob.return_value = True
+
         tokens = [
-            Token.Token(name='atoken', row=11, column='G', colour='white', size=Token.size['LARGE']),
-            Token.Token(name='btoken', row=17, column='A', colour='red', size=Token.size['MEDIUM']),
-            Token.Token(name='ctoken', row=3, column='C', colour='blue', size=Token.size['TINY']),
-            Token.Token(name='dtoken', row=3, column='C', colour='white', size=Token.size['TINY']),
-            Token.Token(name='etoken', row=3, column='C', colour='red', size=Token.size['TINY']),
-            Token.Token(name='ftoken', row=3, column='C', colour='purple', size=Token.size['TINY']),
-            Token.Token(name='gtoken', row=3, column='C', colour='purple', size=Token.size['TINY'])
+            Token.Token(name='atoken', row=11, column='G',
+                        colour='white', size=Token.size['LARGE']),
+            Token.Token(name='btoken', row=17, column='A',
+                        colour='red', size=Token.size['MEDIUM']),
+            Token.Token(name='ctoken', row=3, column='C',
+                        colour='blue', size=Token.size['TINY']),
+            Token.Token(name='dtoken', row=3, column='C',
+                        colour='white', size=Token.size['TINY']),
+            Token.Token(name='etoken', row=3, column='C',
+                        colour='red', size=Token.size['TINY']),
+            Token.Token(name='ftoken', row=3, column='C',
+                        colour='purple', size=Token.size['TINY']),
+            Token.Token(name='gtoken', row=3, column='C',
+                        colour='purple', size=Token.size['TINY'])
         ]
 
         with self.app.app_context():
-            grid.apply_tokens(url, 32, 32, tokens)
+            grid.apply_tokens('base.url', 32, 32, tokens)
 
         self.assertTrue(os.path.isfile("map.png"))
         self.assertFalse(os.path.isfile("downloaded.jpg"))
