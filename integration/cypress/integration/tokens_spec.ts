@@ -230,6 +230,54 @@ describe("Tokens", () => {
             expect(tokens[1].size).to.eq(1);
           });
       });
+
+      describe("given an invalid size is provided", () => {
+        it("should not add a new map and return an error", () => {
+          cy.request({
+            method: "POST",
+            url: `http://localhost:8080/token/${channelId}`,
+            body: {
+              applicationId: application_id,
+              token,
+              column: "A",
+              name: "New Token",
+              row: 1,
+              size: "BLAH",
+            },
+            failOnStatusCode: false,
+          })
+            .then((response) => {
+              expect(response.body.url).to.eq(
+                `https://discord.com/api/v9/webhooks/${application_id}/${token}/messages/@original`
+              );
+              const embed = response.body.json.embeds[0];
+
+              expect(embed.title).to.eq("Token Error");
+              expect(embed.description).to.eq(
+                "Size BLAH is invalid.\nValid sizes are as in the [D&D Basic Rules](https://www.dndbeyond.com/sources/basic-rules/monsters#Size)"
+              );
+
+              expect(embed).not.to.have.property("fields");
+
+              expect(embed.type).to.eq("rich");
+            })
+            // Inspect Channel document
+            .then(() =>
+              getDocument({
+                table: Table.CHANNELS,
+                key: {
+                  id: channelId,
+                },
+              })
+            )
+            .then(({ Item }) => {
+              const { history } = Item as DiscordChannel;
+
+              // Check length is still the same
+              expect(history).to.have.length(1);
+            });
+        });
+      });
     });
   });
 });

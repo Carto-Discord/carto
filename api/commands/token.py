@@ -70,9 +70,8 @@ def create_new_grid(url, margin_x, margin_y, tokens, channel_id, discord_token, 
     if source_file_name is None:
         message = "Map could not be recreated. Reason: Original map could not be found"
         embed = Embed(title=error_title, description=message)
-        publish.publish(token=discord_token,
-                        application_id=application_id, embed=embed)
-        abort(404)
+        return publish.publish(token=discord_token,
+                               application_id=application_id, embed=embed)
 
     map_uuid = str(uuid.uuid4())
     file_name = ntpath.basename(source_file_name)
@@ -111,9 +110,8 @@ def add_token(channel_id, request_json):
                   "[D&D Basic Rules](https://www.dndbeyond.com/sources/basic-rules/monsters#Size)".format(
                       token_size)
         embed = Embed(title=error_title, description=message)
-        publish.publish(token=discord_token,
-                        application_id=application_id, embed=embed)
-        abort(400)
+        return publish.publish(token=discord_token,
+                               application_id=application_id, embed=embed)
 
     base_map_data, base_map_object, current_map_data = validate_map_data(
         channel_id, discord_token, application_id)
@@ -159,9 +157,8 @@ def move_token(channel_id, request_json):
         message = "Token {} not found in map. Token names are case sensitive, " \
                   "so try again or add it using /token add".format(name)
         embed = Embed(title=error_title, description=message)
-        publish.publish(token=discord_token,
-                        application_id=application_id, embed=embed)
-        abort(404)
+        return publish.publish(token=discord_token,
+                               application_id=application_id, embed=embed)
 
     for i, token in enumerate(tokens):
         if token.name == name:
@@ -190,9 +187,8 @@ def delete_token(channel_id, request_json):
         message = "Token {} not found in map. Token names are case sensitive, " \
                   "so try again or add it using /token add".format(name)
         embed = Embed(title=error_title, description=message)
-        publish.publish(token=discord_token,
-                        application_id=application_id, embed=embed)
-        abort(404)
+        return publish.publish(token=discord_token,
+                               application_id=application_id, embed=embed)
 
     for i, token in enumerate(tokens):
         if token.name == name:

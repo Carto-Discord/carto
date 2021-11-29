@@ -16,8 +16,8 @@
   "author": "Tohaker",
   "license": "ISC",
   "dependencies": {
-    "axios": "^0.24.0",
-    "tweetnacl": "^1.0.3"
+    "axios": "0.24.0",
+    "tweetnacl": "1.0.3"
   },
   "devDependencies": {
     "@google-cloud/functions-framework": "2.1.0",

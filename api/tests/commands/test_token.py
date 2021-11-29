@@ -20,8 +20,7 @@ class TokenAddTest(unittest.TestCase):
             'applicationId': '5678'
         }
 
-        with self.assertRaises(HTTPException):
-            add_token(channel_id='1234', request_json=request)
+        add_token(channel_id='1234', request_json=request)
 
         args = mock_publish.call_args.kwargs
         self.assertEqual('mockToken', args['token'])
@@ -190,8 +189,7 @@ class TokenAddTest(unittest.TestCase):
 
         mock_apply_tokens.return_value = None
 
-        with self.assertRaises(HTTPException):
-            add_token(channel_id='1234', request_json=request)
+        add_token(channel_id='1234', request_json=request)
 
         args = mock_publish.call_args.kwargs
         self.assertEqual('mockToken', args['token'])
@@ -376,8 +374,7 @@ class TokenMoveTest(unittest.TestCase):
         mock_get_map_info.side_effect = map_info_side_effect
         mock_get_public_url.return_value = 'gcs-url'
 
-        with self.assertRaises(HTTPException):
-            move_token(channel_id='1234', request_json=request)
+        move_token(channel_id='1234', request_json=request)
 
         args = mock_publish.call_args.kwargs
         self.assertEqual('mockToken', args['token'])
@@ -486,8 +483,7 @@ class TokenDeleteTest(unittest.TestCase):
         mock_get_map_info.side_effect = map_info_side_effect
         mock_get_public_url.return_value = 'gcs-url'
 
-        with self.assertRaises(HTTPException):
-            delete_token(channel_id='1234', request_json=request)
+        delete_token(channel_id='1234', request_json=request)
 
         args = mock_publish.call_args.kwargs
         self.assertEqual('mockToken', args['token'])
