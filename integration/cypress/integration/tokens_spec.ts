@@ -370,13 +370,6 @@ describe("Tokens", () => {
 
             expect(embed.type).to.eq("rich");
           })
-          // Inspect S3 bucket
-          .then(() => listObjects())
-          .then(({ Contents }) => {
-            expect(Contents.map(({ Key }) => Key)).to.include(
-              `${newImageId}.png`
-            );
-          })
           // Inspect Channel document
           .then(() =>
             getDocument({
@@ -411,6 +404,13 @@ describe("Tokens", () => {
             expect(tokens[0].name).to.eq("Alvyn");
             expect(tokens[0].row).to.eq(3);
             expect(tokens[0].size).to.eq(1);
+          })
+          // Inspect S3 bucket
+          .then(() => listObjects())
+          .then(({ Contents }) => {
+            expect(Contents.map(({ Key }) => Key)).to.include(
+              `${newImageId}.png`
+            );
           });
       });
     });
