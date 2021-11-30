@@ -5,7 +5,6 @@ import {
   initialiseDynamoDB,
   teardownDynamoDB,
   Table,
-  listObjects,
   getDocument,
   getObject,
 } from "../support";
@@ -409,6 +408,202 @@ describe("Tokens", () => {
           .then((obj) => {
             expect(obj).to.have.property("Body");
           });
+      });
+
+      describe("given the named token is not found", () => {
+        it("should not add a new map", () => {
+          cy.request({
+            method: "PUT",
+            url: `http://localhost:8080/token/${channelId}`,
+            body: {
+              applicationId: application_id,
+              token,
+              column: "B",
+              name: "BadToken",
+              row: 3,
+            },
+          })
+            .then((response) => {
+              expect(response.body.url).to.eq(
+                `https://discord.com/api/v9/webhooks/${application_id}/${token}/messages/@original`
+              );
+              const embed = response.body.json.embeds[0];
+
+              expect(embed.title).to.eq("Token Error");
+              expect(embed.description).to.eq(
+                "Token BadToken not found in map. Token names are case sensitive, so try again or add it using /token add"
+              );
+
+              expect(embed).not.to.have.property("fields");
+              expect(embed.type).to.eq("rich");
+            })
+            // Inspect Channel document
+            .then(() =>
+              getDocument({
+                table: Table.CHANNELS,
+                key: {
+                  id: channelId,
+                },
+              })
+            )
+            .then(({ Item }) => {
+              const { history } = Item as DiscordChannel;
+              expect(history).to.have.length(1);
+            });
+        });
+      });
+    });
+  });
+
+  describe("Delete Token", () => {
+    describe("given the Client is called", () => {
+      it("should return a deferred response", () => {
+        const body = {
+          type: 2,
+          channel_id: channelId,
+          token,
+          application_id,
+          data: {
+            options: [
+              {
+                name: "delete",
+                options: [
+                  {
+                    name: "name",
+                    value: "Sam",
+                  },
+                ],
+              },
+            ],
+            name: "token",
+            id: "token-id",
+          },
+        };
+        const timestamp = Date.now();
+
+        const headers = {
+          "x-signature-ed25519": generateSignature(
+            JSON.stringify(body),
+            timestamp.toString()
+          ),
+          "x-signature-timestamp": timestamp,
+        };
+
+        cy.request({
+          method: "POST",
+          url,
+          body,
+          headers,
+        })
+          .its("body")
+          .its("type")
+          .should("eq", 5);
+      });
+    });
+
+    describe("given the API is called", () => {
+      it("should add a new map with the named token removed", () => {
+        let newImageId: string;
+
+        cy.request({
+          method: "DELETE",
+          url: `http://localhost:8080/token/${channelId}`,
+          body: {
+            applicationId: application_id,
+            token,
+            name: "Alvyn",
+          },
+        })
+          .then((response) => {
+            expect(response.body.url).to.eq(
+              `https://discord.com/api/v9/webhooks/${application_id}/${token}/messages/@original`
+            );
+            const embed = response.body.json.embeds[0];
+            newImageId = embed.image.url.replace(/^.*[\\\/]/, "").split(".")[0];
+
+            expect(embed.image.url).to.eq(
+              `https://s3.us-east-1.amazonaws.com/carto-bot-maps/${newImageId}.png`
+            );
+            expect(embed.title).to.eq("Tokens updated");
+            expect(embed.description).to.eq("Token positions:");
+            expect(embed).not.to.have.property("fields");
+            expect(embed.type).to.eq("rich");
+          })
+          // Inspect Channel document
+          .then(() =>
+            getDocument({
+              table: Table.CHANNELS,
+              key: {
+                id: channelId,
+              },
+            })
+          )
+          .then(({ Item }) => {
+            const { baseMap, currentMap, history } = Item as DiscordChannel;
+
+            expect(baseMap).to.eq(baseMapId);
+            expect(currentMap).to.eq(newImageId);
+            expect(history).to.have.length(2);
+          })
+          // Inspect Map document
+          .then(() =>
+            getDocument({
+              table: Table.MAPS,
+              key: {
+                id: newImageId,
+              },
+            })
+          )
+          .then(({ Item }) => {
+            const { tokens } = Item as CartoMap;
+
+            expect(tokens).to.have.length(0);
+          })
+          // Inspect S3 bucket
+          .then(() => getObject(`${newImageId}.png`))
+          .then((obj) => {
+            expect(obj).to.have.property("Body");
+          });
+      });
+
+      describe("given the named token is not found", () => {
+        it("should not add a new map", () => {
+          cy.request({
+            method: "DELETE",
+            url: `http://localhost:8080/token/${channelId}`,
+            body: {
+              applicationId: application_id,
+              token,
+              name: "BadToken",
+            },
+          })
+            .then((response) => {
+              expect(response.body.url).to.eq(
+                `https://discord.com/api/v9/webhooks/${application_id}/${token}/messages/@original`
+              );
+              const embed = response.body.json.embeds[0];
+
+              expect(embed.title).to.eq("Token Error");
+              expect(embed.description).to.eq(
+                "Token BadToken not found in map. Token names are case sensitive, so try again or add it using /token add"
+              );
+              expect(embed).not.to.have.property("fields");
+              expect(embed.type).to.eq("rich");
+            })
+            // Inspect Channel document
+            .then(() =>
+              getDocument({
+                table: Table.CHANNELS,
+                key: {
+                  id: channelId,
+                },
+              })
+            )
+            .then(({ Item }) => {
+              const { history } = Item as DiscordChannel;
+              expect(history).to.have.length(1);
+            });
+        });
       });
     });
   });
