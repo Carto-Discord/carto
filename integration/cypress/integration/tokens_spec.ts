@@ -7,6 +7,7 @@ import {
   Table,
   listObjects,
   getDocument,
+  getObject,
 } from "../support";
 import { CartoMap, DiscordChannel } from "../support/aws/types";
 
@@ -182,11 +183,9 @@ describe("Tokens", () => {
             expect(embed.type).to.eq("rich");
           })
           // Inspect S3 bucket
-          .then(() => listObjects())
-          .then(({ Contents }) => {
-            expect(Contents.map(({ Key }) => Key)).to.include(
-              `${newImageId}.png`
-            );
+          .then(() => getObject(`${newImageId}.png`))
+          .then((obj) => {
+            expect(obj).to.have.property("Body");
           })
           // Inspect Channel document
           .then(() =>
@@ -406,11 +405,9 @@ describe("Tokens", () => {
             expect(tokens[0].size).to.eq(1);
           })
           // Inspect S3 bucket
-          .then(() => listObjects())
-          .then(({ Contents }) => {
-            expect(Contents.map(({ Key }) => Key)).to.include(
-              `${newImageId}.png`
-            );
+          .then(() => getObject(`${newImageId}.png`))
+          .then((obj) => {
+            expect(obj).to.have.property("Body");
           });
       });
     });
