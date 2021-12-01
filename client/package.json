@@ -38,7 +38,7 @@
     "eslint-plugin-jest": "25.3.0",
     "eslint-plugin-node": "11.1.0",
     "eslint-plugin-promise": "5.1.0",
-    "jest": "27.4.2",
+    "jest": "27.4.3",
     "nodemon": "2.0.15",
     "rimraf": "3.0.2",
     "slash-commands": "1.5.0",
