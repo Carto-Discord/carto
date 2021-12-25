@@ -25,6 +25,10 @@
         "value": "8080"
       },
       {
+        "name": "LEVEL",
+        "value": "debug"
+      },
+      {
         "name": "MAP_BUCKET",
         "value": "${map_bucket}"
       },

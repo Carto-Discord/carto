@@ -1,3 +1,5 @@
+data "aws_region" "current" {}
+
 data "aws_iam_policy_document" "ecs_task_execution_role" {
   version = "2012-10-17"
 
@@ -23,18 +25,14 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_role" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
-module "ecr" {
-    source = "./modules/ecr"
-}
-
 data "template_file" "api" {
-  template = file("./api.json.tpl")
+  template = file("${path.module}/api.json.tpl")
   vars = {
     api_name           = var.app_name
-    aws_ecr_repository = module.ecr.repository_url
+    aws_ecr_repository = var.repository_url
     tag                = "latest"
     region             = data.aws_region.current.name
-    map_bucket         = aws_s3_bucket.maps_bucket.bucket
+    map_bucket         = var.maps_bucket
   }
 }
 
@@ -56,13 +54,12 @@ resource "aws_ecs_service" "staging" {
   name            = "${var.app_name}-api"
   cluster         = aws_ecs_cluster.staging.id
   task_definition = aws_ecs_task_definition.api.arn
-  desired_count   = 1
   launch_type     = "FARGATE"
 
   network_configuration {
     security_groups  = [aws_security_group.ecs_tasks.id]
     subnets          = [for subnet in aws_subnet.main_subnet : subnet.id]
-    assign_public_ip = false
+    assign_public_ip = true
   }
 
   load_balancer {

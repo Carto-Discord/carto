@@ -13,6 +13,12 @@ resource "aws_subnet" "main_subnet" {
   cidr_block        = element(var.subnet_cidrs, count.index)
 }
 
+resource "aws_route" "to_internet" {
+  route_table_id = aws_vpc.carto_vpc.main_route_table_id
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id = aws_internet_gateway.gateway.id
+}
+
 resource "aws_security_group" "load_balancer" {
   name        = "load-balancer-sg"
   description = "Controls access to the Application Load Balancer (ALB)"

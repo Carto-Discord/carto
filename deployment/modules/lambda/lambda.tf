@@ -20,9 +20,9 @@ EOF
 
 data "archive_file" "client_zip" {
   type             = "zip"
-  source_dir       = "${path.module}/../client/package/"
+  source_dir       = "${path.root}/../client/package/"
   output_file_mode = "0666"
-  output_path      = "${path.module}/files/client.zip"
+  output_path      = "${path.root}/files/client.zip"
 }
 
 resource "aws_lambda_function" "client_lambda" {
