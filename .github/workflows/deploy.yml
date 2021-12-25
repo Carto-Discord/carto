@@ -42,7 +42,6 @@ jobs:
             -target="module.ecr" \
             -var="app_name=${{ secrets.app_name }}" \
             -var="discord_public_key=${{ secrets.discord_public_key }}" \
-            -var="api_trigger_url=url" \
             -auto-approve
 
       - name: Login to Amazon ECR
@@ -68,13 +67,8 @@ jobs:
         run: terraform init
 
       - name: Apply terraform
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ inputs.app_name }}
         run: |
           terraform apply \
             -var="app_name=${{ secrets.app_name }}" \
             -var="discord_public_key=${{ secrets.discord_public_key }}" \
-            -var="api_trigger_url=hello" \
-            -var="container_image=$ECR_REGISTRY/$ECR_REPOSITORY" \
             -auto-approve
