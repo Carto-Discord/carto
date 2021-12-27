@@ -1,9 +1,11 @@
-name: Command Registration
+name: Register Commands
 
 on:
   push:
     branches:
       - main
+    paths:
+      - "./packages/register-commands"
 
 jobs:
   register:
@@ -18,16 +20,13 @@ jobs:
       - name: Set up Node.JS
         uses: actions/setup-node@v2
         with:
-          node-version: "14"
+          node-version: 16
 
-      - name: Install node depedencies
-        working-directory: client
+      - name: Install dependencies
         run: npm ci
 
-      - name: Build node application
-        working-directory: client
-        run: npm run build
+      - name: Build package
+        run: npm run build -w register-commands
 
-      - name: Register Slash Commands
-        working-directory: client
-        run: npm run register
+      - name: Register commands
+        run: npm start -w register-commands
