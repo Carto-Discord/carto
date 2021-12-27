@@ -1,5 +1,5 @@
 {
-  "name": "carto",
+  "name": "@carto/carto",
   "version": "0.1.0",
   "description": "Track player and monster movements around a virtual D&D map",
   "workspaces": [

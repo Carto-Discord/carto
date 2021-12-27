@@ -1,5 +1,5 @@
 {
-  "name": "register-commands",
+  "name": "@carto/register-commands",
   "version": "1.0.0",
   "description": "Registers Discord slash commands via the REST API",
   "main": "dist/index.js",
