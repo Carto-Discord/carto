@@ -26,7 +26,7 @@ jobs:
         run: npm ci
 
       - name: Build package
-        run: npm run build -w register-commands
+        run: npm run build -w @carto/register-commands
 
       - name: Register commands
-        run: npm start -w register-commands
+        run: npm start -w @carto/register-commands

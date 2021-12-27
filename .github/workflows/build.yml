@@ -3,10 +3,6 @@ name: Build
 on:
   workflow_call:
     inputs:
-      python-version:
-        default: "3.10"
-        required: false
-        type: string
       node-version:
         default: "14"
         required: false
@@ -17,11 +13,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ inputs.python-version }}
 
       - name: Set up Node.JS
         uses: actions/setup-node@v2
@@ -38,21 +29,5 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-build-${{ env.cache-name }}-
 
-      - name: Build client application
-        working-directory: client
-        run: |
-          npm ci
-          npm run build
-          npm run build:package
-
-      - name: Package node_modules
-        working-directory: client
-        run: |
-          npm ci --only=prod
-          cp -r ./node_modules ./package/node_modules
-
-      - name: Archive Client package
-        uses: actions/upload-artifact@v2
-        with:
-          name: carto-client
-          path: client/package
+      - name: Install dependencies
+        run: npm ci

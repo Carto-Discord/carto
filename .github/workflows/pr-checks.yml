@@ -7,10 +7,10 @@ jobs:
     uses: carto-discord/carto/.github/workflows/build.yml@localstack-integration
   lint:
     needs: build
-    uses: carto-discord/carto/.github/workflows/lint.yml@main
+    uses: carto-discord/carto/.github/workflows/lint.yml@localstack-integration
   unit:
     needs: build
     uses: carto-discord/carto/.github/workflows/unit-test.yml@localstack-integration
-  integration:
-    needs: build
-    uses: carto-discord/carto/.github/workflows/integration-test.yml@localstack-integration
+  # integration:
+  #   needs: build
+  #   uses: carto-discord/carto/.github/workflows/integration-test.yml@localstack-integration
