@@ -2,7 +2,7 @@
   "name": "@carto/retrieve-map",
   "version": "1.0.0",
   "description": "Retrieves the requested map from S3",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "lint": "eslint ./src/**/*",
     "test": "jest"

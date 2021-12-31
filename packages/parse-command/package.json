@@ -2,7 +2,7 @@
   "name": "@carto/parse-command",
   "version": "1.0.0",
   "description": "Parses Discord commands from Carto",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "build": "tsc --noEmit && webpack",
     "lint": "eslint ./src/**/*",
