@@ -22,8 +22,9 @@ export const handler = async ({
   });
 
   const channelItem = await dynamodbClient.send(getChannelItemCommand);
+  const uuid = channelItem.Item?.currentMap?.S;
 
-  if (!channelItem.Item) {
+  if (!channelItem.Item || !uuid) {
     console.warn(`This channel has no map associated with it: ${channel_id}`);
 
     return {
@@ -36,10 +37,6 @@ export const handler = async ({
       }),
     };
   }
-
-  const uuid = channelItem.Item.currentMap.S;
-
-  if (!uuid) return { statusCode: 404, body: "" };
 
   console.info(`Getting map for channel ${uuid}`);
 
