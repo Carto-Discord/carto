@@ -1,71 +1,50 @@
 {
-  "Comment": "A Hello World example demonstrating various state types of the Amazon States Language",
-  "StartAt": "Pass",
+  "Comment": "State Machine to traverse the Slash Command tree and execute the desired action",
+  "StartAt": "Determine Command",
   "States": {
-    "Pass": {
-      "Comment": "A Pass state passes its input to its output, without performing work. Pass states are useful when constructing and debugging state machines.",
-      "Type": "Pass",
-      "Next": "Hello World example?"
-    },
-    "Hello World example?": {
-      "Comment": "A Choice state adds branching logic to a state machine. Choice rules can implement 16 different comparison operators, and can be combined using And, Or, and Not",
+    "Determine Command": {
+      "Comment": "The top level Command comes directly after the slash, e.g. /map or /token",
       "Type": "Choice",
       "Choices": [
         {
           "Variable": "$.command",
           "StringEquals": "map",
           "Next": "Map"
-        },
-        {
-          "Variable": "$.command",
-          "StringEquals": "token",
-          "Next": "Token"
         }
       ],
-      "Default": "Map"
+      "Default": "Failure"
     },
     "Map": {
-      "Type": "Pass",
-      "Next": "Wait 3 sec"
-    },
-    "Token": {
-      "Type": "Fail",
-      "Cause": "Not Hello World"
-    },
-    "Wait 3 sec": {
-      "Comment": "A Wait state delays the state machine from continuing for a specified time.",
-      "Type": "Wait",
-      "Seconds": 3,
-      "Next": "Parallel State"
-    },
-    "Parallel State": {
-      "Comment": "A Parallel state can be used to create parallel branches of execution in your state machine.",
-      "Type": "Parallel",
-      "Next": "Hello World",
-      "Branches": [
+      "Comment": "The Subcommand comes after the top level Command, and may include parameters, e.g. /map create https://image.com/img.png 10 10",
+      "Type": "Choice",
+      "Choices": [
         {
-          "StartAt": "Hello",
-          "States": {
-            "Hello": {
-              "Type": "Pass",
-              "End": true
-            }
-          }
-        },
-        {
-          "StartAt": "World",
-          "States": {
-            "World": {
-              "Type": "Pass",
-              "End": true
-            }
-          }
+          "Variable": "$.subCommand",
+          "StringEquals": "get",
+          "Next": "GetMap"
         }
-      ]
+      ],
+      "Default": "Failure"
     },
-    "Hello World": {
-      "Type": "Pass",
+    "GetMap": {
+      "Type": "Task",
+      "Parameters": {
+        "application_id.$": "$.application_id",
+        "token.$": "$.token",
+        "channel_id.$": "$.channel_id"
+      },
+      "Resource": "${getMapLambdaArn}",
+      "Next": "SendResponse"
+    },
+    "SendResponse": {
+      "Type": "Task",
+      "InputPath": "$.Body",
+      "Resource": "${sendResponseLambdaArn}",
       "End": true
+    },
+    "Failure": {
+      "Type": "Fail",
+      "Cause": "An invalid command was entered"
     }
   }
 }
