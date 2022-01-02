@@ -14,3 +14,11 @@ variable "environment_variables" {
   type        = map(string)
   description = "Environment variables to pass to the function"
 }
+
+variable "lambda_iam_role_arn" {
+  description = "Lambda IAM role ARN"
+}
+
+variable "lambda_iam_role_name" {
+  description = "Lambda IAM role name"
+}

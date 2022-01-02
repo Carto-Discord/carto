@@ -18,32 +18,44 @@ resource "aws_iam_role" "iam_for_lambda" {
 EOF
 }
 
-data "archive_file" "parse_command_zip" {
-  type             = "zip"
-  source_dir       = "${path.module}/../../parse-command/dist/"
-  output_file_mode = "0666"
-  output_path      = "${path.module}/files/parse_command.zip"
+module "parse_command_lambda" {
+  source = "../lambda"
+  
+  app_name = var.app_name
+  function_name = "parse-command"
+  runtime = "nodejs14.x"
+  lambda_iam_role_arn = aws_iam_role.iam_for_lambda.arn
+  lambda_iam_role_name = aws_iam_role.iam_for_lambda.name
+  environment_variables = {
+    "PUBLIC_KEY" = var.discord_public_key
+    "STATE_MACHINE_ARN" = aws_sfn_state_machine.state_machine.arn
+  }
 }
 
-resource "aws_lambda_function" "parse_command" {
-  filename      = data.archive_file.parse_command_zip.output_path
-  function_name = "${var.app_name}-parse_command"
-  role          = aws_iam_role.iam_for_lambda.arn
-  handler       = "bundle.handler"
-
-  source_code_hash = filebase64sha256(data.archive_file.parse_command_zip.output_path)
-
+module "get_map_lambda" {
+  source = "../lambda"
+  
+  app_name = var.app_name
+  function_name = "retrieve-map"
   runtime = "nodejs14.x"
-
-  environment {
-    variables = {
-      STATE_MACHINE_ARN = "mock arn"
-      PUBLIC_KEY = var.discord_public_key
-    }
+  lambda_iam_role_arn = aws_iam_role.iam_for_lambda.arn
+  lambda_iam_role_name = aws_iam_role.iam_for_lambda.name
+  environment_variables = {
+    "MAPS_BUCKET" = aws_s3_bucket.maps_bucket.bucket
+    "MAPS_TABLE" = aws_dynamodb_table.map_table.name
+    "CHANNELS_TABLE" = aws_dynamodb_table.channel_table.name
   }
+}
 
-  depends_on = [
-    aws_iam_role_policy_attachment.lambda_logs,
-    aws_cloudwatch_log_group.client-lambda,
-  ]
+module "send_response_lambda" {
+  source = "../lambda"
+  
+  app_name = var.app_name
+  function_name = "send-response"
+  runtime = "nodejs14.x"
+  lambda_iam_role_arn = aws_iam_role.iam_for_lambda.arn
+  lambda_iam_role_name = aws_iam_role.iam_for_lambda.name
+  environment_variables = {
+    "BASE_URL" = "https://discord.com/api/v9"
+  }
 }
