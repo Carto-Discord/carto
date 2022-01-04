@@ -23,6 +23,7 @@ data "template_file" "definition" {
   template = "${file("${path.module}/state_machine.asl.json")}"
   vars = {
     getMapLambdaArn = module.get_map_lambda.lambda_arn
+    deleteMapLambdaArn = module.delete_map_lambda.lambda_arn
     sendResponseLambdaArn = module.send_response_lambda.lambda_arn
   }
 }
