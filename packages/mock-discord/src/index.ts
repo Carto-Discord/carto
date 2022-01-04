@@ -20,8 +20,12 @@ app.use(
 app.patch("/webhooks/:applicationId/:token/messages/@original", (req, res) => {
   wss.clients.forEach((client) => {
     if (client.readyState === WebSocket.OPEN) {
-      client.send(JSON.stringify(req.params));
-      client.send(JSON.stringify(req.body));
+      const response = {
+        params: req.params,
+        body: req.body,
+      };
+
+      client.send(JSON.stringify(response));
     }
   });
   res.sendStatus(204);
