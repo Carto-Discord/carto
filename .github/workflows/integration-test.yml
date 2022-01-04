@@ -50,7 +50,7 @@ jobs:
         with:
           build: npm run setup -w @carto/integration
           start: npm start -w @carto/mock-discord
-          project: packages/integration
+          command: npm run int:run -w @carto/integration
 
       - name: Upload screenshots
         uses: actions/upload-artifact@v2
@@ -60,6 +60,7 @@ jobs:
           path: packages/integration/cypress/screenshots
 
       - name: Print docker-compose logs
+        if: failure()
         working-directory: packages/integration
         run: docker-compose logs
 
