@@ -43,6 +43,7 @@ jobs:
           terraform init
           terraform apply \
             -var="discord_public_key=${{ env.PUBLIC_KEY }}" \
+            -var="discord_base_url=http://172.17.0.1:3000" \
             -auto-approve
 
       - name: Run tests
