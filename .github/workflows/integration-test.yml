@@ -27,6 +27,9 @@ jobs:
 
       - uses: hashicorp/setup-terraform@v1
 
+      - name: Install Node dependencies
+        run: npm i
+
       - name: Build packages
         run: npm run build --workspaces --if-present
 
