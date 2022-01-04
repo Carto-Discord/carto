@@ -31,7 +31,7 @@ describe("Handler", () => {
   });
 
   it("should PATCH the discord webhook endpoint", async () => {
-    await handler(event);
+    await handler(JSON.stringify(event));
 
     expect(axios.patch).toBeCalledWith(
       "https://discord.com/api/v9/webhooks/app-id-123/mockToken/messages/@original",
