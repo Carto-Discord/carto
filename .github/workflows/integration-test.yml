@@ -27,9 +27,6 @@ jobs:
 
       - uses: hashicorp/setup-terraform@v1
 
-      - name: Install dependencies
-        run: npm ci
-
       - name: Build packages
         run: npm run build --workspaces --if-present
 
@@ -48,7 +45,7 @@ jobs:
       - name: Run tests
         uses: cypress-io/github-action@v2
         with:
-          build: npm run setup
+          build: npm run setup -w @carto/integration
           start: npm start -w @carto/mock-discord
 
       - name: Upload screenshots

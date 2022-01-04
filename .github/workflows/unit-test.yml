@@ -20,8 +20,5 @@ jobs:
           node-version: ${{ inputs.node-version }}
           cache: npm
 
-      - name: Install Node dependencies
-        run: npm ci
-
       - name: Test packages
         run: npm t --workspaces --if-present
