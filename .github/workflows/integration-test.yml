@@ -59,12 +59,9 @@ jobs:
           name: cypress-snapshots
           path: packages/integration/cypress/screenshots
 
-      - name: Upload tfstate
-        uses: actions/upload-artifact@v2
-        if: failure()
-        with:
-          name: tfstate
-          path: packages/terraform/localstack/terraform.tfstate
+      - name: Print docker-compose logs
+        working-directory: packages/integration
+        run: docker-compose logs
 
       - name: Stop Localstack
         working-directory: packages/integration
