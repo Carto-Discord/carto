@@ -50,7 +50,7 @@ jobs:
         with:
           build: npm run setup -w @carto/integration
           start: npm start -w @carto/mock-discord
-          command: npm run int:run -w @carto/integration
+          project: packages/integration
 
       - name: Upload screenshots
         uses: actions/upload-artifact@v2
