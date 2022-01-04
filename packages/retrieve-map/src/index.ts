@@ -1,6 +1,6 @@
 import { DynamoDBClient, GetItemCommand } from "@aws-sdk/client-dynamodb";
 import { APIGatewayProxyResult } from "aws-lambda";
-import { MessageEmbed, EmbedField } from "discord.js";
+import type { EmbedField } from "discord.js";
 
 type Event = {
   application_id: string;
@@ -37,10 +37,11 @@ export const handler = async ({
   if (!channelItem.Item || !uuid) {
     console.warn(`This channel has no map associated with it: ${channel_id}`);
 
-    const embed = new MessageEmbed({
+    const embed = {
       title: ERROR_TITLE,
       description: "This channel has no map associated with it",
-    });
+      type: "rich",
+    };
 
     return {
       statusCode: 404,
@@ -64,10 +65,11 @@ export const handler = async ({
   if (!mapItem.Item) {
     console.warn(`Map data is missing: ${uuid}`);
 
-    const embed = new MessageEmbed({
+    const embed = {
       title: ERROR_TITLE,
       description: "Map data in incomplete, please report this to bot admins",
-    });
+      type: "rich",
+    };
 
     return {
       statusCode: 500,
@@ -88,11 +90,12 @@ export const handler = async ({
 
   const url = `https://s3.${process.env.AWS_REGION}.amazonaws.com/${process.env.MAPS_BUCKET}/${uuid}.png`;
 
-  const embed = new MessageEmbed({
+  const embed = {
     title: SUCCESS_TITLE,
     image: { url },
     fields,
-  });
+    type: "rich",
+  };
 
   return {
     statusCode: 200,

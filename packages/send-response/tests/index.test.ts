@@ -9,18 +9,20 @@ describe("Handler", () => {
   const event = {
     application_id: "app-id-123",
     token: "mockToken",
-    title: "Success",
-    fields: [
-      {
-        name: "field1",
-        value: "value1",
-        inline: true,
+    embed: {
+      title: "Success",
+      fields: [
+        {
+          name: "field1",
+          value: "value1",
+          inline: true,
+        },
+      ],
+      image: {
+        url: "https://image.url",
       },
-    ],
-    image: {
-      url: "https://image.url",
     },
-  } as MessageEmbed & { application_id: string; token: string };
+  } as { application_id: string; token: string; embed: MessageEmbed };
 
   beforeEach(() => {
     process.env.BASE_URL = "https://discord.com/api/v9";
