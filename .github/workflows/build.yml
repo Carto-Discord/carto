@@ -30,4 +30,4 @@ jobs:
             ${{ runner.os }}-build-${{ env.cache-name }}-
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --workspaces
