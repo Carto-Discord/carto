@@ -38,7 +38,7 @@
     },
     "SendResponse": {
       "Type": "Task",
-      "InputPath": "$.Body",
+      "InputPath": "$.body",
       "Resource": "${sendResponseLambdaArn}",
       "End": true
     },

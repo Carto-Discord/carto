@@ -56,6 +56,6 @@ module "send_response_lambda" {
   lambda_iam_role_arn = aws_iam_role.iam_for_lambda.arn
   lambda_iam_role_name = aws_iam_role.iam_for_lambda.name
   environment_variables = {
-    "BASE_URL" = "https://discord.com/api/v9"
+    "BASE_URL" = "http://host.docker.internal:3000"
   }
 }
