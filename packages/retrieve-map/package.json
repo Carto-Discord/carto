@@ -55,6 +55,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.45.0",
-    "@aws-sdk/client-s3": "^3.45.0"
+    "@aws-sdk/client-s3": "^3.45.0",
+    "discord.js": "^13.5.0"
   }
 }

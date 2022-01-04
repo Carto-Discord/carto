@@ -1,5 +1,6 @@
 import { mockClient } from "aws-sdk-client-mock";
 import { DynamoDBClient, GetItemCommand } from "@aws-sdk/client-dynamodb";
+import { MessageEmbed } from "discord.js";
 
 import { handler } from "../src/index";
 
@@ -29,13 +30,17 @@ describe("Handler", () => {
     it("should return a 404 status", async () => {
       const response = await handler(event);
 
+      const expectedEmbed = new MessageEmbed({
+        title: "Error retrieving map",
+        description: "This channel has no map associated with it",
+      });
+
       expect(response).toEqual({
         statusCode: 404,
         body: JSON.stringify({
           token: event.token,
           application_id: event.application_id,
-          title: "Error retrieving map",
-          description: "This channel has no map associated with it",
+          embed: expectedEmbed,
         }),
       });
     });
@@ -49,13 +54,17 @@ describe("Handler", () => {
     it("should return a 404 status", async () => {
       const response = await handler(event);
 
+      const expectedEmbed = new MessageEmbed({
+        title: "Error retrieving map",
+        description: "This channel has no map associated with it",
+      });
+
       expect(response).toEqual({
         statusCode: 404,
         body: JSON.stringify({
           token: event.token,
           application_id: event.application_id,
-          title: "Error retrieving map",
-          description: "This channel has no map associated with it",
+          embed: expectedEmbed,
         }),
       });
     });
@@ -80,14 +89,17 @@ describe("Handler", () => {
     it("should return a 500 status", async () => {
       const response = await handler(event);
 
+      const expectedEmbed = new MessageEmbed({
+        title: "Error retrieving map",
+        description: "Map data in incomplete, please report this to bot admins",
+      });
+
       expect(response).toEqual({
         statusCode: 500,
         body: JSON.stringify({
           token: event.token,
           application_id: event.application_id,
-          title: "Error retrieving map",
-          description:
-            "Map data in incomplete, please report this to bot admins",
+          embed: expectedEmbed,
         }),
       });
     });
@@ -150,16 +162,20 @@ describe("Handler", () => {
         },
       ];
 
+      const expectedEmbed = new MessageEmbed({
+        title: "Retrieved map",
+        fields: expectedFields,
+        image: {
+          url: "https://s3.eu-central-1.amazonaws.com/carto-bot-maps/map-1234.png",
+        },
+      });
+
       expect(response).toEqual({
         statusCode: 200,
         body: JSON.stringify({
           token: event.token,
           application_id: event.application_id,
-          title: "Retrieved map",
-          fields: expectedFields,
-          image: {
-            url: "https://s3.eu-central-1.amazonaws.com/carto-bot-maps/map-1234.png",
-          },
+          embed: expectedEmbed,
         }),
       });
     });

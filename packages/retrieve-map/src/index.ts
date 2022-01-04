@@ -1,5 +1,6 @@
 import { DynamoDBClient, GetItemCommand } from "@aws-sdk/client-dynamodb";
 import { APIGatewayProxyResult } from "aws-lambda";
+import { MessageEmbed, EmbedField } from "discord.js";
 
 type Event = {
   application_id: string;
@@ -36,13 +37,17 @@ export const handler = async ({
   if (!channelItem.Item || !uuid) {
     console.warn(`This channel has no map associated with it: ${channel_id}`);
 
+    const embed = new MessageEmbed({
+      title: ERROR_TITLE,
+      description: "This channel has no map associated with it",
+    });
+
     return {
       statusCode: 404,
       body: JSON.stringify({
         token,
         application_id,
-        title: ERROR_TITLE,
-        description: "This channel has no map associated with it",
+        embed,
       }),
     };
   }
@@ -59,34 +64,42 @@ export const handler = async ({
   if (!mapItem.Item) {
     console.warn(`Map data is missing: ${uuid}`);
 
+    const embed = new MessageEmbed({
+      title: ERROR_TITLE,
+      description: "Map data in incomplete, please report this to bot admins",
+    });
+
     return {
       statusCode: 500,
       body: JSON.stringify({
         token,
         application_id,
-        title: ERROR_TITLE,
-        description: "Map data in incomplete, please report this to bot admins",
+        embed,
       }),
     };
   }
 
   const tokens = mapItem.Item.tokens?.L || [];
-  const fields = tokens.map((token) => ({
-    name: token.M?.name.S,
-    value: `${token.M?.column.S?.toUpperCase()}${token.M?.row.N}`,
+  const fields: EmbedField[] = tokens.map(({ M: token }, i) => ({
+    name: token?.name.S || `token ${i}`,
+    value: `${token?.column.S?.toUpperCase()}${token?.row.N}`,
     inline: true,
   }));
 
   const url = `https://s3.${process.env.AWS_REGION}.amazonaws.com/${process.env.MAPS_BUCKET}/${uuid}.png`;
+
+  const embed = new MessageEmbed({
+    title: SUCCESS_TITLE,
+    image: { url },
+    fields,
+  });
 
   return {
     statusCode: 200,
     body: JSON.stringify({
       token,
       application_id,
-      title: SUCCESS_TITLE,
-      fields,
-      image: { url },
+      embed,
     }),
   };
 };
