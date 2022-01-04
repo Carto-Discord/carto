@@ -15,7 +15,16 @@ export const handler = async ({
   channel_id,
   token,
 }: Event): Promise<APIGatewayProxyResult> => {
-  const dynamodbClient = new DynamoDBClient({ region: process.env.AWS_REGION });
+  // Local testing only, ignored in production
+  const { LOCALSTACK_HOSTNAME } = process.env;
+  const endpoint = LOCALSTACK_HOSTNAME
+    ? `http://${LOCALSTACK_HOSTNAME}:4566`
+    : undefined;
+
+  const dynamodbClient = new DynamoDBClient({
+    region: process.env.AWS_REGION,
+    endpoint,
+  });
   const getChannelItemCommand = new GetItemCommand({
     TableName: process.env.CHANNELS_TABLE,
     Key: { id: { S: channel_id } },

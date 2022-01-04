@@ -58,7 +58,16 @@ export const handler = async (
         ...parameters,
       };
 
-      const client = new SFNClient({ region: process.env.AWS_REGION });
+      // Local testing only, ignored in production
+      const { LOCALSTACK_HOSTNAME } = process.env;
+      const endpoint = LOCALSTACK_HOSTNAME
+        ? `http://${LOCALSTACK_HOSTNAME}:4566`
+        : undefined;
+
+      const client = new SFNClient({
+        region: process.env.AWS_REGION,
+        endpoint,
+      });
       const startCommand = new StartExecutionCommand({
         input: JSON.stringify(input),
         stateMachineArn: process.env.STATE_MACHINE_ARN,
