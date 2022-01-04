@@ -36,38 +36,37 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-build-${{ env.cache-name }}-
 
-      - name: Download Client Artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: carto-client
-          path: client/package
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build packages
+        run: npm run build --workspaces --if-present
 
       - name: Start Localstack
-        working-directory: integration
-        run: docker-compose -f localstack.yml up -d
+        working-directory: packages/integration
+        run: docker-compose up -d
 
       - name: Build test environment
-        working-directory: integration/deployment
+        working-directory: packages/terraform/localstack
         run: |
           terraform init
           terraform apply \
             -var="discord_public_key=${{ env.PUBLIC_KEY }}" \
-            -var="api_trigger_url=http://api:8080" \
             -auto-approve
 
       - name: Run tests
         uses: cypress-io/github-action@v2
         with:
-          working-directory: integration
           build: npm run setup
+          start: npm start -w @carto/mock-discord
 
       - name: Upload screenshots
         uses: actions/upload-artifact@v2
         if: failure()
         with:
           name: cypress-snapshots
-          path: integration/cypress/screenshots
+          path: packages/integration/cypress/screenshots
 
       - name: Stop Localstack
-        working-directory: integration
-        run: docker-compose -f localstack.yml down
+        working-directory: packages/integration
+        run: docker-compose down

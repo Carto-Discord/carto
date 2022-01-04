@@ -17,8 +17,8 @@
   },
   "scripts": {
     "setup": "ts-node src/setupS3.ts",
-    "test": "cypress open",
-    "test:ci": "cypress run"
+    "int:open": "cypress open",
+    "int:run": "cypress run"
   },
   "repository": {
     "type": "git",
