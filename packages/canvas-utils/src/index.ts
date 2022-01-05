@@ -1,2 +1,2 @@
-export * from "./columns";
-export * from "./fonts";
+export * from "./columns.js";
+export * from "./fonts.js";

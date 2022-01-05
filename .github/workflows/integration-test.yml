@@ -30,6 +30,10 @@ jobs:
       - name: Install Node dependencies
         run: npm i
 
+      - name: Build local dependencies
+        run: |
+          npm run build -w @carto/canvas-utils
+
       - name: Build packages
         run: npm run build --workspaces --if-present
 
