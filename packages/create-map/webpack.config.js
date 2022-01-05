@@ -26,6 +26,10 @@ module.exports = {
           loader: "swc-loader",
         },
       },
+      {
+        test: /\.node$/,
+        use: "node-loader",
+      },
     ],
   },
 };
