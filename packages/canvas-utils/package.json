@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Reusable utilities for Canvas related activities",
   "main": "dist/index.js",
-  "type": "module",
+  "type": "commonjs",
   "devDependencies": {
     "@swc/cli": "^0.1.55",
     "@swc/core": "^1.2.123",
