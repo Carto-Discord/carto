@@ -19,6 +19,14 @@ type Event = {
 const ERROR_TITLE = "Map create error";
 const SUCCESS_TITLE = "Map created";
 
+// Hack to make Canvas work on Lambda
+if (process.env["LAMBDA_TASK_ROOT"]) {
+  process.env["PATH"] =
+    process.env["PATH"] + ":" + process.env["LAMBDA_TASK_ROOT"] + "/lib";
+  process.env["LD_LIBRARY_PATH"] = process.env["LAMBDA_TASK_ROOT"] + "/lib";
+  process.env["PKG_CONFIG_PATH"] = process.env["LAMBDA_TASK_ROOT"] + "/lib";
+}
+
 export const handler = async ({
   application_id,
   channel_id,
@@ -47,7 +55,15 @@ export const handler = async ({
   const { buffer, margin } = gridData;
   const mapId = nanoid();
 
-  const s3Client = new S3Client({ region: process.env.AWS_REGION });
+  // Local testing only, ignored in production
+  const { LOCALSTACK_HOSTNAME } = process.env;
+  const endpoint = LOCALSTACK_HOSTNAME ? `http://localhost:4566` : undefined;
+
+  const s3Client = new S3Client({
+    region: process.env.AWS_REGION,
+    endpoint,
+    forcePathStyle: true,
+  });
   const putObjectCommand = new PutObjectCommand({
     Key: `${mapId}.png`,
     Bucket: process.env.MAPS_BUCKET,
@@ -56,7 +72,10 @@ export const handler = async ({
     ContentType: "image/png",
   });
 
-  const dynamodbClient = new DynamoDBClient({ region: process.env.AWS_REGION });
+  const dynamodbClient = new DynamoDBClient({
+    region: process.env.AWS_REGION,
+    endpoint,
+  });
   const putItemCommand = new PutItemCommand({
     TableName: process.env.MAPS_TABLE,
     Item: {
