@@ -27,6 +27,11 @@
           "Variable": "$.subCommand",
           "StringEquals": "delete",
           "Next": "DeleteMap"
+        },
+        {
+          "Variable": "$.subCommand",
+          "StringEquals": "create",
+          "Next": "CreateMap"
         }
       ],
       "Default": "Failure"
@@ -49,6 +54,19 @@
         "channel_id.$": "$.channel_id"
       },
       "Resource": "${deleteMapLambdaArn}",
+      "Next": "SendResponse"
+    },
+    "CreateMap": {
+      "Type": "Task",
+      "Parameters": {
+        "application_id.$": "$.application_id",
+        "token.$": "$.token",
+        "channel_id.$": "$.channel_id",
+        "url.$": "$.url",
+        "rows.$": "$.rows",
+        "columns.$": "$.columns"
+      },
+      "Resource": "${createMapLambdaArn}",
       "Next": "SendResponse"
     },
     "SendResponse": {
