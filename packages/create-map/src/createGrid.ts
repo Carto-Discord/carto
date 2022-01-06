@@ -1,4 +1,4 @@
-import { createCanvas, loadImage } from "canvas";
+import { createCanvas, loadImage, registerFont } from "canvas";
 import { getColumnString, findOptimalFontSize } from "@carto/canvas-utils";
 
 type Props = {
@@ -20,6 +20,8 @@ export const createGrid = async ({
   rows,
   columns,
 }: Props): Promise<GridData | undefined> => {
+  registerFont("./OpenSans-Regular.ttf", { family: "Open Sans" });
+
   const image = await loadImage(url).catch((error) => {
     console.log(error);
   });
@@ -45,6 +47,7 @@ export const createGrid = async ({
   // Draw columns
   let currentColumn = 1;
 
+  ctx.font = '10px "Open Sans"';
   findOptimalFontSize({
     context: ctx,
     text: getColumnString(columns),
