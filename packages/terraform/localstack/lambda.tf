@@ -66,6 +66,7 @@ module "create_map_lambda" {
   app_name = var.app_name
   function_name = "create-map"
   runtime = "nodejs14.x"
+  timeout = 10
   lambda_iam_role_arn = aws_iam_role.iam_for_lambda.arn
   lambda_iam_role_name = aws_iam_role.iam_for_lambda.name
   environment_variables = {

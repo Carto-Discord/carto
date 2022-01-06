@@ -10,6 +10,12 @@ variable "runtime" {
   description = "Programmatic runtime to run the function"
 }
 
+variable "timeout" {
+  type = number
+  description = "Timeout for function"
+  default = 3
+}
+
 variable "environment_variables" {
   type        = map(string)
   description = "Environment variables to pass to the function"
