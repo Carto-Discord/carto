@@ -40,7 +40,7 @@ jobs:
           npm run build -w @carto/canvas-utils
 
       - name: Build node-canvas libraries
-        run: docker build -t canvas-libs ./packages/create-map
+        run: docker build -t canvas-libs .
 
       - name: Inject libraries
         run: |
