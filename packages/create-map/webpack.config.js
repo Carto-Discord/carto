@@ -6,6 +6,9 @@ module.exports = {
   entry: "./src/index.ts",
   resolve: {
     extensions: [".js", ".json", ".ts"],
+    alias: {
+      "@carto/canvas-utils": path.resolve(__dirname, "../canvas-utils"),
+    },
   },
   output: {
     libraryTarget: "commonjs",

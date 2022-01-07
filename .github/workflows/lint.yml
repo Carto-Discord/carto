@@ -21,7 +21,7 @@ jobs:
           cache: npm
 
       - name: Install Node dependencies
-        run: npm i
+        run: npm ci
 
       - name: Lint packages
         run: npm run lint --workspaces --if-present

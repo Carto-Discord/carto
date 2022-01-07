@@ -21,7 +21,7 @@ jobs:
           cache: npm
 
       - name: Install Node dependencies
-        run: npm i
+        run: npm ci
 
       - name: Test packages
         run: npm t --workspaces --if-present
