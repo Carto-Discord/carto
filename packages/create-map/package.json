@@ -54,9 +54,6 @@
       "^.+\\.ts?$": [
         "@swc/jest"
       ]
-    },
-    "moduleNameMapper": {
-      "^@carto/canvas-utils$": "<rootDir>/../canvas-utils"
     }
   }
 }
