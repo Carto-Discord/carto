@@ -39,9 +39,11 @@ jobs:
         run: |
           npm run build -w @carto/canvas-utils
 
-      - name: Inject node-canvas libraries
+      - name: Build node-canvas libraries
+        run: docker build -t canvas-libs ./packages/create-map
+
+      - name: Inject libraries
         run: |
-          docker build -t canvas-libs ./packages/create-map
           id=$(docker create canvas-libs)
           docker cp $id:/root/dist ./packages/create-map
           docker rm -v $id

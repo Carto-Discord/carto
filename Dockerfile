@@ -1,22 +1,32 @@
-FROM python:3.10-slim
+FROM amazonlinux:latest
 
-# Allow statements and log messages to immediately appear in the Knative logs
-ENV PYTHONUNBUFFERED True
+ARG LIBS=/usr/lib64
+ARG OUT=/root
+ARG NODE_VERSION=14
 
-# Copy local code to the container image.
-ENV APP_HOME /
-WORKDIR $APP_HOME
-COPY ./api ./api
+# set up container
+RUN yum -y update \
+&& yum -y groupinstall "Development Tools" \
+&& curl --silent --location https://rpm.nodesource.com/setup_${NODE_VERSION}.x | bash - \
+&& yum install -y nodejs gcc-c++ cairo-devel libjpeg-turbo-devel pango-devel giflib-devel
 
-# Install production dependencies.
-RUN pip install --upgrade pip
-RUN pip install -r api/requirements.txt
+# will be created and become working dir
+WORKDIR $OUT/nodejs
 
-ENV PYTHONPATH api
+RUN npm install canvas@2.6.1
 
-# Run the web service on container startup. Here we use the gunicorn
-# webserver, with one worker process and 8 threads.
-# For environments with multiple CPU cores, increase the number of workers
-# to be equal to the cores available.
-# Timeout is set to 0 to disable the timeouts of the workers to allow instance scaling.
-CMD exec gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 --log-level $LEVEL wsgi:app
+# will be created and become working dir
+WORKDIR $OUT/lib
+
+# gather missing libraries
+RUN cp $LIBS/libblkid.so.1 . \
+&& cp $LIBS/libmount.so.1 . \
+&& cp $LIBS/libuuid.so.1 . \
+&& cp $LIBS/libfontconfig.so.1 . \
+&& cp $LIBS/libpixman-1.so.0 .
+
+WORKDIR $OUT/dist/lib
+
+# copy prebuilt and missing libs
+RUN cp -r $OUT/nodejs/node_modules/canvas/build/Release/. . \
+&& cp -a $OUT/lib/. .
