@@ -9,6 +9,6 @@ describe("Find Optimal Font size", () => {
 
     findOptimalFontSize({ context, text: "text", maxWidth: 50, maxHeight: 30 });
 
-    expect(context.font).toEqual("28px sans-serif");
+    expect(context.font).toEqual(expect.stringMatching(/^\d{2}px sans-serif/));
   });
 });

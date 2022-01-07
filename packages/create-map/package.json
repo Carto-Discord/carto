@@ -56,7 +56,7 @@
       ]
     },
     "moduleNameMapper": {
-      "^@carto/canvas-utils/(.*)": "../canvas-utils"
+      "^@carto/canvas-utils": "<rootDir>/../canvas-utils"
     }
   }
 }
