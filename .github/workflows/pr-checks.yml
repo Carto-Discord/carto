@@ -14,3 +14,5 @@ jobs:
   integration:
     needs: build
     uses: carto-discord/carto/.github/workflows/integration-test.yml@localstack-integration
+    with:
+      node-version: "14"

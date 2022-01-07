@@ -25,10 +25,15 @@ jobs:
           node-version: ${{ inputs.node-version }}
           cache: npm
 
+      # Needed to get Workspaces in Node 14
+      - name: Upgrade NPM
+        if: ${{ inputs.node-version != "16" }}
+        run: npm i -g npm
+
       - uses: hashicorp/setup-terraform@v1
 
       - name: Install Node dependencies
-        run: npm i
+        run: npm ci
 
       - name: Build local dependencies
         run: |
