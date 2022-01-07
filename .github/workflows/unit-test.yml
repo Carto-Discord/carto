@@ -23,5 +23,9 @@ jobs:
       - name: Install Node dependencies
         run: npm ci
 
+      - run: |
+          ls -la
+          pwd
+
       - name: Test packages
         run: npm t --workspaces --if-present
