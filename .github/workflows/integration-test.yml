@@ -27,7 +27,7 @@ jobs:
 
       # Needed to get Workspaces in Node 14
       - name: Upgrade NPM
-        if: ${{ github.events.inputs.node-version != "16" }}
+        if: '${{ github.events.inputs.node-version != "16" }}'
         run: npm i -g npm
 
       - uses: hashicorp/setup-terraform@v1
