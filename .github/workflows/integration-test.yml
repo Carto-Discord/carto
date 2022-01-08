@@ -38,6 +38,7 @@ jobs:
       - name: Build local dependencies
         run: |
           npm run build -w @carto/canvas-utils
+          npm run build -w @carto/token-utils
 
       - name: Build node-canvas libraries
         run: docker build -t canvas-libs .
