@@ -8,7 +8,7 @@ import { getColumnNumber } from "@carto/canvas-utils";
 type ValidateMapResponse =
   | { statusCode: 404 | 500 }
   | {
-      statusCode: number;
+      statusCode: 200;
       baseMapData: GetItemCommandOutput;
       baseMapFilename: string;
       currentMapData: GetItemCommandOutput;

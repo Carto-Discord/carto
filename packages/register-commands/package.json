@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/Carto-Discord/carto#readme",
   "dependencies": {
+    "@carto/token-utils": "*",
     "slash-commands": "^1.5.0"
   },
   "devDependencies": {

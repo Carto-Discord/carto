@@ -25,7 +25,7 @@ jobs:
 
       - name: Build local dependencies
         run: |
-          npm run build -w @carto/canvas-utils
+          npm run build -w @carto/map-utils
           npm run build -w @carto/token-utils
 
       - name: Test packages

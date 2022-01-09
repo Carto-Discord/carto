@@ -3,6 +3,7 @@ import {
   DiscordInteractions,
   PartialApplicationCommand,
 } from "slash-commands";
+import { Size } from "@carto/token-utils";
 import { CommandGroup, SubCommand } from "./types.js";
 
 const mapCommand: PartialApplicationCommand = {
@@ -88,27 +89,27 @@ const tokenCommand: PartialApplicationCommand = {
           choices: [
             {
               name: "Tiny",
-              value: "TINY",
+              value: Size.TINY,
             },
             {
               name: "Small",
-              value: "SMALL",
+              value: Size.SMALL,
             },
             {
               name: "Medium",
-              value: "MEDIUM",
+              value: Size.MEDIUM,
             },
             {
               name: "Large",
-              value: "LARGE",
+              value: Size.LARGE,
             },
             {
               name: "Huge",
-              value: "HUGE",
+              value: Size.HUGE,
             },
             {
               name: "Gargantuan",
-              value: "GARGANTUAN",
+              value: Size.GARGANTUAN,
             },
           ],
         },

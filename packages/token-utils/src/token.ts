@@ -3,7 +3,7 @@ import { Readable } from "stream";
 import { createCanvas, loadImage, registerFont } from "canvas";
 
 import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import { getColumnNumber, findOptimalFontSize } from "@carto/canvas-utils";
+import { getColumnNumber, findOptimalFontSize } from "@carto/map-utils";
 
 export enum Size {
   "TINY" = 0.5,
@@ -14,7 +14,7 @@ export enum Size {
   "GARGANTUAN" = 4,
 }
 
-type Token = {
+export type Token = {
   name: string;
   row: number;
   column: string;
