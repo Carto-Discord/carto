@@ -1,8 +1,9 @@
 import fs from "fs";
 import { Readable } from "stream";
+import { createCanvas, loadImage, registerFont } from "canvas";
 
 import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import { loadImage, registerFont } from "canvas";
+import { getColumnNumber, findOptimalFontSize } from "@carto/canvas-utils";
 
 export enum Size {
   "TINY" = 0.5,
@@ -12,6 +13,14 @@ export enum Size {
   "HUGE" = 3,
   "GARGANTUAN" = 4,
 }
+
+type Token = {
+  name: string;
+  row: number;
+  column: string;
+  color: string;
+  size: Size;
+};
 
 type Coordinates = {
   x0: number;
@@ -23,6 +32,15 @@ type Coordinates = {
 type PlaceTinyTokenProps = {
   index: number;
   coordinates: Coordinates;
+};
+
+type ApplyTokensProps = {
+  baseFilename: string;
+  margin: {
+    x: number;
+    y: number;
+  };
+  tokens: Token[];
 };
 
 // Local testing only, ignored in production
@@ -63,4 +81,81 @@ export const placeTinyToken = ({
   else if (positionOnSquare == 3)
     return { x0, y0: (y0 + y1) / 2, x1: (x0 + x1) / 2, y1 };
   else return { x0: (x0 + x1) / 2, y0: (y0 + y1) / 2, x1, y1 };
+};
+
+export const applyTokensToGrid = async ({
+  baseFilename,
+  margin,
+  tokens,
+}: ApplyTokensProps) => {
+  registerFont("./OpenSans-Regular.ttf", { family: "Open Sans" });
+
+  const image = await loadImage(baseFilename).catch(console.warn);
+
+  if (!image) return;
+
+  const canvas = createCanvas(image.width, image.height);
+  const ctx = canvas.getContext("2d");
+  ctx.drawImage(image, 0, 0);
+
+  ctx.textBaseline = "middle";
+  ctx.textAlign = "center";
+
+  let tinyTokensCount = 0;
+
+  tokens.forEach((token) => {
+    const { row, name, size, color } = token;
+    const col = getColumnNumber(token.column);
+
+    const initialY1 = image.width - row * margin.y;
+
+    let coordinates: Coordinates = {
+      x0: (col - 1) * margin.x,
+      x1: (col - 1 + size) * margin.x,
+      y0: initialY1 - size * margin.y,
+      y1: initialY1,
+    };
+
+    if (size === Size.TINY) {
+      const index = tinyTokensCount++;
+
+      coordinates = placeTinyToken({
+        index,
+        coordinates: {
+          ...coordinates,
+          y0: image.width - (row + 1) * margin.y,
+          x1: col * margin.x,
+        },
+      });
+    }
+
+    const { x0, y0, x1, y1 } = coordinates;
+
+    const x = (x0 + x1) / 2;
+    const y = (y0 + y1) / 2;
+    const radius = Math.min(x1 - x0, y1 - y0) / 2;
+
+    ctx.fillStyle = color;
+
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, 2 * Math.PI);
+    ctx.fill();
+
+    ctx.fillStyle = "white";
+    ctx.strokeStyle = "black";
+
+    const label = name.slice(0, 1).toUpperCase();
+
+    findOptimalFontSize({
+      context: ctx,
+      text: label,
+      maxWidth: margin.x * size * 0.7,
+      maxHeight: margin.y * size * 0.7,
+    });
+
+    ctx.fillText(label, x, y);
+    ctx.strokeText(label, x, y);
+  });
+
+  return canvas.toBuffer();
 };

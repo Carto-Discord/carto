@@ -22,9 +22,7 @@ export const createGrid = async ({
 }: Props): Promise<GridData | undefined> => {
   registerFont("./OpenSans-Regular.ttf", { family: "Open Sans" });
 
-  const image = await loadImage(url).catch((error) => {
-    console.log(error);
-  });
+  const image = await loadImage(url).catch(console.warn);
 
   if (!image) return;
 

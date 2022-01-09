@@ -4,7 +4,12 @@ import { PassThrough } from "stream";
 import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { mockClient } from "aws-sdk-client-mock";
 
-import { downloadImage, placeTinyToken } from "../src/token";
+import {
+  applyTokensToGrid,
+  downloadImage,
+  placeTinyToken,
+  Size,
+} from "../src/token";
 
 describe("Download image", () => {
   const mockS3Client = mockClient(S3Client);
@@ -74,4 +79,40 @@ describe("Place Tiny Token", () => {
       expect(placeTinyToken({ index, coordinates })).toEqual(expected);
     }
   );
+});
+
+// Local testing only, for now
+describe.skip("Apply tokens to grid", () => {
+  it("should create the new image", async () => {
+    const tokens = [
+      {
+        name: "Alvyn",
+        color: "blue",
+        column: "D",
+        row: 7,
+        size: Size.MEDIUM,
+      },
+      {
+        name: "Ben",
+        color: "pink",
+        column: "F",
+        row: 14,
+        size: Size.TINY,
+      },
+      {
+        name: "Chloe",
+        color: "green",
+        column: "F",
+        row: 14,
+        size: Size.TINY,
+      },
+    ];
+    const buffer = await applyTokensToGrid({
+      baseFilename: "test.png",
+      margin: { x: 55, y: 55 },
+      tokens,
+    });
+
+    fs.writeFileSync("tokens.png", buffer);
+  });
 });
