@@ -1,5 +1,5 @@
 import { createCanvas, loadImage, registerFont } from "canvas";
-import { getColumnString, findOptimalFontSize } from "@carto/canvas-utils";
+import { getColumnString, findOptimalFontSize } from "@carto/map-utils";
 
 type Props = {
   url: string;
