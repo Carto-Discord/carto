@@ -3,7 +3,7 @@ import {
   GetItemCommand,
   GetItemCommandOutput,
 } from "@aws-sdk/client-dynamodb";
-import { getColumnNumber } from "@carto/canvas-utils";
+import { getColumnNumber } from "@carto/map-utils";
 
 type ValidateMapResponse =
   | { statusCode: 404 | 500 }
