@@ -30,7 +30,7 @@
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.45.0",
     "@aws-sdk/client-s3": "^3.45.0",
-    "@carto/canvas-utils": "*",
+    "@carto/canvas-utils": "file:../canvas-utils",
     "canvas": "^2.8.0",
     "nanoid": "^3.1.30"
   },
