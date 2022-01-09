@@ -30,7 +30,7 @@
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.45.0",
     "@aws-sdk/client-s3": "^3.45.0",
-    "@carto/canvas-utils": "file:../canvas-utils",
+    "@carto/canvas-utils": "*",
     "canvas": "^2.8.0",
     "nanoid": "^3.1.30"
   },
@@ -54,6 +54,10 @@
       "^.+\\.ts?$": [
         "@swc/jest"
       ]
+    },
+    "rootDir": "../../",
+    "moduleNameMapper": {
+      "^@carto/canvas-utils$": "<rootDir>/packages/canvas-utils"
     }
   }
 }
