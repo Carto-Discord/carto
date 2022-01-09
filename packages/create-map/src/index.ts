@@ -5,7 +5,7 @@ import { DynamoDBClient, PutItemCommand } from "@aws-sdk/client-dynamodb";
 import { nanoid } from "nanoid";
 
 import { createGrid } from "./createGrid";
-import { updateChannelBaseMap } from "./dynamodb";
+import { updateChannelBaseMap } from "@carto/map-utils";
 
 type Event = {
   application_id: string;
