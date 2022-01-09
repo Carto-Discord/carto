@@ -23,5 +23,10 @@ jobs:
       - name: Install Node dependencies
         run: npm ci
 
+      - name: Build local dependencies
+        run: |
+          npm run build -w @carto/canvas-utils
+          npm run build -w @carto/token-utils
+
       - name: Test packages
         run: npm t --workspaces --if-present
