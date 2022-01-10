@@ -6,10 +6,10 @@ import { mockClient } from "aws-sdk-client-mock";
 import { createGrid } from "../src/createGrid";
 import { handler } from "../src/index";
 
-jest.mock("../src/createGrid");
-jest.mock("../src/dynamodb", () => ({
+jest.mock("@carto/map-utils", () => ({
   updateChannelBaseMap: () => () => Promise.resolve({}),
 }));
+jest.mock("../src/createGrid");
 
 const mockS3Client = mockClient(S3Client);
 const mockDynamoClient = mockClient(DynamoDBClient);
