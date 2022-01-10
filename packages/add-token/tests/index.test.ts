@@ -100,6 +100,10 @@ describe("Handler", () => {
     mockUploadMap.mockResolvedValue(true);
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it("should return a 200 response", async () => {
     const response = await handler(defaultProps);
 
