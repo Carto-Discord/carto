@@ -25,6 +25,7 @@ data "template_file" "definition" {
     getMapLambdaArn = module.get_map_lambda.lambda_arn
     deleteMapLambdaArn = module.delete_map_lambda.lambda_arn
     createMapLambdaArn = module.create_map_lambda.lambda_arn
+    addTokenLambdaArn = module.add_token_lambda.lambda_arn
     sendResponseLambdaArn = module.send_response_lambda.lambda_arn
   }
 }

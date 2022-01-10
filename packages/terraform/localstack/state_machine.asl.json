@@ -10,12 +10,17 @@
           "Variable": "$.command",
           "StringEquals": "map",
           "Next": "Map"
+        },
+        {
+          "Variable": "$.command",
+          "StringEquals": "token",
+          "Next": "Token"
         }
       ],
       "Default": "Failure"
     },
     "Map": {
-      "Comment": "The Subcommand comes after the top level Command, and may include parameters, e.g. /map create https://image.com/img.png 10 10",
+      "Comment": "The Subcommand comes after the top level Command, and may include parameters, e.g. /map create url: https://image.com/img.png rows: 10 columns: 10",
       "Type": "Choice",
       "Choices": [
         {
@@ -32,6 +37,18 @@
           "Variable": "$.subCommand",
           "StringEquals": "create",
           "Next": "CreateMap"
+        }
+      ],
+      "Default": "Failure"
+    },
+    "Token": {
+      "Comment": "The Subcommand comes after the top level Command, and may include parameters, e.g. /token add name: Doug row: 7 column: T",
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.subCommand",
+          "StringEquals": "add",
+          "Next": "AddToken"
         }
       ],
       "Default": "Failure"
@@ -67,6 +84,21 @@
         "columns.$": "$.columns"
       },
       "Resource": "${createMapLambdaArn}",
+      "Next": "SendResponse"
+    },
+    "AddToken": {
+      "Type": "Task",
+      "Parameters": {
+        "application_id.$": "$.application_id",
+        "token.$": "$.token",
+        "channel_id.$": "$.channel_id",
+        "name.$": "$.name",
+        "row.$": "$.row",
+        "column.$": "$.column",
+        "size.$": "$.size",
+        "color.$": "$.color"
+      },
+      "Resource": "${addTokenLambdaArn}",
       "Next": "SendResponse"
     },
     "SendResponse": {
