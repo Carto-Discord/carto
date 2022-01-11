@@ -7,7 +7,7 @@ module.exports = {
   resolve: {
     extensions: [".js", ".json", ".ts"],
     alias: {
-      "@carto/canvas-utils": path.resolve(__dirname, "../canvas-utils"),
+      "@carto/map-utils": path.resolve(__dirname, "../map-utils"),
     },
   },
   output: {

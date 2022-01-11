@@ -60,6 +60,7 @@ export const handler = async ({
         title: ERROR_TITLE,
         description:
           "Map data for this channel is incomplete.\nCreate the map again or [report it](https://www.github.com/carto-discord/carto/issues).",
+        type: "rich",
       },
     }),
   };
@@ -77,6 +78,7 @@ export const handler = async ({
             title: ERROR_TITLE,
             description:
               "No map exists for this channel.\nCreate one with the `/map create` command",
+            type: "rich",
           },
         }),
       };
@@ -108,6 +110,7 @@ export const handler = async ({
         embed: {
           title: ERROR_TITLE,
           description: `The row or column you entered is out of bounds.\nThis map's bounds are ${rows.N} rows by ${columns.N} columns`,
+          type: "rich",
         },
       }),
     };
@@ -152,6 +155,7 @@ export const handler = async ({
           title: ERROR_TITLE,
           description:
             "Map could not be recreated. Reason: Original map could not be found",
+          type: "rich",
         },
       }),
     };
@@ -177,6 +181,7 @@ export const handler = async ({
         embed: {
           title: ERROR_TITLE,
           description: "Map could not be created",
+          type: "rich",
         },
       }),
     };
@@ -208,6 +213,7 @@ export const handler = async ({
             value: `${token.column.toUpperCase()}${token.row}`,
             inline: true,
           })),
+          type: "rich",
         },
       }),
     };
@@ -221,6 +227,7 @@ export const handler = async ({
           title: ERROR_TITLE,
           description:
             "An error occured while creating the new map. Please try again later",
+          type: "rich",
         },
       }),
     };

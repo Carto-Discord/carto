@@ -49,7 +49,11 @@ const endpoint = process.env.LOCALSTACK_HOSTNAME
   : undefined;
 
 export const downloadImage = async (filename: string, filepath: string) => {
-  const client = new S3Client({ region: process.env.AWS_REGION, endpoint });
+  const client = new S3Client({
+    region: process.env.AWS_REGION,
+    endpoint,
+    forcePathStyle: true,
+  });
   const command = new GetObjectCommand({
     Bucket: process.env.MAPS_BUCKET,
     Key: filename,

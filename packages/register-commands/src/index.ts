@@ -76,8 +76,8 @@ const tokenCommand: PartialApplicationCommand = {
           type: ApplicationCommandOptionType.STRING,
         },
         {
-          name: "colour",
-          description: "The token colour. Default: Random",
+          name: "color",
+          description: "The token color. Default: Random",
           required: false,
           type: ApplicationCommandOptionType.STRING,
         },

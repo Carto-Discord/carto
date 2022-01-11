@@ -49,6 +49,7 @@ describe("Handler", () => {
         title: "Token Add error",
         description:
           "Map data for this channel is incomplete.\nCreate the map again or [report it](https://www.github.com/carto-discord/carto/issues).",
+        type: "rich",
       },
     }),
   };
@@ -122,6 +123,7 @@ describe("Handler", () => {
             { name: "existing1", value: "E7", inline: true },
             { name: "token1", value: "B4", inline: true },
           ],
+          type: "rich",
         },
       }),
     });
@@ -144,6 +146,7 @@ describe("Handler", () => {
             title: "Token Add error",
             description:
               "No map exists for this channel.\nCreate one with the `/map create` command",
+            type: "rich",
           },
         }),
       });
@@ -291,6 +294,7 @@ describe("Handler", () => {
           embed: {
             title: "Token Add error",
             description: `The row or column you entered is out of bounds.\nThis map's bounds are 6 rows by 9 columns`,
+            type: "rich",
           },
         }),
       });
@@ -316,6 +320,7 @@ describe("Handler", () => {
             title: "Token Add error",
             description:
               "Map could not be recreated. Reason: Original map could not be found",
+            type: "rich",
           },
         }),
       });
@@ -375,6 +380,7 @@ describe("Handler", () => {
           embed: {
             title: "Token Add error",
             description: "Map could not be created",
+            type: "rich",
           },
         }),
       });
@@ -405,6 +411,7 @@ describe("Handler", () => {
             title: "Token Add error",
             description:
               "An error occured while creating the new map. Please try again later",
+            type: "rich",
           },
         }),
       });
