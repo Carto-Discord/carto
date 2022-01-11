@@ -32,6 +32,15 @@ if (process.env["LAMBDA_TASK_ROOT"]) {
   process.env["PKG_CONFIG_PATH"] = process.env["LAMBDA_TASK_ROOT"] + "/lib";
 }
 
+const getRandomColor = () => {
+  const letters = "0123456789ABCDEF";
+  let color = "#";
+  for (let i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+};
+
 export const handler = async ({
   application_id,
   channel_id,
@@ -104,7 +113,7 @@ export const handler = async ({
     };
   }
 
-  if (!color) color = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
+  if (!color) color = getRandomColor();
   if (!size) size = Size.MEDIUM;
 
   // Add new token onto existing tokens
