@@ -1,5 +1,5 @@
 export type Token = {
-  colour: string;
+  color: string;
   column: string;
   name: string;
   row: number;
@@ -14,8 +14,7 @@ export type CartoMap = {
 export type CartoBaseMap = {
   id: string;
   columns: number;
-  margin_x: number;
-  margin_y: number;
+  margin: { x: number; y: number };
   rows: number;
   url: string;
 };

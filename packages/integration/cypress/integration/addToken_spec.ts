@@ -202,112 +202,112 @@ describe("Add Token", () => {
         const { tokens } = Item as CartoMap;
 
         expect(tokens).to.have.length(2);
-        expect(tokens[0].colour).to.eq("Blue");
+        expect(tokens[0].color).to.eq("Blue");
         expect(tokens[0].column).to.eq("C");
         expect(tokens[0].name).to.eq("Alvyn");
         expect(tokens[0].row).to.eq(7);
         expect(tokens[0].size).to.eq(1);
 
-        expect(tokens[1].colour).to.be.a("string");
-        expect(tokens[1].column).to.eq("A");
-        expect(tokens[1].name).to.eq("New Token");
-        expect(tokens[1].row).to.eq(1);
+        expect(tokens[1].color).to.be.a("string");
+        expect(tokens[1].column).to.eq("E");
+        expect(tokens[1].name).to.eq("Sam");
+        expect(tokens[1].row).to.eq(4);
         expect(tokens[1].size).to.eq(1);
       });
+  });
 
-    describe("given an invalid location is provided", () => {
-      it("should not add a new map and return an error", () => {
-        const body = {
-          ...addBody,
-          data: {
-            options: [
-              {
-                name: "add",
-                options: [
-                  {
-                    name: "name",
-                    value: "New Token",
-                  },
-                  {
-                    name: "row",
-                    value: 41,
-                  },
-                  {
-                    name: "column",
-                    value: "A",
-                  },
-                  {
-                    name: "size",
-                    value: "MEDIUM",
-                  },
-                  {
-                    name: "color",
-                    value: "purple",
-                  },
-                ],
-              },
-            ],
-            name: "token",
-            id: "token-id",
-          },
-        };
+  describe("given an invalid location is provided", () => {
+    it("should not add a new map and return an error", () => {
+      const body = {
+        ...addBody,
+        data: {
+          options: [
+            {
+              name: "add",
+              options: [
+                {
+                  name: "name",
+                  value: "New Token",
+                },
+                {
+                  name: "row",
+                  value: 41,
+                },
+                {
+                  name: "column",
+                  value: "A",
+                },
+                {
+                  name: "size",
+                  value: 1,
+                },
+                {
+                  name: "color",
+                  value: "purple",
+                },
+              ],
+            },
+          ],
+          name: "token",
+          id: "token-id",
+        },
+      };
 
-        const timestamp = Date.now();
+      const timestamp = Date.now();
 
-        const headers = {
-          "x-signature-ed25519": generateSignature(
-            JSON.stringify(body),
-            timestamp.toString()
-          ),
-          "x-signature-timestamp": timestamp,
-        };
+      const headers = {
+        "x-signature-ed25519": generateSignature(
+          JSON.stringify(body),
+          timestamp.toString()
+        ),
+        "x-signature-timestamp": timestamp,
+      };
 
-        cy.visit("/");
+      cy.visit("/");
 
-        cy.request({
-          method: "POST",
-          url,
-          body,
-          headers,
-        })
-          .its("body")
-          .its("type")
-          .should("eq", 5);
+      cy.request({
+        method: "POST",
+        url,
+        body,
+        headers,
+      })
+        .its("body")
+        .its("type")
+        .should("eq", 5);
 
-        cy.get("ul li", { timeout: 30000 })
-          .then((item) => {
-            const { params, body } = JSON.parse(item.text());
-            expect(params).to.deep.equal({
-              applicationId: application_id,
-              token,
-            });
-            const embed = body.embeds[0];
-
-            expect(embed.title).to.eq("Token Add error");
-            expect(embed.description).to.eq(
-              "The row or column you entered is out of bounds.\nThis map's bounds are 40 rows by 40 columns"
-            );
-
-            expect(embed).not.to.have.property("fields");
-
-            expect(embed.type).to.eq("rich");
-          })
-          // Inspect Channel document
-          .then(() =>
-            getDocument({
-              table: Table.CHANNELS,
-              key: {
-                id: channelId,
-              },
-            })
-          )
-          .then(({ Item }) => {
-            const { history } = Item as DiscordChannel;
-
-            // Check length is still the same
-            expect(history).to.have.length(1);
+      cy.get("ul li", { timeout: 30000 })
+        .then((item) => {
+          const { params, body } = JSON.parse(item.text());
+          expect(params).to.deep.equal({
+            applicationId: application_id,
+            token,
           });
-      });
+          const embed = body.embeds[0];
+
+          expect(embed.title).to.eq("Token Add error");
+          expect(embed.description).to.eq(
+            "The row or column you entered is out of bounds.\nThis map's bounds are 40 rows by 40 columns"
+          );
+
+          expect(embed).not.to.have.property("fields");
+
+          expect(embed.type).to.eq("rich");
+        })
+        // Inspect Channel document
+        .then(() =>
+          getDocument({
+            table: Table.CHANNELS,
+            key: {
+              id: channelId,
+            },
+          })
+        )
+        .then(({ Item }) => {
+          const { history } = Item as DiscordChannel;
+
+          // Check length is still the same
+          expect(history).to.have.length(1);
+        });
     });
   });
 });
