@@ -6,12 +6,13 @@ import {
 
 type UpdateProps = {
   channelId: string;
+  isBase?: boolean;
   mapId: string;
 };
 
 export const updateChannelBaseMap =
   (client: DynamoDBClient) =>
-  async ({ channelId, mapId }: UpdateProps) => {
+  async ({ channelId, isBase, mapId }: UpdateProps) => {
     const getChannelMapCommand = new GetItemCommand({
       Key: { id: { S: channelId } },
       TableName: process.env.CHANNELS_TABLE,
@@ -20,9 +21,12 @@ export const updateChannelBaseMap =
     const channelMap = await client.send(getChannelMapCommand);
 
     const history = [];
+    let baseMap = mapId;
     if (channelMap.Item) {
       const prevMap = channelMap.Item.currentMap;
       const prevHistory = channelMap.Item.history.L || [];
+
+      if (!isBase) baseMap = channelMap.Item?.baseMap?.S ?? mapId;
 
       history.push(prevMap, ...prevHistory);
     }
@@ -31,8 +35,9 @@ export const updateChannelBaseMap =
       Key: { id: { S: channelId } },
       TableName: process.env.CHANNELS_TABLE,
       UpdateExpression:
-        "SET currentMap = :current, history = :history, baseMap = :current",
+        "SET currentMap = :current, history = :history, baseMap = :base",
       ExpressionAttributeValues: {
+        ":base": { S: baseMap },
         ":current": { S: mapId },
         ":history": { L: history },
       },

@@ -93,6 +93,7 @@ export const handler = async ({
     await s3Client.send(putObjectCommand);
     await updateChannelBaseMap(dynamodbClient)({
       channelId: channel_id,
+      isBase: true,
       mapId,
     });
     await dynamodbClient.send(putItemCommand);

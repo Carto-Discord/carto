@@ -58,7 +58,11 @@ export const uploadMap = async ({
 
   try {
     await s3Client.send(putObjectCommand);
-    await updateChannelBaseMap(dynamodbClient)({ channelId, mapId });
+    await updateChannelBaseMap(dynamodbClient)({
+      channelId,
+      isBase: false,
+      mapId,
+    });
     await dynamodbClient.send(putItemCommand);
 
     return true;
