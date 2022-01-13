@@ -49,6 +49,11 @@
           "Variable": "$.subCommand",
           "StringEquals": "add",
           "Next": "AddToken"
+        },
+        {
+          "Variable": "$.subCommand",
+          "StringEquals": "move",
+          "Next": "MoveToken"
         }
       ],
       "Default": "Failure"
@@ -99,6 +104,19 @@
         "color.$": "$.color"
       },
       "Resource": "${addTokenLambdaArn}",
+      "Next": "SendResponse"
+    },
+    "MoveToken": {
+      "Type": "Task",
+      "Parameters": {
+        "application_id.$": "$.application_id",
+        "token.$": "$.token",
+        "channel_id.$": "$.channel_id",
+        "name.$": "$.name",
+        "row.$": "$.row",
+        "column.$": "$.column"
+      },
+      "Resource": "${moveTokenLambdaArn}",
       "Next": "SendResponse"
     },
     "SendResponse": {

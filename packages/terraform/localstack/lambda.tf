@@ -92,6 +92,22 @@ module "add_token_lambda" {
   }
 }
 
+module "move_token_lambda" {
+  source = "../lambda"
+  
+  app_name = var.app_name
+  function_name = "move-token"
+  runtime = "nodejs14.x"
+  timeout = 10
+  lambda_iam_role_arn = aws_iam_role.iam_for_lambda.arn
+  lambda_iam_role_name = aws_iam_role.iam_for_lambda.name
+  environment_variables = {
+    "MAPS_BUCKET" = aws_s3_bucket.maps_bucket.bucket
+    "MAPS_TABLE" = aws_dynamodb_table.map_table.name
+    "CHANNELS_TABLE" = aws_dynamodb_table.channel_table.name
+  }
+}
+
 module "send_response_lambda" {
   source = "../lambda"
   
