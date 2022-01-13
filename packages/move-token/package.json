@@ -1,7 +1,7 @@
 {
-  "name": "@carto/add-token",
+  "name": "@carto/move-token",
   "version": "1.0.0",
-  "description": "Adds a token to the existing channel map",
+  "description": "Moves a token on the existing channel map",
   "main": "dist/index.js",
   "devDependencies": {
     "@swc/cli": "^0.1.55",
