@@ -1,7 +1,7 @@
 {
-  "name": "@carto/move-token",
+  "name": "@carto/move-delete-token",
   "version": "1.0.0",
-  "description": "Moves a token on the existing channel map",
+  "description": "Moves or deletes a token on the existing channel map",
   "main": "dist/index.js",
   "devDependencies": {
     "@swc/cli": "^0.1.55",

@@ -10,17 +10,27 @@ import {
 } from "@carto/token-utils";
 import { nanoid } from "nanoid";
 
-type Event = {
+type CommonEvent = {
   application_id: string;
   channel_id: string;
   token: string;
   name: string;
-  row: number;
-  column: string;
 };
 
-const ERROR_TITLE = "Token Move error";
-const SUCCESS_TITLE = "Token moved";
+export type Event =
+  | (CommonEvent & {
+      action: "move";
+      row: number;
+      column: string;
+    })
+  | (CommonEvent & {
+      action: "delete";
+    });
+
+type ResponseProps = {
+  statusCode: number;
+  description: string;
+};
 
 // Hack to make Canvas work on Lambda
 if (process.env["LAMBDA_TASK_ROOT"]) {
@@ -30,45 +40,43 @@ if (process.env["LAMBDA_TASK_ROOT"]) {
   process.env["PKG_CONFIG_PATH"] = process.env["LAMBDA_TASK_ROOT"] + "/lib";
 }
 
-export const handler = async ({
-  application_id,
-  channel_id,
-  token,
-  name,
-  row,
-  column,
-}: Event): Promise<APIGatewayProxyResult> => {
-  const serverError = {
-    statusCode: 500,
+export const handler = async (event: Event): Promise<APIGatewayProxyResult> => {
+  const { application_id, channel_id, token, action, name } = event;
+
+  const ERROR_TITLE = `Token ${action === "move" ? "Move" : "Delete"} error`;
+  const SUCCESS_TITLE = `Token ${action === "move" ? "moved" : "deleted"}`;
+
+  const formatResponse = ({
+    statusCode,
+    description,
+  }: ResponseProps): APIGatewayProxyResult => ({
+    statusCode,
     body: JSON.stringify({
       application_id,
       token,
       embed: {
         title: ERROR_TITLE,
-        description:
-          "Map data for this channel is incomplete.\nCreate the map again or [report it](https://www.github.com/carto-discord/carto/issues).",
+        description,
         type: "rich",
       },
     }),
-  };
+  });
+
+  const serverError = formatResponse({
+    statusCode: 500,
+    description:
+      "Map data for this channel is incomplete.\nCreate the map again or [report it](https://www.github.com/carto-discord/carto/issues).",
+  });
 
   const validation = await validateMapData(channel_id);
 
   if (validation.statusCode !== 200) {
     if (validation.statusCode === 404) {
-      return {
+      return formatResponse({
         statusCode: 404,
-        body: JSON.stringify({
-          application_id,
-          token,
-          embed: {
-            title: ERROR_TITLE,
-            description:
-              "No map exists for this channel.\nCreate one with the `/map create` command",
-            type: "rich",
-          },
-        }),
-      };
+        description:
+          "No map exists for this channel.\nCreate one with the `/map create` command",
+      });
     }
 
     return serverError;
@@ -86,42 +94,29 @@ export const handler = async ({
   const tokenNames = tokens.L.map(({ M }) => M?.name?.S);
 
   if (!tokenNames.includes(name)) {
-    return {
+    return formatResponse({
       statusCode: 400,
-      body: JSON.stringify({
-        application_id,
-        token,
-        embed: {
-          title: ERROR_TITLE,
-          description: `Token ${name} not found in map. Token names are case sensitive, so try again or add it using \`/token add\``,
-          type: "rich",
-        },
-      }),
-    };
+      description: `Token ${name} not found in map. Token names are case sensitive, so try again or add it using \`/token add\``,
+    });
   }
 
-  const tokenPositionValid = validateTokenPosition({
-    token: { row, column },
-    grid: { rows: parseInt(rows.N), columns: parseInt(columns.N) },
-  });
+  if (action === "move") {
+    const { row, column } = event;
+    const tokenPositionValid = validateTokenPosition({
+      token: { row, column },
+      grid: { rows: parseInt(rows.N), columns: parseInt(columns.N) },
+    });
 
-  if (!tokenPositionValid) {
-    return {
-      statusCode: 400,
-      body: JSON.stringify({
-        application_id,
-        token,
-        embed: {
-          title: ERROR_TITLE,
-          description: `The row or column you entered is out of bounds.\nThis map's bounds are ${rows.N} rows by ${columns.N} columns`,
-          type: "rich",
-        },
-      }),
-    };
+    if (!tokenPositionValid) {
+      return formatResponse({
+        statusCode: 400,
+        description: `The row or column you entered is out of bounds.\nThis map's bounds are ${rows.N} rows by ${columns.N} columns`,
+      });
+    }
   }
 
   // Add new token onto existing tokens
-  const newTokens: Token[] = tokens.L.map((token) => {
+  let newTokens: Token[] = tokens.L.map((token) => {
     const {
       name: tokenName,
       row: tokenRow,
@@ -134,13 +129,16 @@ export const handler = async ({
     const tokenSize = parseFloat(size.N || Size.MEDIUM.toString());
 
     if (tokenName.S === name) {
-      return {
-        name,
-        row,
-        column,
-        color: tokenColor,
-        size: tokenSize,
-      };
+      if (action === "move") {
+        const { row, column } = event;
+        return {
+          name,
+          row,
+          column,
+          color: tokenColor,
+          size: tokenSize,
+        };
+      }
     }
 
     return {
@@ -152,6 +150,10 @@ export const handler = async ({
     };
   });
 
+  if (action === "delete") {
+    newTokens = newTokens.filter(({ name: tokenName }) => tokenName !== name);
+  }
+
   const baseFilename = `${
     process.env["LAMBDA_TASK_ROOT"] ? "/tmp/" : ""
   }download.png`;
@@ -160,19 +162,11 @@ export const handler = async ({
     await downloadImage(baseMapFilename, baseFilename);
   } catch (error) {
     console.warn(error);
-    return {
+    return formatResponse({
       statusCode: 404,
-      body: JSON.stringify({
-        application_id,
-        token,
-        embed: {
-          title: ERROR_TITLE,
-          description:
-            "Map could not be recreated. Reason: Original map could not be found",
-          type: "rich",
-        },
-      }),
-    };
+      description:
+        "Map could not be recreated. Reason: Original map could not be found",
+    });
   }
 
   const mapId = nanoid();
@@ -187,18 +181,10 @@ export const handler = async ({
   });
 
   if (!mapBuffer) {
-    return {
+    return formatResponse({
       statusCode: 500,
-      body: JSON.stringify({
-        application_id,
-        token,
-        embed: {
-          title: ERROR_TITLE,
-          description: "Map could not be created",
-          type: "rich",
-        },
-      }),
-    };
+      description: "Map could not be created",
+    });
   }
 
   const successful = await uploadMap({
@@ -211,6 +197,10 @@ export const handler = async ({
   if (successful) {
     const imageUrl = `https://s3.${process.env.AWS_REGION}.amazonaws.com/${process.env.MAPS_BUCKET}/${mapId}.png`;
 
+    const description = newTokens.length
+      ? "Token positions:"
+      : "All Tokens removed";
+
     return {
       statusCode: 200,
       body: JSON.stringify({
@@ -218,7 +208,7 @@ export const handler = async ({
         token,
         embed: {
           title: SUCCESS_TITLE,
-          description: "Token positions:",
+          description,
           image: {
             url: imageUrl,
           },
@@ -232,18 +222,10 @@ export const handler = async ({
       }),
     };
   } else {
-    return {
+    return formatResponse({
       statusCode: 500,
-      body: JSON.stringify({
-        application_id,
-        token,
-        embed: {
-          title: ERROR_TITLE,
-          description:
-            "An error occured while creating the new map. Please try again later",
-          type: "rich",
-        },
-      }),
-    };
+      description:
+        "An error occured while creating the new map. Please try again later",
+    });
   }
 };

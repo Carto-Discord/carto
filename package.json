@@ -5,7 +5,11 @@
   "workspaces": [
     "./packages/*"
   ],
-  "scripts": {},
+  "scripts": {
+    "prebuild": "npm run build -w @carto/map-utils && npm run build -w @carto/token-utils",
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm t --workspaces --if-present"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Carto-Discord/carto.git"

@@ -6,7 +6,7 @@ import {
   uploadMap,
 } from "@carto/token-utils";
 
-import { handler } from "../src/index";
+import { handler, Event } from "../src/index";
 
 jest.mock("@carto/token-utils");
 jest.mock("nanoid", () => ({ nanoid: () => "4567" }));
@@ -26,10 +26,11 @@ const mockApplyTokensToGrid = applyTokensToGrid as jest.MockedFunction<
 const mockUploadMap = uploadMap as jest.MockedFunction<typeof uploadMap>;
 
 describe("Handler", () => {
-  const defaultProps = {
+  const defaultProps: Event = {
     application_id: "1234",
     channel_id: "1234567890",
     token: "mockToken",
+    action: "move",
     name: "existing1",
     row: 4,
     column: "B",
@@ -101,24 +102,49 @@ describe("Handler", () => {
     jest.clearAllMocks();
   });
 
-  it("should return a 200 response", async () => {
-    const response = await handler(defaultProps);
+  describe("given move action is requested", () => {
+    it("should return a 200 response", async () => {
+      const response = await handler(defaultProps);
 
-    expect(response).toEqual({
-      statusCode: 200,
-      body: JSON.stringify({
-        application_id: defaultProps.application_id,
-        token: defaultProps.token,
-        embed: {
-          title: "Token moved",
-          description: "Token positions:",
-          image: {
-            url: "https://s3.eu-central-1.amazonaws.com/maps/4567.png",
+      expect(response).toEqual({
+        statusCode: 200,
+        body: JSON.stringify({
+          application_id: defaultProps.application_id,
+          token: defaultProps.token,
+          embed: {
+            title: "Token moved",
+            description: "Token positions:",
+            image: {
+              url: "https://s3.eu-central-1.amazonaws.com/maps/4567.png",
+            },
+            fields: [{ name: "existing1", value: "B4", inline: true }],
+            type: "rich",
           },
-          fields: [{ name: "existing1", value: "B4", inline: true }],
-          type: "rich",
-        },
-      }),
+        }),
+      });
+    });
+  });
+
+  describe("given delete action is requested", () => {
+    it("should return a 200 response", async () => {
+      const response = await handler({ ...defaultProps, action: "delete" });
+
+      expect(response).toEqual({
+        statusCode: 200,
+        body: JSON.stringify({
+          application_id: defaultProps.application_id,
+          token: defaultProps.token,
+          embed: {
+            title: "Token deleted",
+            description: "All Tokens removed",
+            image: {
+              url: "https://s3.eu-central-1.amazonaws.com/maps/4567.png",
+            },
+            fields: [],
+            type: "rich",
+          },
+        }),
+      });
     });
   });
 
