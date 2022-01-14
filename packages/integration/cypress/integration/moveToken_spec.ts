@@ -73,7 +73,7 @@ describe("Move Token", () => {
           options: [
             {
               name: "name",
-              value: "Sam",
+              value: "Alvyn",
             },
             {
               name: "row",
@@ -142,7 +142,7 @@ describe("Move Token", () => {
         expect(embed.fields).to.have.length(1);
         expect(embed.fields[0].inline).to.be.true;
         expect(embed.fields[0].name).to.eq("Alvyn");
-        expect(embed.fields[0].value).to.eq("B3");
+        expect(embed.fields[0].value).to.eq("E4");
 
         expect(embed.type).to.eq("rich");
       })
@@ -176,9 +176,9 @@ describe("Move Token", () => {
 
         expect(tokens).to.have.length(1);
         expect(tokens[0].color).to.eq("Blue");
-        expect(tokens[0].column).to.eq("B");
+        expect(tokens[0].column).to.eq("E");
         expect(tokens[0].name).to.eq("Alvyn");
-        expect(tokens[0].row).to.eq(3);
+        expect(tokens[0].row).to.eq(4);
         expect(tokens[0].size).to.eq(1);
       })
       // Inspect S3 bucket
