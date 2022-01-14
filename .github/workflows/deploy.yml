@@ -7,6 +7,10 @@ on:
         default: "carto-bot"
         required: false
         type: string
+      node-version:
+        default: "16"
+        required: false
+        type: string
     secrets:
       aws_access_key_id:
         required: true
@@ -18,53 +22,46 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: deployment
     env:
-      DOCKER_REPO: api
-      DOCKER_TAG: latest
+      AWS_ACCESS_KEY_ID: ${{ secrets.aws_access_key_id }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.aws_secret_access_key }}
     steps:
       - uses: actions/checkout@v2
 
       - uses: hashicorp/setup-terraform@v1
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.aws_access_key_id }}
-          aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
-          aws-region: eu-central-1
-
-      - name: Create ECR resource
-        run: |
-          terraform apply \
-            -target="module.ecr" \
-            -var="app_name=${{ secrets.app_name }}" \
-            -var="discord_public_key=${{ secrets.discord_public_key }}" \
-            -auto-approve
-
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
-
-      - name: Build, tag, and push image to Amazon ECR
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ inputs.app_name }}
-          IMAGE_TAG: ${{ github.sha }}
-        run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-
-      - name: Download Client Artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: carto-client
-          path: client/package
-
       - name: Initialise terraform
         run: terraform init
+
+      - name: Set up Node.JS
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: npm
+
+      # Needed to get Workspaces in Node 14
+      - name: Upgrade NPM
+        if: ${{ github.events.inputs.node-version != 16 }}
+        run: npm i -g npm
+
+      - uses: hashicorp/setup-terraform@v1
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Build packages
+        run: npm run build
+
+      - name: Build node-canvas libraries
+        run: docker build -t canvas-libs .
+
+      - name: Inject libraries
+        run: |
+          id=$(docker create canvas-libs)
+          docker cp $id:/root/dist ./packages/create-map
+          docker cp $id:/root/dist ./packages/add-token
+          docker cp $id:/root/dist ./packages/move-delete-token
+          docker rm -v $id
 
       - name: Apply terraform
         run: |

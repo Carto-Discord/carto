@@ -7,20 +7,24 @@ on:
 
 jobs:
   build:
-    uses: carto-discord/carto/.github/workflows/build.yml@main
+    uses: carto-discord/carto/.github/workflows/build.yml@localstack-integration
   lint:
     needs: build
-    uses: carto-discord/carto/.github/workflows/lint.yml@main
+    uses: carto-discord/carto/.github/workflows/lint.yml@localstack-integration
   unit:
     needs: build
     uses: carto-discord/carto/.github/workflows/unit-test.yml@localstack-integration
   integration:
     needs: build
     uses: carto-discord/carto/.github/workflows/integration-test.yml@localstack-integration
+    with:
+      node-version: "14"
   deploy:
-    needs: [unit, integration, lint]
-    uses: carto-discord/carto/.github/workflows/deploy.yml@main
+    needs: [lint, unit, integration]
+    uses: carto-discord/carto/.github/workflows/deploy.yml@localstack-integration
+    with:
+      node-version: "14"
     secrets:
-      service_account_key: ${{ secrets.GCP_SA_KEY }}
-      project_id: ${{ secrets.GCP_PROJECT_ID }}
+      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       discord_public_key: ${{ secrets.PUBLIC_KEY }}
