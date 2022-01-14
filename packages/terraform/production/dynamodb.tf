@@ -1,5 +1,5 @@
-resource "aws_dynamodb_table" "map-table" {
-  name           = "maps"
+resource "aws_dynamodb_table" "map_table" {
+  name           = "${var.app_name}-maps"
   billing_mode   = "PROVISIONED"
   read_capacity  = 20
   write_capacity = 20
@@ -11,8 +11,8 @@ resource "aws_dynamodb_table" "map-table" {
   }
 }
 
-resource "aws_dynamodb_table" "channel-table" {
-  name           = "channels"
+resource "aws_dynamodb_table" "channel_table" {
+  name           = "${var.app_name}-channels"
   billing_mode   = "PROVISIONED"
   read_capacity  = 20
   write_capacity = 20
