@@ -1,12 +1,13 @@
 import { baseMapId, currentMapId, previousMapId } from "../fixtures/maps.json";
 import {
   getLambdaInvokeUrl,
-  generateSignature,
   initialiseDynamoDB,
   teardownDynamoDB,
   Table,
   getDocument,
   getObject,
+  Command,
+  generateHeaders,
 } from "../support";
 import { CartoMap, DiscordChannel } from "../support/aws/types";
 
@@ -60,7 +61,7 @@ describe("Delete Token", () => {
     },
   ];
 
-  const deleteBody = {
+  const deleteBody: Command = {
     type: 2,
     channel_id: channelId,
     token,
@@ -86,6 +87,8 @@ describe("Delete Token", () => {
     url = await getLambdaInvokeUrl();
     cy.log(`Client URL: ${url}`);
 
+    await teardownDynamoDB();
+
     await initialiseDynamoDB({
       table: Table.CHANNELS,
       contents: channelContents,
@@ -97,24 +100,10 @@ describe("Delete Token", () => {
     });
   });
 
-  afterEach(async () => {
-    await teardownDynamoDB();
-  });
-
   it("should add a new map with the named token removed", () => {
     let newImageId: string;
 
-    const timestamp = Date.now();
-
-    const headers = {
-      "x-signature-ed25519": generateSignature(
-        JSON.stringify(deleteBody),
-        timestamp.toString()
-      ),
-      "x-signature-timestamp": timestamp,
-    };
-
-    cy.visit("/");
+    const headers = generateHeaders(deleteBody);
 
     cy.request({
       method: "POST",
@@ -202,17 +191,7 @@ describe("Delete Token", () => {
         },
       };
 
-      const timestamp = Date.now();
-
-      const headers = {
-        "x-signature-ed25519": generateSignature(
-          JSON.stringify(body),
-          timestamp.toString()
-        ),
-        "x-signature-timestamp": timestamp,
-      };
-
-      cy.visit("/");
+      const headers = generateHeaders(body);
 
       cy.request({
         method: "POST",
@@ -235,7 +214,7 @@ describe("Delete Token", () => {
 
           expect(embed.title).to.eq("Token Delete error");
           expect(embed.description).to.eq(
-            "Token BadToken not found in map. Token names are case sensitive, so try again or add it using /token add"
+            "Token BadToken not found in map. Token names are case sensitive, so try again or add it using `/token add`"
           );
           expect(embed).not.to.have.property("fields");
           expect(embed.type).to.eq("rich");

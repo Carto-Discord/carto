@@ -1,12 +1,13 @@
 import { baseMapId, currentMapId, previousMapId } from "../fixtures/maps.json";
 import {
   getLambdaInvokeUrl,
-  generateSignature,
   initialiseDynamoDB,
   teardownDynamoDB,
   Table,
   getDocument,
   getObject,
+  Command,
+  generateHeaders,
 } from "../support";
 import { CartoMap, DiscordChannel } from "../support/aws/types";
 
@@ -60,7 +61,7 @@ describe("Add Token", () => {
     },
   ];
 
-  const addBody = {
+  const addBody: Command = {
     type: 2,
     channel_id: channelId,
     token,
@@ -102,6 +103,8 @@ describe("Add Token", () => {
     url = await getLambdaInvokeUrl();
     cy.log(`Client URL: ${url}`);
 
+    await teardownDynamoDB();
+
     await initialiseDynamoDB({
       table: Table.CHANNELS,
       contents: channelContents,
@@ -113,24 +116,10 @@ describe("Add Token", () => {
     });
   });
 
-  afterEach(async () => {
-    await teardownDynamoDB();
-  });
-
   it("should add a new map with new tokens and default optional properties", () => {
     let newImageId: string;
 
-    const timestamp = Date.now();
-
-    const headers = {
-      "x-signature-ed25519": generateSignature(
-        JSON.stringify(addBody),
-        timestamp.toString()
-      ),
-      "x-signature-timestamp": timestamp,
-    };
-
-    cy.visit("/");
+    const headers = generateHeaders(addBody);
 
     cy.request({
       method: "POST",
@@ -253,17 +242,7 @@ describe("Add Token", () => {
         },
       };
 
-      const timestamp = Date.now();
-
-      const headers = {
-        "x-signature-ed25519": generateSignature(
-          JSON.stringify(body),
-          timestamp.toString()
-        ),
-        "x-signature-timestamp": timestamp,
-      };
-
-      cy.visit("/");
+      const headers = generateHeaders(body);
 
       cy.request({
         method: "POST",

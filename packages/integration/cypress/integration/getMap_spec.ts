@@ -1,10 +1,11 @@
 import { baseMapId, currentMapId, previousMapId } from "../fixtures/maps.json";
 import {
   getLambdaInvokeUrl,
-  generateSignature,
   initialiseDynamoDB,
   teardownDynamoDB,
   Table,
+  Command,
+  generateHeaders,
 } from "../support";
 
 describe("Get Map", () => {
@@ -14,7 +15,7 @@ describe("Get Map", () => {
   const token = "mockToken";
   const application_id = "mockApplicationId";
 
-  const body = {
+  const body: Command = {
     type: 2,
     channel_id: channelId,
     token,
@@ -43,8 +44,7 @@ describe("Get Map", () => {
     {
       id: baseMapId,
       columns: 40,
-      margin_x: 55,
-      margin_y: 55,
+      margin: { x: 55, y: 55 },
       rows: 40,
       url: "https://i.redd.it/hfoxphcnnix61.jpg",
     },
@@ -52,7 +52,7 @@ describe("Get Map", () => {
       id: currentMapId,
       tokens: [
         {
-          colour: "Blue",
+          color: "Blue",
           column: "C",
           name: "Alvyn",
           row: 7,
@@ -64,7 +64,7 @@ describe("Get Map", () => {
       id: previousMapId,
       tokens: [
         {
-          colour: "Blue",
+          color: "Blue",
           column: "D",
           name: "Alvyn",
           row: 6,
@@ -78,6 +78,8 @@ describe("Get Map", () => {
     url = await getLambdaInvokeUrl();
     cy.log(`Client URL: ${url}`);
 
+    await teardownDynamoDB();
+
     await initialiseDynamoDB({
       table: Table.CHANNELS,
       contents: channelContents,
@@ -89,23 +91,9 @@ describe("Get Map", () => {
     });
   });
 
-  after(async () => {
-    await teardownDynamoDB();
-  });
-
   describe("given the channel ID is valid", () => {
     it("should respond with the map image and details", () => {
-      cy.visit("/");
-
-      const timestamp = Date.now();
-
-      const headers = {
-        "x-signature-ed25519": generateSignature(
-          JSON.stringify(body),
-          timestamp.toString()
-        ),
-        "x-signature-timestamp": timestamp,
-      };
+      const headers = generateHeaders(body);
 
       cy.request({
         method: "POST",
@@ -141,22 +129,12 @@ describe("Get Map", () => {
 
   describe("given the channel ID is invalid", () => {
     it("should respond with an error message", () => {
-      cy.visit("/");
-
       const badBody = {
         ...body,
         channel_id: "badchannelid",
       };
 
-      const timestamp = Date.now();
-
-      const headers = {
-        "x-signature-ed25519": generateSignature(
-          JSON.stringify(badBody),
-          timestamp.toString()
-        ),
-        "x-signature-timestamp": timestamp,
-      };
+      const headers = generateHeaders(badBody);
 
       cy.request({
         method: "POST",

@@ -1,11 +1,12 @@
 import { baseMapId, currentMapId, previousMapId } from "../fixtures/maps.json";
 import {
   getLambdaInvokeUrl,
-  generateSignature,
   initialiseDynamoDB,
   teardownDynamoDB,
   getDocument,
   Table,
+  Command,
+  generateHeaders,
 } from "../support";
 
 describe("Delete Map", () => {
@@ -28,8 +29,7 @@ describe("Delete Map", () => {
     {
       id: baseMapId,
       columns: 40,
-      margin_x: 55,
-      margin_y: 55,
+      margin: { x: 55, y: 55 },
       rows: 40,
       url: "https://i.redd.it/hfoxphcnnix61.jpg",
     },
@@ -37,7 +37,7 @@ describe("Delete Map", () => {
       id: currentMapId,
       tokens: [
         {
-          colour: "Blue",
+          color: "Blue",
           column: "C",
           name: "Alvyn",
           row: 7,
@@ -49,7 +49,7 @@ describe("Delete Map", () => {
       id: previousMapId,
       tokens: [
         {
-          colour: "Blue",
+          color: "Blue",
           column: "D",
           name: "Alvyn",
           row: 6,
@@ -59,7 +59,7 @@ describe("Delete Map", () => {
     },
   ];
 
-  const body = {
+  const body: Command = {
     type: 2,
     channel_id: channelId,
     token,
@@ -82,6 +82,8 @@ describe("Delete Map", () => {
   });
 
   beforeEach(async () => {
+    await teardownDynamoDB();
+
     await initialiseDynamoDB({
       table: Table.CHANNELS,
       contents: channelContents,
@@ -93,22 +95,9 @@ describe("Delete Map", () => {
     });
   });
 
-  afterEach(async () => {
-    await teardownDynamoDB();
-  });
-
   describe("given the channel has an associated map", () => {
     it("should delete the existing map config", () => {
-      const timestamp = Date.now();
-      const headers = {
-        "x-signature-ed25519": generateSignature(
-          JSON.stringify(body),
-          timestamp.toString()
-        ),
-        "x-signature-timestamp": timestamp,
-      };
-
-      cy.visit("/");
+      const headers = generateHeaders(body);
 
       cy.request({
         method: "POST",

@@ -1,4 +1,9 @@
-import { getLambdaInvokeUrl, generateSignature } from "../support";
+import {
+  getLambdaInvokeUrl,
+  generateSignature,
+  generateHeaders,
+  Command,
+} from "../support";
 
 describe("Ping", () => {
   let url: string;
@@ -32,16 +37,9 @@ describe("Ping", () => {
   });
 
   it("should respond with Pong", () => {
-    const body = { type: 1 };
-    const timestamp = Date.now();
+    const body: Command = { type: 1 };
 
-    const headers = {
-      "x-signature-ed25519": generateSignature(
-        JSON.stringify(body),
-        timestamp.toString()
-      ),
-      "x-signature-timestamp": timestamp,
-    };
+    const headers = generateHeaders(body);
 
     cy.request({
       method: "POST",

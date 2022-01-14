@@ -1,16 +1,17 @@
 import { baseMapId, currentMapId, previousMapId } from "../fixtures/maps.json";
 import {
   getLambdaInvokeUrl,
-  generateSignature,
   initialiseDynamoDB,
   teardownDynamoDB,
   Table,
   getDocument,
   getObject,
+  Command,
+  generateHeaders,
 } from "../support";
 import { CartoMap, DiscordChannel } from "../support/aws/types";
 
-describe.skip("Move Token", () => {
+describe("Move Token", () => {
   let url: string;
 
   const channelId = "123456789012345678";
@@ -60,7 +61,7 @@ describe.skip("Move Token", () => {
     },
   ];
 
-  const moveBody = {
+  const moveBody: Command = {
     type: 2,
     channel_id: channelId,
     token,
@@ -94,6 +95,8 @@ describe.skip("Move Token", () => {
     url = await getLambdaInvokeUrl();
     cy.log(`Client URL: ${url}`);
 
+    await teardownDynamoDB();
+
     await initialiseDynamoDB({
       table: Table.CHANNELS,
       contents: channelContents,
@@ -105,24 +108,10 @@ describe.skip("Move Token", () => {
     });
   });
 
-  afterEach(async () => {
-    await teardownDynamoDB();
-  });
-
   it("should add a new map with the named token in a new position", () => {
     let newImageId: string;
 
-    const timestamp = Date.now();
-
-    const headers = {
-      "x-signature-ed25519": generateSignature(
-        JSON.stringify(moveBody),
-        timestamp.toString()
-      ),
-      "x-signature-timestamp": timestamp,
-    };
-
-    cy.visit("/");
+    const headers = generateHeaders(moveBody);
 
     cy.request({
       method: "POST",
@@ -197,89 +186,79 @@ describe.skip("Move Token", () => {
       .then((obj) => {
         expect(obj).to.have.property("Body");
       });
+  });
 
-    describe("given the named token is not found", () => {
-      it("should not add a new map", () => {
-        const body = {
-          ...moveBody,
-          data: {
-            options: [
-              {
-                name: "move",
-                options: [
-                  {
-                    name: "name",
-                    value: "BadToken",
-                  },
-                  {
-                    name: "row",
-                    value: 3,
-                  },
-                  {
-                    name: "column",
-                    value: "B",
-                  },
-                ],
-              },
-            ],
-            name: "token",
-            id: "token-id",
-          },
-        };
+  describe("given the named token is not found", () => {
+    it("should not add a new map", () => {
+      const body = {
+        ...moveBody,
+        data: {
+          options: [
+            {
+              name: "move",
+              options: [
+                {
+                  name: "name",
+                  value: "BadToken",
+                },
+                {
+                  name: "row",
+                  value: 3,
+                },
+                {
+                  name: "column",
+                  value: "B",
+                },
+              ],
+            },
+          ],
+          name: "token",
+          id: "token-id",
+        },
+      };
 
-        const timestamp = Date.now();
+      const headers = generateHeaders(body);
 
-        const headers = {
-          "x-signature-ed25519": generateSignature(
-            JSON.stringify(body),
-            timestamp.toString()
-          ),
-          "x-signature-timestamp": timestamp,
-        };
+      cy.request({
+        method: "POST",
+        url,
+        body,
+        headers,
+      })
+        .its("body")
+        .its("type")
+        .should("eq", 5);
 
-        cy.visit("/");
-
-        cy.request({
-          method: "POST",
-          url,
-          body,
-          headers,
-        })
-          .its("body")
-          .its("type")
-          .should("eq", 5);
-
-        cy.get("ul li", { timeout: 30000 })
-          .then((item) => {
-            const { params, body } = JSON.parse(item.text());
-            expect(params).to.deep.equal({
-              applicationId: application_id,
-              token,
-            });
-            const embed = body.embeds[0];
-
-            expect(embed.title).to.eq("Token Move error");
-            expect(embed.description).to.eq(
-              "Token BadToken not found in map. Token names are case sensitive, so try again or add it using /token add"
-            );
-
-            expect(embed).not.to.have.property("fields");
-            expect(embed.type).to.eq("rich");
-          })
-          // Inspect Channel document
-          .then(() =>
-            getDocument({
-              table: Table.CHANNELS,
-              key: {
-                id: channelId,
-              },
-            })
-          )
-          .then(({ Item }) => {
-            const { history } = Item as DiscordChannel;
-            expect(history).to.have.length(1);
+      cy.get("ul li", { timeout: 30000 })
+        .then((item) => {
+          const { params, body } = JSON.parse(item.text());
+          expect(params).to.deep.equal({
+            applicationId: application_id,
+            token,
           });
-      });
+          const embed = body.embeds[0];
+
+          expect(embed.title).to.eq("Token Move error");
+          expect(embed.description).to.eq(
+            "Token BadToken not found in map. Token names are case sensitive, so try again or add it using `/token add`"
+          );
+
+          expect(embed).not.to.have.property("fields");
+          expect(embed.type).to.eq("rich");
+        })
+        // Inspect Channel document
+        .then(() =>
+          getDocument({
+            table: Table.CHANNELS,
+            key: {
+              id: channelId,
+            },
+          })
+        )
+        .then(({ Item }) => {
+          const { history } = Item as DiscordChannel;
+          expect(history).to.have.length(1);
+        });
     });
   });
 });

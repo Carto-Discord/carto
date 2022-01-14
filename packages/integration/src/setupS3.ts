@@ -14,16 +14,16 @@ const AWSConfig = {
 };
 
 const uuids = [
-  "bfa6769a-25bd-4445-b4a2-69b0bf63ea9d",
-  "140a5f22-ccfd-425c-9bfa-c69180729c59",
-  "a3ea9734-0411-481f-9158-c7d54cdc61fb",
-  "da6365bb-6953-4e10-9cc3-3235f0beb9a7",
-  "dc09f4a8-bcee-4ba4-894a-8d42f21262eb",
-  "367bbdb0-1081-49d0-8049-a8a1a838f9cc",
-  "92bd55f1-b161-4c66-a00d-3c05e9d384b5",
-  "5dfcafbc-0901-4114-91d2-06d64b843843",
-  "b8552890-9f85-491f-bd2f-258b8f1c421b",
-  "482d01d3-67f2-46d2-9c78-3bef8618f39a",
+  "sB4DTyyTaOcYQHst4VKwU",
+  "DkYqcO4unB-GWnsUv10ZE",
+  "SO9hNroDn2kIAaPP7vAx6",
+  "AqB7KJME05pur-4W8yy2H",
+  "JmKuYabVqxkCyhoJnxXAg",
+  "NF7z_rkrlY7ak9C7mniSm",
+  "KSaw1KH1dlqPQMl_6PTsH",
+  "OC_fr9LFwJnkXQteXC1Kt",
+  "Fl2h6LYHXtIBlPCLOmure",
+  "MtmVYN6WguwLOO-3L0yds",
 ];
 
 export const uploadToS3 = async (fileContent: Buffer, id: string) => {

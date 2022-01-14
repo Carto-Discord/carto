@@ -1,12 +1,13 @@
 import { baseMapId, currentMapId, previousMapId } from "../fixtures/maps.json";
 import {
   getLambdaInvokeUrl,
-  generateSignature,
   initialiseDynamoDB,
   teardownDynamoDB,
   listObjects,
   getDocument,
   Table,
+  Command,
+  generateHeaders,
 } from "../support";
 import { CartoBaseMap, DiscordChannel } from "../support/aws/types";
 
@@ -31,8 +32,7 @@ describe("Create Map", () => {
     {
       id: baseMapId,
       columns: 40,
-      margin_x: 55,
-      margin_y: 55,
+      margin: { x: 55, y: 55 },
       rows: 40,
       url: "https://i.redd.it/hfoxphcnnix61.jpg",
     },
@@ -40,7 +40,7 @@ describe("Create Map", () => {
       id: currentMapId,
       tokens: [
         {
-          colour: "Blue",
+          color: "Blue",
           column: "C",
           name: "Alvyn",
           row: 7,
@@ -52,7 +52,7 @@ describe("Create Map", () => {
       id: previousMapId,
       tokens: [
         {
-          colour: "Blue",
+          color: "Blue",
           column: "D",
           name: "Alvyn",
           row: 6,
@@ -64,7 +64,7 @@ describe("Create Map", () => {
 
   const mapUrl = "https://i.redd.it/hfoxphcnnix61.jpg";
 
-  const body = {
+  const body: Command = {
     type: 2,
     channel_id: channelId,
     token,
@@ -100,6 +100,8 @@ describe("Create Map", () => {
   });
 
   beforeEach(async () => {
+    await teardownDynamoDB();
+
     await initialiseDynamoDB({
       table: Table.CHANNELS,
       contents: channelContents,
@@ -111,26 +113,12 @@ describe("Create Map", () => {
     });
   });
 
-  afterEach(async () => {
-    await teardownDynamoDB();
-  });
-
   describe("given the channel has an associated map", () => {
     describe("given all data is valid", () => {
       it("should create a map and overwrite the existing map config", () => {
         let newImageId: string;
 
-        const timestamp = Date.now();
-
-        const headers = {
-          "x-signature-ed25519": generateSignature(
-            JSON.stringify(body),
-            timestamp.toString()
-          ),
-          "x-signature-timestamp": timestamp,
-        };
-
-        cy.visit("/");
+        const headers = generateHeaders(body);
 
         cy.request({
           method: "POST",
@@ -209,13 +197,8 @@ describe("Create Map", () => {
 
       describe("given the url is invalid", () => {
         it("should respond with an error", () => {
-          const timestamp = Date.now();
-
           const badBody = {
-            type: 2,
-            channel_id: channelId,
-            token,
-            application_id: applicationId,
+            ...body,
             data: {
               options: [
                 {
@@ -241,15 +224,7 @@ describe("Create Map", () => {
             },
           };
 
-          const headers = {
-            "x-signature-ed25519": generateSignature(
-              JSON.stringify(badBody),
-              timestamp.toString()
-            ),
-            "x-signature-timestamp": timestamp,
-          };
-
-          cy.visit("/");
+          const headers = generateHeaders(badBody);
 
           cy.request({
             method: "POST",
@@ -318,15 +293,7 @@ describe("Create Map", () => {
           channel_id: newChannel,
         };
 
-        const headers = {
-          "x-signature-ed25519": generateSignature(
-            JSON.stringify(newBody),
-            timestamp.toString()
-          ),
-          "x-signature-timestamp": timestamp,
-        };
-
-        cy.visit("/");
+        const headers = generateHeaders(newBody);
 
         cy.request({
           method: "POST",
