@@ -54,6 +54,11 @@
           "Variable": "$.subCommand",
           "StringEquals": "move",
           "Next": "MoveToken"
+        },
+        {
+          "Variable": "$.subCommand",
+          "StringEquals": "delete",
+          "Next": "DeleteToken"
         }
       ],
       "Default": "Failure"
@@ -112,11 +117,24 @@
         "application_id.$": "$.application_id",
         "token.$": "$.token",
         "channel_id.$": "$.channel_id",
+        "action": "move",
         "name.$": "$.name",
         "row.$": "$.row",
         "column.$": "$.column"
       },
-      "Resource": "${moveTokenLambdaArn}",
+      "Resource": "${moveDeleteTokenLambdaArn}",
+      "Next": "SendResponse"
+    },
+    "DeleteToken": {
+      "Type": "Task",
+      "Parameters": {
+        "application_id.$": "$.application_id",
+        "token.$": "$.token",
+        "channel_id.$": "$.channel_id",
+        "action": "delete",
+        "name.$": "$.name"
+      },
+      "Resource": "${moveDeleteTokenLambdaArn}",
       "Next": "SendResponse"
     },
     "SendResponse": {
