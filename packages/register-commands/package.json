@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc --noEmit && swc src -d dist",
-    "start": "node ./dist/index.js"
+    "start": "node ."
   },
   "repository": {
     "type": "git",
