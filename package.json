@@ -26,6 +26,6 @@
   },
   "homepage": "https://github.com/Carto-Discord/carto#readme",
   "devDependencies": {
-    "@tsconfig/node14": "^1.0.1"
+    "@tsconfig/node14": "1.0.1"
   }
 }
