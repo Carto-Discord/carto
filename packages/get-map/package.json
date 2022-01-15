@@ -32,7 +32,7 @@
   },
   "devDependencies": {
     "@swc/cli": "0.1.55",
-    "@swc/core": "1.2.123",
+    "@swc/core": "1.2.129",
     "@swc/jest": "0.2.15",
     "@types/aws-lambda": "8.10.88",
     "@types/jest": "27.0.3",
