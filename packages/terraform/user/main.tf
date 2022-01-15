@@ -101,6 +101,7 @@ resource "aws_iam_group_policy" "apigateway" {
         Sid = "APIGatewayAdmin"
         Action = [
           "apigateway:GET",
+          "apigateway:PATCH",
           "apigateway:POST",
           "apigateway:DELETE"
         ]

@@ -1,6 +1,13 @@
 resource "aws_apigatewayv2_api" "client_gateway" {
   name          = "${var.app_name}-gateway"
   protocol_type = "HTTP"
+
+  cors_configuration {
+    allow_origins = ["*"]
+    allow_methods = ["POST"]
+    allow_headers = ["*"]
+    max_age       = 300
+  }
 }
 
 resource "aws_cloudwatch_log_group" "client_gateway" {
