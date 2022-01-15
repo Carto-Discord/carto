@@ -66,6 +66,6 @@ jobs:
         working-directory: packages/terraform/production
         run: |
           terraform apply \
-            -var="app_name=${{ secrets.app_name }}" \
+            -var="app_name=${{ inputs.app_name }}" \
             -var="discord_public_key=${{ secrets.discord_public_key }}" \
             -auto-approve
