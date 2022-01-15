@@ -16,7 +16,7 @@ resource "aws_iam_role" "iam_for_lambda" {
 }
 
 resource "aws_iam_role" "parse_command_role" {
-  name = "iam_for_lambda"
+  name = "parse_command_role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
