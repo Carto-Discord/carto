@@ -27,6 +27,6 @@
     "slash-commands": "^1.5.0"
   },
   "devDependencies": {
-    "@types/node": "^17.0.5"
+    "@types/node": "17.0.8"
   }
 }
