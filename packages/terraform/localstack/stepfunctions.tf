@@ -1,22 +1,35 @@
 resource "aws_iam_role" "iam_for_sfn" {
   name = "iam_for_sfn"
 
-  assume_role_policy = <<EOF
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": [
-                "lambda:InvokeFunction"
-            ],
-            "Resource": [
-                "arn:aws:lambda:::*"
-            ]
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = "sts:AssumeRole"
+        Principal = {
+          Service = "states.amazonaws.com"
         }
+      }
     ]
-}
-EOF
+  })
+
+  inline_policy {
+    name = "InvokeLambdas"
+
+    policy = jsonencode({
+      Version = "2012-10-17"
+      Statement = [
+        {
+          Action = [
+            "lambda:InvokeFunction"
+          ]
+          Effect   = "Allow"
+          Resource = "*"
+        },
+      ]
+    })
+  }
 }
 
 data "template_file" "definition" {
