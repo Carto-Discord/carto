@@ -20,6 +20,33 @@ resource "aws_iam_group_membership" "deployers" {
   group = aws_iam_group.deployer.name
 }
 
+resource "aws_iam_user_policy" "s3backend" {
+  name = "TerraformBackendAccess"
+  user = aws_iam_user.terraform.name
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "s3:ListBucket",
+        ]
+        Effect   = "Allow"
+        Resource = "${aws_s3_bucket.backend.arn}"
+      },
+      {
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:DeleteObject"
+        ]
+        Effect   = "Allow"
+        Resource = "${aws_s3_bucket.backend.arn}/terraform.tfstate"
+      },
+    ]
+  })
+}
+
 resource "aws_iam_group_policy" "s3" {
   name  = "DeployS3Bucket"
   group = aws_iam_group.deployer.name
