@@ -31,6 +31,7 @@ jobs:
       - uses: hashicorp/setup-terraform@v1
 
       - name: Initialise terraform
+        working-directory: packages/terraform/production
         run: terraform init
 
       - name: Set up Node.JS
@@ -43,8 +44,6 @@ jobs:
       - name: Upgrade NPM
         if: ${{ github.events.inputs.node-version != 16 }}
         run: npm i -g npm
-
-      - uses: hashicorp/setup-terraform@v1
 
       - name: Install Node dependencies
         run: npm ci
