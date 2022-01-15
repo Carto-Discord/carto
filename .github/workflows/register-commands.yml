@@ -5,7 +5,8 @@ on:
     branches:
       - main
     paths:
-      - "./packages/register-commands"
+      - "packages/register-commands"
+      - ".github/workflows/register-commands.yml"
 
 jobs:
   register:
@@ -25,13 +26,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build local dependencies
-        run: |
-          npm run build -w @carto/map-utils
-          npm run build -w @carto/token-utils
-
-      - name: Build package
-        run: npm run build -w @carto/register-commands
+      - name: Build packages
+        run: npm run build
 
       - name: Register commands
         run: npm start -w @carto/register-commands

@@ -63,6 +63,7 @@ jobs:
           docker rm -v $id
 
       - name: Apply terraform
+        working-directory: packages/terraform/production
         run: |
           terraform apply \
             -var="app_name=${{ secrets.app_name }}" \
