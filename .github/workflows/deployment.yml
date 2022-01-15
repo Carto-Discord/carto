@@ -7,21 +7,21 @@ on:
 
 jobs:
   build:
-    uses: carto-discord/carto/.github/workflows/build.yml@59ec682fa7d7f8d4a435985bed6cb0f5ac2313be
+    uses: carto-discord/carto/.github/workflows/build.yml@main
   lint:
     needs: build
-    uses: carto-discord/carto/.github/workflows/lint.yml@59ec682fa7d7f8d4a435985bed6cb0f5ac2313be
+    uses: carto-discord/carto/.github/workflows/lint.yml@main
   unit:
     needs: build
-    uses: carto-discord/carto/.github/workflows/unit-test.yml@59ec682fa7d7f8d4a435985bed6cb0f5ac2313be
+    uses: carto-discord/carto/.github/workflows/unit-test.yml@main
   integration:
     needs: build
-    uses: carto-discord/carto/.github/workflows/integration-test.yml@59ec682fa7d7f8d4a435985bed6cb0f5ac2313be
+    uses: carto-discord/carto/.github/workflows/integration-test.yml@main
     with:
       node-version: "14"
   deploy:
     needs: [lint, unit, integration]
-    uses: carto-discord/carto/.github/workflows/deploy.yml@59ec682fa7d7f8d4a435985bed6cb0f5ac2313be
+    uses: carto-discord/carto/.github/workflows/deploy.yml@main
     with:
       node-version: "14"
     secrets:
