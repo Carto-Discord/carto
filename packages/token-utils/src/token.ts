@@ -6,7 +6,7 @@ import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getColumnNumber, findOptimalFontSize } from "@carto/map-utils";
 
 export enum Size {
-  "TINY" = 0.5,
+  "TINY" = 0,
   "SMALL" = 1,
   "MEDIUM" = 1,
   "LARGE" = 2,

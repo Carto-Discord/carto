@@ -92,7 +92,7 @@ describe("Upload Map", () => {
                 row: { N: "7" },
                 column: { S: "C" },
                 color: { S: "#ff00ff" },
-                size: { N: "0.5" },
+                size: { N: "0" },
               },
             },
           ],

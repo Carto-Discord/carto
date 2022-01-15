@@ -84,7 +84,7 @@ const tokenCommand: PartialApplicationCommand = {
         {
           name: "size",
           description: "Token size",
-          type: ApplicationCommandOptionType.STRING,
+          type: ApplicationCommandOptionType.INTEGER,
           required: false,
           choices: [
             {
