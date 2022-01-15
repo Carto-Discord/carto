@@ -1,0 +1,10 @@
+{
+  "extends": "@tsconfig/node14/tsconfig.json",
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "paths": {
+      "@carto/canvas-utils": ["./packages/canvas-utils"]
+    }
+  },
+  "exclude": ["node_modules"]
+}

@@ -1,0 +1,86 @@
+name: IntegrationTest
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        default: "16"
+        required: false
+        type: string
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      # These aren't actually secret, they're just for testing purposes.
+      PUBLIC_KEY: a58293d7fa04d53ab90108be275a87fe890eece595962273a93e1f87d398df74
+      CYPRESS_PRIVATE_KEY: 814d1a8737ba28a2ae72e39cac46468002525a64e4f002d7b52dd06efb9dc4b8a58293d7fa04d53ab90108be275a87fe890eece595962273a93e1f87d398df74
+      CYPRESS_MAP_BUCKET: carto-bot-maps
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Node.JS
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: npm
+
+      # Needed to get Workspaces in Node 14
+      - name: Upgrade NPM
+        if: ${{ github.events.inputs.node-version != 16 }}
+        run: npm i -g npm
+
+      - uses: hashicorp/setup-terraform@v1
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Build packages
+        run: npm run build
+
+      - name: Build node-canvas libraries
+        run: docker build -t canvas-libs .
+
+      - name: Inject libraries
+        run: |
+          id=$(docker create canvas-libs)
+          docker cp $id:/root/dist ./packages/create-map
+          docker cp $id:/root/dist ./packages/add-token
+          docker cp $id:/root/dist ./packages/move-delete-token
+          docker rm -v $id
+
+      - name: Start Localstack
+        working-directory: packages/integration
+        run: docker-compose up -d
+
+      - name: Build test environment
+        working-directory: packages/terraform/localstack
+        run: |
+          terraform init
+          terraform apply \
+            -var="discord_public_key=${{ env.PUBLIC_KEY }}" \
+            -var="discord_base_url=http://172.17.0.1:3000" \
+            -auto-approve
+
+      - name: Run tests
+        uses: cypress-io/github-action@v2
+        with:
+          build: npm run setup -w @carto/integration
+          start: npm start -w @carto/mock-discord
+          project: packages/integration
+
+      - name: Upload screenshots
+        uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: cypress-snapshots
+          path: packages/integration/cypress/screenshots
+
+      - name: Print docker-compose logs
+        if: failure()
+        working-directory: packages/integration
+        run: docker-compose logs
+
+      - name: Stop Localstack
+        working-directory: packages/integration
+        run: docker-compose down

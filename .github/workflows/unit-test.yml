@@ -1,0 +1,32 @@
+name: UnitTest
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        default: "16"
+        required: false
+        type: string
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Node.JS
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: npm
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Build local dependencies
+        run: |
+          npm run build -w @carto/map-utils
+          npm run build -w @carto/token-utils
+
+      - name: Test packages
+        run: npm t --workspaces --if-present

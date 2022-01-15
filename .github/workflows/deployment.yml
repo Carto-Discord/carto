@@ -7,17 +7,24 @@ on:
 
 jobs:
   build:
-    uses: carto-discord/carto/.github/workflows/build.yml@main
+    uses: carto-discord/carto/.github/workflows/build.yml@59ec682fa7d7f8d4a435985bed6cb0f5ac2313be
   lint:
     needs: build
-    uses: carto-discord/carto/.github/workflows/lint.yml@main
-  test:
+    uses: carto-discord/carto/.github/workflows/lint.yml@59ec682fa7d7f8d4a435985bed6cb0f5ac2313be
+  unit:
     needs: build
-    uses: carto-discord/carto/.github/workflows/test.yml@main
+    uses: carto-discord/carto/.github/workflows/unit-test.yml@59ec682fa7d7f8d4a435985bed6cb0f5ac2313be
+  integration:
+    needs: build
+    uses: carto-discord/carto/.github/workflows/integration-test.yml@59ec682fa7d7f8d4a435985bed6cb0f5ac2313be
+    with:
+      node-version: "14"
   deploy:
-    needs: [test, lint]
-    uses: carto-discord/carto/.github/workflows/deploy.yml@main
+    needs: [lint, unit, integration]
+    uses: carto-discord/carto/.github/workflows/deploy.yml@59ec682fa7d7f8d4a435985bed6cb0f5ac2313be
+    with:
+      node-version: "14"
     secrets:
-      service_account_key: ${{ secrets.GCP_SA_KEY }}
-      project_id: ${{ secrets.GCP_PROJECT_ID }}
+      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       discord_public_key: ${{ secrets.PUBLIC_KEY }}

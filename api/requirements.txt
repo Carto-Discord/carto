@@ -1,7 +1,0 @@
-discord.py
-flask
-gunicorn
-google-cloud-firestore
-google-cloud-storage
-Pillow
-requests

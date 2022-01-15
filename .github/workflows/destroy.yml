@@ -1,0 +1,26 @@
+name: Destroy all infrastucture
+
+on: workflow_dispatch
+
+jobs:
+  destroy:
+    runs-on: ubuntu-latest
+    env:
+      APP_NAME: "carto-bot"
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: hashicorp/setup-terraform@v1
+
+      - name: Initialise terraform
+        working-directory: packages/terraform/production
+        run: terraform init
+
+      - name: Destroy terraform
+        run: |
+          terraform destroy \
+            -var="app_name=${{ env.APP_NAME }}" \
+            -var="discord_public_key=na" \
+            -auto-approve

@@ -1,6 +1,7 @@
 .idea
 venv
 .terraform
+.vscode
 
 node_modules
 package
@@ -9,16 +10,13 @@ coverage
 
 __pycache__
 
-*.png
+api/**/*.png
 *.zip
 *.env
-*.json
 
 *.pub
 *.pem
 
-!package.json
-!package-lock.json
-!.eslintrc.json
-!tsconfig*.json
-!renovate.json
+*.tfstate*
+
+dist
