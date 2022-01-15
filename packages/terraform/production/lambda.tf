@@ -15,14 +15,49 @@ resource "aws_iam_role" "iam_for_lambda" {
   })
 }
 
+resource "aws_iam_role" "parse_command_role" {
+  name = "iam_for_lambda"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = "sts:AssumeRole"
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy" "start_state_machine" {
+  name = "start_state_machine"
+  role = aws_iam_role.parse_command_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = [
+          "states:StartExecution"
+        ]
+        Effect   = "Allow"
+        Resource = "${aws_sfn_state_machine.state_machine.arn}"
+      }
+    ]
+  })
+}
+
 module "parse_command_lambda" {
   source = "../lambda"
 
   app_name             = var.app_name
   function_name        = "parse-command"
   runtime              = "nodejs14.x"
-  lambda_iam_role_arn  = aws_iam_role.iam_for_lambda.arn
-  lambda_iam_role_name = aws_iam_role.iam_for_lambda.name
+  lambda_iam_role_arn  = aws_iam_role.parse_command_role.arn
+  lambda_iam_role_name = aws_iam_role.parse_command_role.name
   environment_variables = {
     "PUBLIC_KEY"        = var.discord_public_key
     "STATE_MACHINE_ARN" = aws_sfn_state_machine.state_machine.arn
