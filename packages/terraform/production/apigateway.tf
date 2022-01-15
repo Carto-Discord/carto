@@ -9,9 +9,9 @@ resource "aws_cloudwatch_log_group" "client_gateway" {
 }
 
 resource "aws_apigatewayv2_stage" "client_stage" {
-  api_id        = aws_apigatewayv2_api.client_gateway.id
-  name          = "production"
-  auto_deploy   = true
+  api_id      = aws_apigatewayv2_api.client_gateway.id
+  name        = "production"
+  auto_deploy = true
 
   access_log_settings {
     destination_arn = aws_cloudwatch_log_group.client_gateway.arn
@@ -34,15 +34,15 @@ resource "aws_apigatewayv2_stage" "client_stage" {
 
 resource "aws_apigatewayv2_integration" "client_integration" {
   api_id = aws_apigatewayv2_api.client_gateway.id
-  
-  integration_uri     = module.parse_command_lambda.lambda_invoke_arn
-  integration_type    = "AWS_PROXY"
-  integration_method  = "POST"
+
+  integration_uri    = module.parse_command_lambda.lambda_invoke_arn
+  integration_type   = "AWS_PROXY"
+  integration_method = "POST"
 }
 
 resource "aws_apigatewayv2_route" "client_route" {
-  api_id    = aws_apigatewayv2_api.client_gateway.id
-  
+  api_id = aws_apigatewayv2_api.client_gateway.id
+
   route_key = "POST /"
   target    = "integrations/${aws_apigatewayv2_integration.client_integration.id}"
 }

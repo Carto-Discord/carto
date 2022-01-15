@@ -11,9 +11,9 @@ variable "runtime" {
 }
 
 variable "timeout" {
-  type = number
+  type        = number
   description = "Timeout for function"
-  default = 3
+  default     = 3
 }
 
 variable "environment_variables" {
