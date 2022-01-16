@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - "packages/terraform/localstack/**"
+      - "packages/terraform/user/**"
 
 jobs:
   build:
