@@ -235,6 +235,7 @@ resource "aws_iam_group_policy" "iam" {
           "iam:DeleteRolePolicy",
           "iam:DetachRolePolicy",
           "iam:PutRolePolicy",
+          "iam:ListEntitiesForPolicy",
           "iam:ListInstanceProfilesForRole",
           "iam:ListPolicyVersions"
         ]
