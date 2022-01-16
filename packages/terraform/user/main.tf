@@ -238,6 +238,7 @@ resource "aws_iam_group_policy" "iam" {
           "iam:PutRolePolicy",
           "iam:ListEntitiesForPolicy",
           "iam:ListInstanceProfilesForRole",
+          "iam:ListPolicies",
           "iam:ListPolicyVersions"
         ]
         Effect   = "Allow"
