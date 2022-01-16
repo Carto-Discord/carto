@@ -105,7 +105,7 @@ describe("Handler", () => {
 
     describe("given a valid command is received", () => {
       it("should send a state machine executuion command", async () => {
-        await handler({
+        const response = await handler({
           body: JSON.stringify({
             type: InteractionType.APPLICATION_COMMAND,
             application_id: "1234",
@@ -136,6 +136,11 @@ describe("Handler", () => {
           }),
           httpMethod: "POST",
         } as APIGatewayProxyEvent);
+
+        expect(response).toEqual({
+          statusCode: 200,
+          body: '{"type":5}',
+        });
 
         const startArgs = sfnMock.commandCalls(StartExecutionCommand)[0];
         expect(startArgs.args[0].input).toMatchObject({

@@ -23,6 +23,8 @@ const extractParameters = (
 export const handler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
+  console.debug(event);
+
   const isVerified = validateRequest(event);
 
   if (!isVerified) {
@@ -76,13 +78,19 @@ export const handler = async (
       await client.send(startCommand);
     }
 
-    return {
+    const response = {
       statusCode: 200,
       body: JSON.stringify({
         type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
       }),
     };
+
+    console.debug(response);
+
+    return response;
   }
+
+  console.debug("No options provided");
 
   return {
     statusCode: 400,
