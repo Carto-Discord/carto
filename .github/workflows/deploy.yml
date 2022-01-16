@@ -30,41 +30,25 @@ jobs:
 
       - uses: hashicorp/setup-terraform@v1
 
-      - name: Initialise terraform
-        working-directory: packages/terraform/production
-        run: terraform init
-
       - name: Set up Node.JS
         uses: actions/setup-node@v2
         with:
           node-version: ${{ inputs.node-version }}
           cache: npm
 
-      # Needed to get Workspaces in Node 14
-      - name: Upgrade NPM
-        if: ${{ github.events.inputs.node-version != 16 }}
-        run: npm i -g npm
-
       - name: Install Node dependencies
         run: npm ci
 
-      - name: Build packages
-        run: npm run build
-
-      - name: Build node-canvas libraries
-        run: docker build -t canvas-libs .
-
-      - name: Inject libraries
-        run: |
-          id=$(docker create canvas-libs)
-          docker cp $id:/root/dist ./packages/create-map
-          docker cp $id:/root/dist ./packages/add-token
-          docker cp $id:/root/dist ./packages/move-delete-token
-          docker rm -v $id
+      - name: Download packages
+        uses: actions/download-artifact@v2
+        with:
+          name: packages
+          path: packages
 
       - name: Apply terraform
         working-directory: packages/terraform/production
         run: |
+          terraform init
           terraform apply \
             -var="app_name=${{ inputs.app_name }}" \
             -var="discord_public_key=${{ secrets.discord_public_key }}" \
