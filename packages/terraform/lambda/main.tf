@@ -21,9 +21,19 @@ resource "aws_iam_policy" "lambda_logging" {
 EOF
 }
 
+
+data "aws_iam_policy" "aws_xray_write_only_access" {
+  arn = "arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess"
+}
+
 resource "aws_iam_role_policy_attachment" "lambda_logs" {
   role       = var.lambda_iam_role_name
   policy_arn = aws_iam_policy.lambda_logging.arn
+}
+
+resource "aws_iam_role_policy_attachment" "aws_xray_write_only_access" {
+  role       = var.lambda_iam_role_name
+  policy_arn = data.aws_iam_policy.aws_xray_write_only_access.arn
 }
 
 resource "aws_cloudwatch_log_group" "lambda_log_group" {
@@ -51,5 +61,9 @@ resource "aws_lambda_function" "function" {
 
   environment {
     variables = var.environment_variables
+  }
+
+  tracing_config {
+    mode = "Active"
   }
 }
