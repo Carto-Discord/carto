@@ -4,7 +4,7 @@ on: pull_request
 
 jobs:
   build:
-    uses: carto-discord/carto/.github/workflows/build.yml@ci/optimised-workflows
+    uses: carto-discord/carto/.github/workflows/build.yml@main
     with:
       node-version: "14"
   lint:
@@ -12,7 +12,7 @@ jobs:
     uses: carto-discord/carto/.github/workflows/lint.yml@main
   unit:
     needs: build
-    uses: carto-discord/carto/.github/workflows/unit-test.yml@ci/optimised-workflows
+    uses: carto-discord/carto/.github/workflows/unit-test.yml@main
   integration:
     needs: build
-    uses: carto-discord/carto/.github/workflows/integration-test.yml@ci/optimised-workflows
+    uses: carto-discord/carto/.github/workflows/integration-test.yml@main

@@ -30,10 +30,6 @@ jobs:
 
       - uses: hashicorp/setup-terraform@v1
 
-      - name: Initialise terraform
-        working-directory: packages/terraform/production
-        run: terraform init
-
       - name: Set up Node.JS
         uses: actions/setup-node@v2
         with:
@@ -52,6 +48,7 @@ jobs:
       - name: Apply terraform
         working-directory: packages/terraform/production
         run: |
+          terraform init
           terraform apply \
             -var="app_name=${{ inputs.app_name }}" \
             -var="discord_public_key=${{ secrets.discord_public_key }}" \
