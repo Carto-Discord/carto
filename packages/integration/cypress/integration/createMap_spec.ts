@@ -126,9 +126,8 @@ describe("Create Map", () => {
           body,
           headers,
         })
-          .its("body")
-          .its("type")
-          .should("eq", 5);
+          .its("status")
+          .should("eq", 200);
 
         cy.get("ul li", { timeout: 30000 })
           .then((item) => {
@@ -232,9 +231,8 @@ describe("Create Map", () => {
             body: badBody,
             headers,
           })
-            .its("body")
-            .its("type")
-            .should("eq", 5);
+            .its("status")
+            .should("eq", 200);
 
           cy.get("ul li", { timeout: 30000 })
             .then((item) => {
@@ -286,8 +284,6 @@ describe("Create Map", () => {
       it("should create a map and create a new map config", () => {
         let newImageId: string;
 
-        const timestamp = Date.now();
-
         const newBody = {
           ...body,
           channel_id: newChannel,
@@ -301,9 +297,8 @@ describe("Create Map", () => {
           body: newBody,
           headers,
         })
-          .its("body")
-          .its("type")
-          .should("eq", 5);
+          .its("status")
+          .should("eq", 200);
 
         cy.get("ul li", { timeout: 30000 })
           .then((item) => {

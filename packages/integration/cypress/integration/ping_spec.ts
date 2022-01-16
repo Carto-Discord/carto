@@ -36,7 +36,7 @@ describe("Ping", () => {
     });
   });
 
-  it("should respond with Pong", () => {
+  it("should respond with OK", () => {
     const body: Command = { type: 1 };
 
     const headers = generateHeaders(body);
@@ -47,8 +47,7 @@ describe("Ping", () => {
       body,
       headers,
     })
-      .its("body")
-      .its("type")
-      .should("eq", 1);
+      .its("status")
+      .should("eq", 200);
   });
 });

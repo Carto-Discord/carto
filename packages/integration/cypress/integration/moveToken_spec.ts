@@ -119,9 +119,8 @@ describe("Move Token", () => {
       body: moveBody,
       headers,
     })
-      .its("body")
-      .its("type")
-      .should("eq", 5);
+      .its("status")
+      .should("eq", 200);
 
     cy.get("ul li", { timeout: 30000 })
       .then((item) => {
@@ -225,9 +224,8 @@ describe("Move Token", () => {
         body,
         headers,
       })
-        .its("body")
-        .its("type")
-        .should("eq", 5);
+        .its("status")
+        .should("eq", 200);
 
       cy.get("ul li", { timeout: 30000 })
         .then((item) => {

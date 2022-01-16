@@ -127,9 +127,8 @@ describe("Add Token", () => {
       body: addBody,
       headers,
     })
-      .its("body")
-      .its("type")
-      .should("eq", 5);
+      .its("status")
+      .should("eq", 200);
 
     cy.get("ul li", { timeout: 30000 })
       .then((item) => {
@@ -250,9 +249,8 @@ describe("Add Token", () => {
         body,
         headers,
       })
-        .its("body")
-        .its("type")
-        .should("eq", 5);
+        .its("status")
+        .should("eq", 200);
 
       cy.get("ul li", { timeout: 30000 })
         .then((item) => {
