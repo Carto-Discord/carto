@@ -23,10 +23,11 @@ jobs:
       - name: Install Node dependencies
         run: npm ci
 
-      - name: Build local dependencies
-        run: |
-          npm run build -w @carto/map-utils
-          npm run build -w @carto/token-utils
+      - name: Download packages
+        uses: actions/download-artifact@v2
+        with:
+          name: packages
+          path: packages
 
       - name: Test packages
         run: npm t --workspaces --if-present

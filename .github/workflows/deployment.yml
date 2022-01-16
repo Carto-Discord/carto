@@ -11,6 +11,8 @@ on:
 jobs:
   build:
     uses: carto-discord/carto/.github/workflows/build.yml@main
+    with:
+      node-version: "14"
   lint:
     needs: build
     uses: carto-discord/carto/.github/workflows/lint.yml@main
@@ -20,13 +22,9 @@ jobs:
   integration:
     needs: build
     uses: carto-discord/carto/.github/workflows/integration-test.yml@main
-    with:
-      node-version: "14"
   deploy:
     needs: [lint, unit, integration]
     uses: carto-discord/carto/.github/workflows/deploy.yml@main
-    with:
-      node-version: "14"
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
