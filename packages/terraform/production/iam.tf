@@ -102,7 +102,7 @@ resource "aws_iam_role" "add_token_role" {
 }
 
 resource "aws_iam_role" "move_delete_token_role" {
-  name = "move_token_role"
+  name = "move_delete_token_role"
 
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
 }
