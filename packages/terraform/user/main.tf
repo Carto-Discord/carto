@@ -229,6 +229,7 @@ resource "aws_iam_group_policy" "iam" {
         Action = [
           "iam:AttachRolePolicy",
           "iam:CreatePolicy",
+          "iam:CreatePolicyVersion",
           "iam:CreateRole",
           "iam:DeleteRole",
           "iam:DeletePolicy",
