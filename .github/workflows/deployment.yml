@@ -8,9 +8,8 @@ on:
       - "assets/**"
       - "packages/**"
       - ".github/workflows/**"
-    paths-ignore:
-      - "packages/terraform/localstack/**"
-      - "packages/terraform/user/**"
+      - "!packages/terraform/localstack/**"
+      - "!packages/terraform/user/**"
 
 jobs:
   build:
