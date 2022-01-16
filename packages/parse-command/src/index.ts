@@ -2,12 +2,19 @@ import {
   ApplicationCommandInteractionDataOption,
   Interaction,
 } from "slash-commands";
-import type { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
+import type {
+  APIGatewayProxyEventV2,
+  APIGatewayProxyResultV2,
+} from "aws-lambda";
 
 import { SFNClient, StartExecutionCommand } from "@aws-sdk/client-sfn";
 
 import { InteractionResponseType, InteractionType } from "./types";
 import { validateRequest } from "./validation";
+
+type DiscordResponse = {
+  type: InteractionResponseType;
+};
 
 const extractParameters = (
   command: ApplicationCommandInteractionDataOption
@@ -21,10 +28,8 @@ const extractParameters = (
 };
 
 export const handler = async (
-  event: APIGatewayProxyEvent
-): Promise<APIGatewayProxyResult> => {
-  console.debug(event);
-
+  event: APIGatewayProxyEventV2
+): Promise<APIGatewayProxyResultV2<DiscordResponse>> => {
   const isVerified = validateRequest(event);
 
   if (!isVerified) {
@@ -37,10 +42,7 @@ export const handler = async (
   const body: Interaction = JSON.parse(event?.body || "{}");
 
   if (body.type === InteractionType.PING) {
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ type: InteractionResponseType.PONG }),
-    };
+    return { type: InteractionResponseType.PONG };
   }
 
   const commandGroup = body.data;
@@ -78,19 +80,10 @@ export const handler = async (
       await client.send(startCommand);
     }
 
-    const response = {
-      statusCode: 200,
-      body: JSON.stringify({
-        type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
-      }),
+    return {
+      type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
     };
-
-    console.debug(response);
-
-    return response;
   }
-
-  console.debug("No options provided");
 
   return {
     statusCode: 400,

@@ -1,4 +1,7 @@
-import { APIGatewayProxyEvent, APIGatewayProxyEventHeaders } from "aws-lambda";
+import {
+  APIGatewayProxyEventV2,
+  APIGatewayProxyEventHeaders,
+} from "aws-lambda";
 import nacl from "tweetnacl";
 
 const getCaseInsensitive = (
@@ -12,7 +15,7 @@ const getCaseInsensitive = (
   return correspondingKey ? headers[correspondingKey] : undefined;
 };
 
-export const validateRequest = (event: APIGatewayProxyEvent) => {
+export const validateRequest = (event: APIGatewayProxyEventV2) => {
   const publicKey = process.env.PUBLIC_KEY;
   const signature = getCaseInsensitive(event.headers, "x-signature-ed25519");
   const timestamp = getCaseInsensitive(event.headers, "x-signature-timestamp");

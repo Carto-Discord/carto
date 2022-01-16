@@ -1,4 +1,4 @@
-import { APIGatewayProxyEvent } from "aws-lambda";
+import { APIGatewayProxyEventV2 } from "aws-lambda";
 import { mockClient } from "aws-sdk-client-mock";
 import { InteractionResponseType, InteractionType } from "slash-commands";
 
@@ -34,10 +34,12 @@ describe("Handler", () => {
     it("should return a 401 response", async () => {
       const response = await handler({
         httpMethod: "POST",
-      } as APIGatewayProxyEvent);
+      } as unknown as APIGatewayProxyEventV2);
 
-      expect(response.statusCode).toBe(401);
-      expect(response.body).toBe("invalid request signature");
+      expect(response).toEqual({
+        statusCode: 401,
+        body: "invalid request signature",
+      });
     });
   });
 
@@ -51,12 +53,9 @@ describe("Handler", () => {
         const response = await handler({
           body: JSON.stringify({ type: InteractionType.PING }),
           httpMethod: "POST",
-        } as APIGatewayProxyEvent);
+        } as unknown as APIGatewayProxyEventV2);
 
-        expect(response.statusCode).toBe(200);
-        expect(response.body).toBe(
-          JSON.stringify({ type: InteractionResponseType.PONG })
-        );
+        expect(response).toEqual({ type: InteractionResponseType.PONG });
       });
     });
 
@@ -74,14 +73,11 @@ describe("Handler", () => {
             },
           }),
           httpMethod: "POST",
-        } as APIGatewayProxyEvent);
+        } as unknown as APIGatewayProxyEventV2);
 
-        expect(response.statusCode).toBe(200);
-        expect(response.body).toBe(
-          JSON.stringify({
-            type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
-          })
-        );
+        expect(response).toEqual({
+          type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+        });
       });
     });
 
@@ -96,10 +92,12 @@ describe("Handler", () => {
             data: {},
           }),
           httpMethod: "POST",
-        } as APIGatewayProxyEvent);
+        } as unknown as APIGatewayProxyEventV2);
 
-        expect(response.statusCode).toBe(400);
-        expect(response.body).toBe("no options provided");
+        expect(response).toEqual({
+          statusCode: 400,
+          body: "no options provided",
+        });
       });
     });
 
@@ -135,11 +133,10 @@ describe("Handler", () => {
             },
           }),
           httpMethod: "POST",
-        } as APIGatewayProxyEvent);
+        } as unknown as APIGatewayProxyEventV2);
 
         expect(response).toEqual({
-          statusCode: 200,
-          body: '{"type":5}',
+          type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
         });
 
         const startArgs = sfnMock.commandCalls(StartExecutionCommand)[0];
