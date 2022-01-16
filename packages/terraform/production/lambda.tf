@@ -1,55 +1,3 @@
-resource "aws_iam_role" "iam_for_lambda" {
-  name = "iam_for_lambda"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = "sts:AssumeRole"
-        Principal = {
-          Service = "lambda.amazonaws.com"
-        }
-      }
-    ]
-  })
-}
-
-resource "aws_iam_role" "parse_command_role" {
-  name = "parse_command_role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = "sts:AssumeRole"
-        Principal = {
-          Service = "lambda.amazonaws.com"
-        }
-      }
-    ]
-  })
-}
-
-resource "aws_iam_role_policy" "start_state_machine" {
-  name = "start_state_machine"
-  role = aws_iam_role.parse_command_role.id
-
-  policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      {
-        Action = [
-          "states:StartExecution"
-        ]
-        Effect   = "Allow"
-        Resource = "${aws_sfn_state_machine.state_machine.arn}"
-      }
-    ]
-  })
-}
-
 module "parse_command_lambda" {
   source = "../lambda"
 
@@ -70,8 +18,8 @@ module "get_map_lambda" {
   app_name             = var.app_name
   function_name        = "get-map"
   runtime              = "nodejs14.x"
-  lambda_iam_role_arn  = aws_iam_role.iam_for_lambda.arn
-  lambda_iam_role_name = aws_iam_role.iam_for_lambda.name
+  lambda_iam_role_arn  = aws_iam_role.get_map_role.arn
+  lambda_iam_role_name = aws_iam_role.get_map_role.name
   environment_variables = {
     "MAPS_BUCKET"    = aws_s3_bucket.maps_bucket.bucket
     "MAPS_TABLE"     = aws_dynamodb_table.map_table.name
@@ -85,8 +33,8 @@ module "delete_map_lambda" {
   app_name             = var.app_name
   function_name        = "delete-map"
   runtime              = "nodejs14.x"
-  lambda_iam_role_arn  = aws_iam_role.iam_for_lambda.arn
-  lambda_iam_role_name = aws_iam_role.iam_for_lambda.name
+  lambda_iam_role_arn  = aws_iam_role.delete_map_role.arn
+  lambda_iam_role_name = aws_iam_role.delete_map_role.name
   environment_variables = {
     "CHANNELS_TABLE" = aws_dynamodb_table.channel_table.name
   }
@@ -99,8 +47,8 @@ module "create_map_lambda" {
   function_name        = "create-map"
   runtime              = "nodejs14.x"
   timeout              = 10
-  lambda_iam_role_arn  = aws_iam_role.iam_for_lambda.arn
-  lambda_iam_role_name = aws_iam_role.iam_for_lambda.name
+  lambda_iam_role_arn  = aws_iam_role.create_map_role.arn
+  lambda_iam_role_name = aws_iam_role.create_map_role.name
   environment_variables = {
     "MAPS_BUCKET"    = aws_s3_bucket.maps_bucket.bucket
     "MAPS_TABLE"     = aws_dynamodb_table.map_table.name
@@ -115,8 +63,8 @@ module "add_token_lambda" {
   function_name        = "add-token"
   runtime              = "nodejs14.x"
   timeout              = 10
-  lambda_iam_role_arn  = aws_iam_role.iam_for_lambda.arn
-  lambda_iam_role_name = aws_iam_role.iam_for_lambda.name
+  lambda_iam_role_arn  = aws_iam_role.add_token_role.arn
+  lambda_iam_role_name = aws_iam_role.add_token_role.name
   environment_variables = {
     "MAPS_BUCKET"    = aws_s3_bucket.maps_bucket.bucket
     "MAPS_TABLE"     = aws_dynamodb_table.map_table.name
@@ -131,8 +79,8 @@ module "move_delete_token_lambda" {
   function_name        = "move-delete-token"
   runtime              = "nodejs14.x"
   timeout              = 10
-  lambda_iam_role_arn  = aws_iam_role.iam_for_lambda.arn
-  lambda_iam_role_name = aws_iam_role.iam_for_lambda.name
+  lambda_iam_role_arn  = aws_iam_role.move_delete_token_role.arn
+  lambda_iam_role_name = aws_iam_role.move_delete_token_role.name
   environment_variables = {
     "MAPS_BUCKET"    = aws_s3_bucket.maps_bucket.bucket
     "MAPS_TABLE"     = aws_dynamodb_table.map_table.name
@@ -146,8 +94,8 @@ module "send_response_lambda" {
   app_name             = var.app_name
   function_name        = "send-response"
   runtime              = "nodejs14.x"
-  lambda_iam_role_arn  = aws_iam_role.iam_for_lambda.arn
-  lambda_iam_role_name = aws_iam_role.iam_for_lambda.name
+  lambda_iam_role_arn  = aws_iam_role.send_response_role.arn
+  lambda_iam_role_name = aws_iam_role.send_response_role.name
   environment_variables = {
     "BASE_URL" = var.discord_base_url
   }
