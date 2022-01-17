@@ -24,4 +24,4 @@ jobs:
         run: npm ci
 
       - name: Lint packages
-        run: npm run lint --workspaces --if-present
+        run: npm run lint
