@@ -1,12 +1,12 @@
 import axios from "axios";
 import type { MessageEmbed } from "discord.js";
 
-import { handler } from "../src/index";
+import { handler, Event } from "../src/index";
 
 jest.mock("axios");
 
 describe("Handler", () => {
-  const event = {
+  const event: Event = {
     application_id: "app-id-123",
     token: "mockToken",
     embed: {
@@ -21,8 +21,8 @@ describe("Handler", () => {
       image: {
         url: "https://image.url",
       },
-    },
-  } as { application_id: string; token: string; embed: MessageEmbed };
+    } as MessageEmbed,
+  };
 
   beforeEach(() => {
     process.env.BASE_URL = "https://discord.com/api/v9";
@@ -33,7 +33,7 @@ describe("Handler", () => {
   });
 
   it("should PATCH the discord webhook endpoint", async () => {
-    await handler(JSON.stringify(event));
+    await handler(event);
 
     expect(axios.patch).toBeCalledWith(
       "https://discord.com/api/v9/webhooks/app-id-123/mockToken/messages/@original",
@@ -56,5 +56,32 @@ describe("Handler", () => {
       },
       { headers: { "Content-Type": "application/json" } }
     );
+  });
+
+  describe("given an error is sent", () => {
+    it("should PATCH the discord webhook endpoint with an error", async () => {
+      const event: Event = {
+        application_id: "app-id-123",
+        token: "mockToken",
+        error: "Something went wrong",
+      };
+
+      await handler(event);
+
+      expect(axios.patch).toBeCalledWith(
+        "https://discord.com/api/v9/webhooks/app-id-123/mockToken/messages/@original",
+        {
+          embeds: [
+            {
+              title: "Command execution failed",
+              description:
+                "The command failed to process, likely due to an internal error.",
+              type: "rich",
+            },
+          ],
+        },
+        { headers: { "Content-Type": "application/json" } }
+      );
+    });
   });
 });

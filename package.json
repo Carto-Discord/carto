@@ -8,6 +8,7 @@
   "scripts": {
     "prebuild": "npm run build -w @carto/map-utils && npm run build -w @carto/token-utils",
     "build": "npm run build --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
     "test": "npm t --workspaces --if-present"
   },
   "repository": {

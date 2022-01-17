@@ -71,6 +71,16 @@
         "channel_id.$": "$.channel_id"
       },
       "Resource": "${getMapLambdaArn}",
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "Next": "SendFailure",
+          "ResultPath": "$.error"
+        }
+      ],
+      "ResultSelector": {
+        "embed.$": "States.StringToJson($.body)"
+      },
       "Next": "SendResponse"
     },
     "DeleteMap": {
@@ -81,6 +91,16 @@
         "channel_id.$": "$.channel_id"
       },
       "Resource": "${deleteMapLambdaArn}",
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "Next": "SendFailure",
+          "ResultPath": "$.error"
+        }
+      ],
+      "ResultSelector": {
+        "embed.$": "States.StringToJson($.body)"
+      },
       "Next": "SendResponse"
     },
     "CreateMap": {
@@ -94,6 +114,16 @@
         "columns.$": "$.columns"
       },
       "Resource": "${createMapLambdaArn}",
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "Next": "SendFailure",
+          "ResultPath": "$.error"
+        }
+      ],
+      "ResultSelector": {
+        "embed.$": "States.StringToJson($.body)"
+      },
       "Next": "SendResponse"
     },
     "AddToken": {
@@ -109,6 +139,16 @@
         "color.$": "$.color"
       },
       "Resource": "${addTokenLambdaArn}",
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "Next": "SendFailure",
+          "ResultPath": "$.error"
+        }
+      ],
+      "ResultSelector": {
+        "embed.$": "States.StringToJson($.body)"
+      },
       "Next": "SendResponse"
     },
     "MoveToken": {
@@ -123,6 +163,16 @@
         "column.$": "$.column"
       },
       "Resource": "${moveDeleteTokenLambdaArn}",
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "Next": "SendFailure",
+          "ResultPath": "$.error"
+        }
+      ],
+      "ResultSelector": {
+        "embed.$": "States.StringToJson($.body)"
+      },
       "Next": "SendResponse"
     },
     "DeleteToken": {
@@ -135,11 +185,31 @@
         "name.$": "$.name"
       },
       "Resource": "${moveDeleteTokenLambdaArn}",
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "Next": "SendFailure",
+          "ResultPath": "$.error"
+        }
+      ],
+      "ResultSelector": {
+        "embed.$": "States.StringToJson($.body)"
+      },
       "Next": "SendResponse"
     },
     "SendResponse": {
       "Type": "Task",
-      "InputPath": "$.body",
+      "InputPath": "$.embed",
+      "Resource": "${sendResponseLambdaArn}",
+      "End": true
+    },
+    "SendFailure": {
+      "Type": "Task",
+      "Parameters": {
+        "application_id.$": "$.application_id",
+        "token.$": "$.token",
+        "error.$": "$.error"
+      },
       "Resource": "${sendResponseLambdaArn}",
       "End": true
     },
