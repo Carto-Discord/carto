@@ -46,7 +46,8 @@ module "create_map_lambda" {
   app_name             = var.app_name
   function_name        = "create-map"
   runtime              = "nodejs14.x"
-  timeout              = 10
+  timeout              = 20
+  memory_size          = 512
   lambda_iam_role_arn  = aws_iam_role.create_map_role.arn
   lambda_iam_role_name = aws_iam_role.create_map_role.name
   environment_variables = {
@@ -62,7 +63,8 @@ module "add_token_lambda" {
   app_name             = var.app_name
   function_name        = "add-token"
   runtime              = "nodejs14.x"
-  timeout              = 10
+  timeout              = 20
+  memory_size          = 512
   lambda_iam_role_arn  = aws_iam_role.add_token_role.arn
   lambda_iam_role_name = aws_iam_role.add_token_role.name
   environment_variables = {
@@ -78,7 +80,8 @@ module "move_delete_token_lambda" {
   app_name             = var.app_name
   function_name        = "move-delete-token"
   runtime              = "nodejs14.x"
-  timeout              = 10
+  timeout              = 20
+  memory_size          = 512
   lambda_iam_role_arn  = aws_iam_role.move_delete_token_role.arn
   lambda_iam_role_name = aws_iam_role.move_delete_token_role.name
   environment_variables = {
