@@ -68,10 +68,15 @@ resource "aws_iam_policy" "access_s3" {
       {
         Action = [
           "s3:GetObject",
-          "s3:PutObject"
+          "s3:GetObjectAcl",
+          "s3:PutObject",
+          "s3:PubObjectAcl"
         ]
-        Effect   = "Allow"
-        Resource = "${aws_s3_bucket.maps_bucket.arn}"
+        Effect = "Allow"
+        Resource = [
+          "${aws_s3_bucket.maps_bucket.arn}",
+          "${aws_s3_bucket.maps_bucket.arn}/*"
+        ]
       }
     ]
   })
