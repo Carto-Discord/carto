@@ -6,9 +6,7 @@
     "asl-validator": "1.10.0"
   },
   "scripts": {
-    "lint:localstack": "asl-validator --json-path localstack/state_machine.asl.json",
-    "lint:production": "asl-validator --json-path production/state_machine.asl.json",
-    "lint": "npm run lint:localstack && npm run lint:production"
+    "lint": "asl-validator --json-path state_machine.asl.json"
   },
   "repository": {
     "type": "git",
