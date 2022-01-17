@@ -71,6 +71,13 @@
         "channel_id.$": "$.channel_id"
       },
       "Resource": "${getMapLambdaArn}",
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "Next": "SendFailure",
+          "ResultPath": "$.error"
+        }
+      ],
       "Next": "SendResponse"
     },
     "DeleteMap": {
@@ -81,6 +88,13 @@
         "channel_id.$": "$.channel_id"
       },
       "Resource": "${deleteMapLambdaArn}",
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "Next": "SendFailure",
+          "ResultPath": "$.error"
+        }
+      ],
       "Next": "SendResponse"
     },
     "CreateMap": {
@@ -94,6 +108,13 @@
         "columns.$": "$.columns"
       },
       "Resource": "${createMapLambdaArn}",
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "Next": "SendFailure",
+          "ResultPath": "$.error"
+        }
+      ],
       "Next": "SendResponse"
     },
     "AddToken": {
@@ -109,6 +130,13 @@
         "color.$": "$.color"
       },
       "Resource": "${addTokenLambdaArn}",
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "Next": "SendFailure",
+          "ResultPath": "$.error"
+        }
+      ],
       "Next": "SendResponse"
     },
     "MoveToken": {
@@ -123,6 +151,13 @@
         "column.$": "$.column"
       },
       "Resource": "${moveDeleteTokenLambdaArn}",
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "Next": "SendFailure",
+          "ResultPath": "$.error"
+        }
+      ],
       "Next": "SendResponse"
     },
     "DeleteToken": {
@@ -135,11 +170,28 @@
         "name.$": "$.name"
       },
       "Resource": "${moveDeleteTokenLambdaArn}",
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "Next": "SendFailure",
+          "ResultPath": "$.error"
+        }
+      ],
       "Next": "SendResponse"
     },
     "SendResponse": {
       "Type": "Task",
       "InputPath": "$.body",
+      "Resource": "${sendResponseLambdaArn}",
+      "End": true
+    },
+    "SendFailure": {
+      "Type": "Task",
+      "Parameters": {
+        "application_id.$": "$.application_id",
+        "token.$": "$.token",
+        "error.$": "$.error"
+      },
       "Resource": "${sendResponseLambdaArn}",
       "End": true
     },
