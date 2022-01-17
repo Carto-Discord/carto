@@ -8,9 +8,12 @@ export type Event = {
   error?: string;
 };
 
-export const handler = async (event: string) => {
-  const { application_id, token, embed, error }: Event = JSON.parse(event);
-
+export const handler = async ({
+  application_id,
+  token,
+  embed,
+  error,
+}: Event) => {
   const url = `${process.env.BASE_URL}/webhooks/${application_id}/${token}/messages/@original`;
 
   const errorEmbed = {
@@ -22,7 +25,7 @@ export const handler = async (event: string) => {
 
   if (error) console.warn({ error }, "Handling error");
 
-  return axios.patch(
+  await axios.patch(
     url,
     { embeds: [error ? errorEmbed : embed] },
     { headers: { "Content-Type": "application/json" } }

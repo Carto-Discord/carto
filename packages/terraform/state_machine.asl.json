@@ -78,6 +78,9 @@
           "ResultPath": "$.error"
         }
       ],
+      "ResultSelector": {
+        "embed.$": "States.StringToJson($.body)"
+      },
       "Next": "SendResponse"
     },
     "DeleteMap": {
@@ -95,6 +98,9 @@
           "ResultPath": "$.error"
         }
       ],
+      "ResultSelector": {
+        "embed.$": "States.StringToJson($.body)"
+      },
       "Next": "SendResponse"
     },
     "CreateMap": {
@@ -115,6 +121,9 @@
           "ResultPath": "$.error"
         }
       ],
+      "ResultSelector": {
+        "embed.$": "States.StringToJson($.body)"
+      },
       "Next": "SendResponse"
     },
     "AddToken": {
@@ -137,6 +146,9 @@
           "ResultPath": "$.error"
         }
       ],
+      "ResultSelector": {
+        "embed.$": "States.StringToJson($.body)"
+      },
       "Next": "SendResponse"
     },
     "MoveToken": {
@@ -158,6 +170,9 @@
           "ResultPath": "$.error"
         }
       ],
+      "ResultSelector": {
+        "embed.$": "States.StringToJson($.body)"
+      },
       "Next": "SendResponse"
     },
     "DeleteToken": {
@@ -177,11 +192,14 @@
           "ResultPath": "$.error"
         }
       ],
+      "ResultSelector": {
+        "embed.$": "States.StringToJson($.body)"
+      },
       "Next": "SendResponse"
     },
     "SendResponse": {
       "Type": "Task",
-      "InputPath": "$.body",
+      "InputPath": "$.embed",
       "Resource": "${sendResponseLambdaArn}",
       "End": true
     },
