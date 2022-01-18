@@ -116,7 +116,7 @@ describe("Add Token", () => {
     });
   });
 
-  it("should add a new map with new tokens and default optional properties", () => {
+  it("should add a new map with new tokens and specified optional properties", () => {
     let newImageId: string;
 
     const headers = generateHeaders(addBody);
@@ -125,6 +125,121 @@ describe("Add Token", () => {
       method: "POST",
       url,
       body: addBody,
+      headers,
+    })
+      .its("status")
+      .should("eq", 200);
+
+    cy.get("ul li", { timeout: 30000 })
+      .then((item) => {
+        const { params, body } = JSON.parse(item.text());
+        expect(params).to.deep.equal({
+          applicationId: application_id,
+          token,
+        });
+        const embed = body.embeds[0];
+        newImageId = embed.image.url.replace(/^.*[\\\/]/, "").split(".")[0];
+
+        expect(embed.image.url).to.eq(
+          `https://s3.us-east-1.amazonaws.com/carto-bot-maps/${newImageId}.png`
+        );
+        expect(embed.title).to.eq("Token added");
+        expect(embed.description).to.eq("Token positions:");
+
+        expect(embed.fields).to.have.length(2);
+        expect(embed.fields[0].inline).to.be.true;
+        expect(embed.fields[0].name).to.eq("Alvyn");
+        expect(embed.fields[0].value).to.eq("C7");
+        expect(embed.fields[1].inline).to.be.true;
+        expect(embed.fields[1].name).to.eq("Sam");
+        expect(embed.fields[1].value).to.eq("E4");
+
+        expect(embed.type).to.eq("rich");
+      })
+      // Inspect S3 bucket
+      .then(() => getObject(`${newImageId}.png`))
+      .then((obj) => {
+        expect(obj).to.have.property("Body");
+      })
+      // Inspect Channel document
+      .then(() =>
+        getDocument({
+          table: Table.CHANNELS,
+          key: {
+            id: channelId,
+          },
+        })
+      )
+      .then(({ Item }) => {
+        const { baseMap, currentMap, history } = Item as DiscordChannel;
+
+        expect(baseMap).to.eq(baseMapId);
+        expect(currentMap).to.eq(newImageId);
+        expect(history).to.have.length(2);
+      })
+      // Inspect Map document
+      .then(() =>
+        getDocument({
+          table: Table.MAPS,
+          key: {
+            id: newImageId,
+          },
+        })
+      )
+      .then(({ Item }) => {
+        const { tokens } = Item as CartoMap;
+
+        expect(tokens).to.have.length(2);
+        expect(tokens[0].color).to.eq("Blue");
+        expect(tokens[0].column).to.eq("C");
+        expect(tokens[0].name).to.eq("Alvyn");
+        expect(tokens[0].row).to.eq(7);
+        expect(tokens[0].size).to.eq(1);
+
+        expect(tokens[1].color).to.be.a("string");
+        expect(tokens[1].column).to.eq("E");
+        expect(tokens[1].name).to.eq("Sam");
+        expect(tokens[1].row).to.eq(4);
+        expect(tokens[1].size).to.eq(1);
+      });
+  });
+
+  it("should add a new map with new tokens and no optional properties", () => {
+    let newImageId: string;
+
+    const optionalBody = {
+      ...addBody,
+      data: {
+        options: [
+          {
+            name: "add",
+            options: [
+              {
+                name: "name",
+                value: "Sam",
+              },
+              {
+                name: "row",
+                value: 4,
+              },
+              {
+                name: "column",
+                value: "E",
+              },
+            ],
+          },
+        ],
+        name: "token",
+        id: "token-id",
+      },
+    };
+
+    const headers = generateHeaders(optionalBody);
+
+    cy.request({
+      method: "POST",
+      url,
+      body: optionalBody,
       headers,
     })
       .its("status")
@@ -224,14 +339,6 @@ describe("Add Token", () => {
                 {
                   name: "column",
                   value: "A",
-                },
-                {
-                  name: "size",
-                  value: 1,
-                },
-                {
-                  name: "color",
-                  value: "purple",
                 },
               ],
             },
