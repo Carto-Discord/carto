@@ -16,6 +16,12 @@ variable "timeout" {
   default     = 3
 }
 
+variable "memory_size" {
+  type        = number
+  description = "Amount of MB the function can use"
+  default     = 128
+}
+
 variable "environment_variables" {
   type        = map(string)
   description = "Environment variables to pass to the function"
