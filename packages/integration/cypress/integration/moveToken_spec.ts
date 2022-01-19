@@ -15,6 +15,7 @@ describe("Move Token", () => {
   let url: string;
 
   const channelId = "123456789012345678";
+  const newChannelId = "123456789012345678";
   const token = "mockToken";
   const application_id = "mockApplicationId";
 
@@ -24,6 +25,12 @@ describe("Move Token", () => {
       baseMap: baseMapId,
       currentMap: currentMapId,
       history: [previousMapId],
+    },
+    {
+      id: newChannelId,
+      baseMap: baseMapId,
+      currentMap: baseMapId,
+      history: [],
     },
   ];
 
@@ -239,6 +246,80 @@ describe("Move Token", () => {
           expect(embed.title).to.eq("Token Move error");
           expect(embed.description).to.eq(
             "Token BadToken not found in map. Token names are case sensitive, so try again or add it using `/token add`"
+          );
+
+          expect(embed).not.to.have.property("fields");
+          expect(embed.type).to.eq("rich");
+        })
+        // Inspect Channel document
+        .then(() =>
+          getDocument({
+            table: Table.CHANNELS,
+            key: {
+              id: channelId,
+            },
+          })
+        )
+        .then(({ Item }) => {
+          const { history } = Item as DiscordChannel;
+          expect(history).to.have.length(1);
+        });
+    });
+  });
+
+  describe("given the map has no tokens", () => {
+    it("should not add a new map", () => {
+      const body = {
+        ...moveBody,
+        channel_id: newChannelId,
+        data: {
+          options: [
+            {
+              name: "move",
+              options: [
+                {
+                  name: "name",
+                  value: "BadToken",
+                },
+                {
+                  name: "row",
+                  value: 3,
+                },
+                {
+                  name: "column",
+                  value: "B",
+                },
+              ],
+            },
+          ],
+          name: "token",
+          id: "token-id",
+        },
+      };
+
+      const headers = generateHeaders(body);
+
+      cy.request({
+        method: "POST",
+        url,
+        body,
+        headers,
+      })
+        .its("status")
+        .should("eq", 200);
+
+      cy.get("ul li", { timeout: 30000 })
+        .then((item) => {
+          const { params, body } = JSON.parse(item.text());
+          expect(params).to.deep.equal({
+            applicationId: application_id,
+            token,
+          });
+          const embed = body.embeds[0];
+
+          expect(embed.title).to.eq("Token Move error");
+          expect(embed.description).to.eq(
+            "No tokens were found on this map. You can add one with `/token add`"
           );
 
           expect(embed).not.to.have.property("fields");
