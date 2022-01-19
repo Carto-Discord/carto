@@ -15,7 +15,7 @@ describe("Add Token", () => {
   let url: string;
 
   const channelId = "123456789012345678";
-  const newChannelId = "123456789012345678";
+  const newChannelId = "123456789012345679";
   const token = "mockToken";
   const application_id = "mockApplicationId";
 
