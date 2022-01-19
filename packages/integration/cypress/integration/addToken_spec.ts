@@ -326,12 +326,12 @@ describe("Add Token", () => {
       });
   });
 
-  it("should add a new map with new tokens and no existing properties", () => {
+  it("should add a new map with new tokens and no existing tokens", () => {
     let newImageId: string;
 
-    const optionalBody = {
+    const noTokensBody = {
       ...addBody,
-      channelId: newChannelId,
+      channel_id: newChannelId,
       data: {
         options: [
           {
@@ -357,12 +357,12 @@ describe("Add Token", () => {
       },
     };
 
-    const headers = generateHeaders(optionalBody);
+    const headers = generateHeaders(noTokensBody);
 
     cy.request({
       method: "POST",
       url,
-      body: optionalBody,
+      body: noTokensBody,
       headers,
     })
       .its("status")
@@ -401,7 +401,7 @@ describe("Add Token", () => {
         getDocument({
           table: Table.CHANNELS,
           key: {
-            id: channelId,
+            id: newChannelId,
           },
         })
       )
