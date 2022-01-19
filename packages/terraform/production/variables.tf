@@ -7,3 +7,7 @@ variable "discord_base_url" {
 }
 
 variable "discord_public_key" {}
+
+variable "ld_preload" {
+  default = "/var/task/lib/libz.so.1"
+}
