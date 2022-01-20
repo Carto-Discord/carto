@@ -29,8 +29,9 @@ export const validateMapData = async (
   channelId: string
 ): Promise<ValidateMapResponse> => {
   // Local testing only, ignored in production
-  const { LOCALSTACK_HOSTNAME } = process.env;
-  const endpoint = LOCALSTACK_HOSTNAME ? `http://localhost:4566` : undefined;
+  const endpoint = process.env.LOCALSTACK_HOSTNAME
+    ? `http://localhost:4566`
+    : undefined;
 
   const client = new DynamoDBClient({
     region: process.env.AWS_REGION,

@@ -89,7 +89,14 @@ export const handler = async (event: Event): Promise<APIGatewayProxyResult> => {
   const { margin, rows, columns } = baseMapData.Item;
   const { tokens } = currentMapData.Item;
 
-  if (!margin?.M || !rows?.N || !columns?.N || !tokens?.L) return serverError;
+  if (!margin?.M || !rows?.N || !columns?.N) return serverError;
+
+  if (!tokens?.L)
+    return formatResponse({
+      statusCode: 404,
+      description:
+        "No tokens were found on this map. You can add one with `/token add`",
+    });
 
   const tokenNames = tokens.L.map(({ M }) => M?.name?.S);
 

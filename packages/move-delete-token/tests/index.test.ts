@@ -285,10 +285,22 @@ describe("Handler", () => {
       });
     });
 
-    it("should return a 500 response", async () => {
+    it("should return a 404 response", async () => {
       const response = await handler(defaultProps);
 
-      expect(response).toEqual(serverError);
+      expect(response).toEqual({
+        statusCode: 404,
+        body: JSON.stringify({
+          application_id: defaultProps.application_id,
+          token: defaultProps.token,
+          embed: {
+            title: "Token Move error",
+            description:
+              "No tokens were found on this map. You can add one with `/token add`",
+            type: "rich",
+          },
+        }),
+      });
     });
   });
 

@@ -266,10 +266,25 @@ describe("Handler", () => {
       });
     });
 
-    it("should return a 500 response", async () => {
+    it("should return a 200 response with only one token", async () => {
       const response = await handler(defaultProps);
 
-      expect(response).toEqual(serverError);
+      expect(response).toEqual({
+        statusCode: 200,
+        body: JSON.stringify({
+          application_id: defaultProps.application_id,
+          token: defaultProps.token,
+          embed: {
+            title: "Token added",
+            description: "Token positions:",
+            image: {
+              url: "https://s3.eu-central-1.amazonaws.com/maps/4567.png",
+            },
+            fields: [{ name: "token1", value: "B4", inline: true }],
+            type: "rich",
+          },
+        }),
+      });
     });
   });
 

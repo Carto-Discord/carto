@@ -48,8 +48,8 @@ export const handler = async ({
   name,
   row,
   column,
-  size,
-  color,
+  size = Size.MEDIUM,
+  color = getRandomColor(),
 }: Event): Promise<APIGatewayProxyResult> => {
   const serverError = {
     statusCode: 500,
@@ -92,9 +92,8 @@ export const handler = async ({
   if (!baseMapData.Item || !currentMapData.Item) return serverError;
 
   const { margin, rows, columns } = baseMapData.Item;
-  const { tokens } = currentMapData.Item;
 
-  if (!margin?.M || !rows?.N || !columns?.N || !tokens?.L) return serverError;
+  if (!margin?.M || !rows?.N || !columns?.N) return serverError;
 
   const tokenPositionValid = validateTokenPosition({
     token: { row, column },
@@ -116,27 +115,29 @@ export const handler = async ({
     };
   }
 
-  if (!color) color = getRandomColor();
-  if (!size) size = Size.MEDIUM;
-
   // Add new token onto existing tokens
-  const newTokens: Token[] = tokens.L.map((token) => {
-    const { name, row, column, color, size } = token.M || {};
+  const { tokens } = currentMapData.Item;
+  const existingTokens = tokens?.L ?? [];
 
-    return {
-      name: name.S || "",
-      row: parseInt(row.N || "0"),
-      column: column.S || "",
-      color: color.S || "",
-      size: parseFloat(size.N || Size.MEDIUM.toString()),
-    };
-  }).concat({
-    name,
-    row,
-    column,
-    color,
-    size,
-  });
+  const newTokens: Token[] = existingTokens
+    .map((token) => {
+      const { name, row, column, color, size } = token.M || {};
+
+      return {
+        name: name.S || "",
+        row: parseInt(row.N || "0"),
+        column: column.S || "",
+        color: color.S || "",
+        size: parseFloat(size.N || Size.MEDIUM.toString()),
+      };
+    })
+    .concat({
+      name,
+      row,
+      column,
+      color,
+      size,
+    });
 
   const baseFilename = `${
     process.env["LAMBDA_TASK_ROOT"] ? "/tmp/" : ""
