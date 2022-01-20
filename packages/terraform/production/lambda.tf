@@ -54,6 +54,7 @@ module "create_map_lambda" {
     "MAPS_BUCKET"    = aws_s3_bucket.maps_bucket.bucket
     "MAPS_TABLE"     = aws_dynamodb_table.map_table.name
     "CHANNELS_TABLE" = aws_dynamodb_table.channel_table.name
+    "LD_PRELOAD"     = var.ld_preload
   }
 }
 
@@ -71,6 +72,7 @@ module "add_token_lambda" {
     "MAPS_BUCKET"    = aws_s3_bucket.maps_bucket.bucket
     "MAPS_TABLE"     = aws_dynamodb_table.map_table.name
     "CHANNELS_TABLE" = aws_dynamodb_table.channel_table.name
+    "LD_PRELOAD"     = var.ld_preload
   }
 }
 
@@ -88,6 +90,7 @@ module "move_delete_token_lambda" {
     "MAPS_BUCKET"    = aws_s3_bucket.maps_bucket.bucket
     "MAPS_TABLE"     = aws_dynamodb_table.map_table.name
     "CHANNELS_TABLE" = aws_dynamodb_table.channel_table.name
+    "LD_PRELOAD"     = var.ld_preload
   }
 }
 

@@ -28,6 +28,7 @@
     "webpack-cli": "4.9.1"
   },
   "dependencies": {
+    "@carto/map-utils": "*",
     "@carto/token-utils": "*",
     "nanoid": "^3.1.30"
   },
@@ -54,6 +55,7 @@
     },
     "rootDir": "../../",
     "moduleNameMapper": {
+      "^@carto/map-utils$": "<rootDir>/packages/map-utils",
       "^@carto/token-utils$": "<rootDir>/packages/token-utils"
     }
   }

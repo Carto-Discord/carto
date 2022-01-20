@@ -5,7 +5,7 @@ import { DynamoDBClient, PutItemCommand } from "@aws-sdk/client-dynamodb";
 import { nanoid } from "nanoid";
 
 import { createGrid } from "./createGrid";
-import { updateChannelBaseMap } from "@carto/map-utils";
+import { updateChannelBaseMap, setupLibraries } from "@carto/map-utils";
 
 type Event = {
   application_id: string;
@@ -19,13 +19,7 @@ type Event = {
 const ERROR_TITLE = "Map create error";
 const SUCCESS_TITLE = "Map created";
 
-// Hack to make Canvas work on Lambda
-if (process.env["LAMBDA_TASK_ROOT"]) {
-  process.env["PATH"] =
-    process.env["PATH"] + ":" + process.env["LAMBDA_TASK_ROOT"] + "/lib";
-  process.env["LD_LIBRARY_PATH"] = process.env["LAMBDA_TASK_ROOT"] + "/lib";
-  process.env["PKG_CONFIG_PATH"] = process.env["LAMBDA_TASK_ROOT"] + "/lib";
-}
+setupLibraries();
 
 export const handler = async ({
   application_id,

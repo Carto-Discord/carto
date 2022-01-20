@@ -8,6 +8,7 @@ import { handler } from "../src/index";
 
 jest.mock("@carto/map-utils", () => ({
   updateChannelBaseMap: () => () => Promise.resolve({}),
+  setupLibraries: jest.fn(),
 }));
 jest.mock("../src/createGrid");
 
