@@ -11,7 +11,7 @@
     "@types/ws": "8.2.2",
     "regenerator-runtime": "0.13.9",
     "swc-loader": "0.1.15",
-    "typescript": "4.5.4"
+    "typescript": "4.5.5"
   },
   "scripts": {
     "build": "swc src -d dist",

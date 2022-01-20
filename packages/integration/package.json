@@ -10,7 +10,7 @@
     "cypress": "9.3.1",
     "ts-node": "10.4.0",
     "tweetnacl": "1.0.3",
-    "typescript": "4.5.4"
+    "typescript": "4.5.5"
   },
   "scripts": {
     "setup": "ts-node src/setupS3.ts",
