@@ -11,7 +11,7 @@ services:
       - "127.0.0.1:4566:4566"
       - "127.0.0.1:4571:4571"
     environment:
-      - SERVICES=serverless,stepfunctions
+      - SERVICES=events,serverless,stepfunctions
       - DEBUG=true
       - DATA_DIR=${DATA_DIR- }
       - LAMBDA_EXECUTOR=docker
