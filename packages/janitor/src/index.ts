@@ -1,11 +1,11 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { S3Client } from "@aws-sdk/client-s3";
-import { Client, Intents } from "discord.js";
+import { Client } from "discord.js";
 import { deleteChannelData } from "./cleanup";
 import { getChannels } from "./dynamodb";
 
 export const handler = async () => {
-  const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
+  const client = new Client();
   const dynamodbClient = new DynamoDBClient({ region: process.env.AWS_REGION });
   const s3Client = new S3Client({
     region: process.env.AWS_REGION,

@@ -28,4 +28,10 @@ module.exports = {
       },
     ],
   },
+  externals: {
+    bufferutil: "bufferutil",
+    erlpack: "erlpack",
+    "utf-8-validate": "utf-8-validate",
+    "zlib-sync": "zlib-sync",
+  },
 };
