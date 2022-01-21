@@ -29,7 +29,7 @@
     "@swc/cli": "0.1.55",
     "@swc/core": "1.2.133",
     "@swc/jest": "0.2.17",
-    "@types/aws-lambda": "8.10.90",
+    "@types/aws-lambda": "8.10.91",
     "@types/jest": "27.0.3",
     "@typescript-eslint/eslint-plugin": "5.10.0",
     "@typescript-eslint/parser": "5.10.0",
