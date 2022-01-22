@@ -6,13 +6,22 @@ import { getChannels } from "./dynamodb";
 
 export const handler = async () => {
   const client = new Client();
-  const dynamodbClient = new DynamoDBClient({ region: process.env.AWS_REGION });
+
+  // Local testing only, ignored in production
+  const endpoint = process.env.LOCALSTACK_HOSTNAME
+    ? `http://localhost:4566`
+    : undefined;
+  const dynamodbClient = new DynamoDBClient({
+    region: process.env.AWS_REGION,
+    endpoint,
+  });
   const s3Client = new S3Client({
     region: process.env.AWS_REGION,
     forcePathStyle: true,
+    endpoint,
   });
 
-  client.login(process.env.DISCORD_TOKEN);
+  await client.login(process.env.DISCORD_TOKEN);
 
   const channelsToFind = await getChannels(dynamodbClient);
 

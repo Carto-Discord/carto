@@ -5,6 +5,7 @@ module.exports = {
   entry: "./src/index.ts",
   resolve: {
     extensions: [".js", ".json", ".ts"],
+    mainFields: ["main"],
   },
   output: {
     libraryTarget: "commonjs",
@@ -14,6 +15,7 @@ module.exports = {
   target: "node",
   optimization: {
     usedExports: true,
+    minimize: false,
   },
   devtool: "source-map",
   module: {
