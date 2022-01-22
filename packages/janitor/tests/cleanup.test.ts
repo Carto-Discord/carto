@@ -63,7 +63,9 @@ describe("Cleanup functions", () => {
 
       expect(mockS3Client.call(0).args[0].input).toEqual({
         Bucket: "maps",
-        Delete: { Objects: [{ Key: "123" }, { Key: "456" }, { Key: "789" }] },
+        Delete: {
+          Objects: [{ Key: "123.png" }, { Key: "456.png" }, { Key: "789.png" }],
+        },
       });
 
       expect(mockDeleteMapsData).toBeCalledWith({
@@ -91,7 +93,7 @@ describe("Cleanup functions", () => {
 
         expect(mockS3Client.call(0).args[0].input).toEqual({
           Bucket: "maps",
-          Delete: { Objects: [{ Key: "123" }, { Key: "456" }] },
+          Delete: { Objects: [{ Key: "123.png" }, { Key: "456.png" }] },
         });
       });
     });
@@ -122,7 +124,9 @@ describe("Cleanup functions", () => {
 
       expect(mockS3Client.call(0).args[0].input).toEqual({
         Bucket: "maps",
-        Delete: { Objects: [{ Key: "1" }, { Key: "2" }, { Key: "3" }] },
+        Delete: {
+          Objects: [{ Key: "1.png" }, { Key: "2.png" }, { Key: "3.png" }],
+        },
       });
 
       expect(mockDeleteMapsData).toBeCalledWith({

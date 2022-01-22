@@ -38,7 +38,7 @@ export const deleteChannelData = async ({
 
   const deleteObjectsCommand = new DeleteObjectsCommand({
     Bucket: process.env.MAPS_BUCKET,
-    Delete: { Objects: mapIds.map((id) => ({ Key: id })) },
+    Delete: { Objects: mapIds.map((id) => ({ Key: `${id}.png` })) },
   });
 
   const deleteObjectsResult = await s3Client.send(deleteObjectsCommand);
@@ -65,7 +65,7 @@ export const deleteOrphanedMaps = async ({
 
   const deleteObjectsCommand = new DeleteObjectsCommand({
     Bucket: process.env.MAPS_BUCKET,
-    Delete: { Objects: mapIds.map((id) => ({ Key: id })) },
+    Delete: { Objects: mapIds.map((id) => ({ Key: `${id}.png` })) },
   });
 
   const deleteObjectsResult = await s3Client.send(deleteObjectsCommand);
