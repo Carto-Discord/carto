@@ -32,3 +32,4 @@ jobs:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       discord_public_key: ${{ secrets.PUBLIC_KEY }}
+      docker_token: ${{ secrets.BOT_TOKEN }}
