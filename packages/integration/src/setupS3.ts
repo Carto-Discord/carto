@@ -13,7 +13,7 @@ const AWSConfig = {
   forcePathStyle: true,
 };
 
-const uuids = [
+const ids = [
   "sB4DTyyTaOcYQHst4VKwU",
   "DkYqcO4unB-GWnsUv10ZE",
   "SO9hNroDn2kIAaPP7vAx6",
@@ -50,13 +50,8 @@ export const deleteObject = (id: string) => {
   return client.send(command);
 };
 
-const baseMapId = uuids[0];
-const currentMapId = uuids[1];
-const previousMapId = uuids[2];
-
-const mapIds = [baseMapId, currentMapId, previousMapId];
 const content = fs.readFileSync(resolve(__dirname, `assets/test-map.png`));
 
-mapIds.forEach(async (id) => {
+ids.forEach(async (id) => {
   await uploadToS3(content, `${id}.png`);
 });
