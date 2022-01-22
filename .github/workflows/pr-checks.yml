@@ -17,4 +17,4 @@ jobs:
     needs: build
     uses: carto-discord/carto/.github/workflows/integration-test.yml@feat/janitor
     secrets:
-      docker_token: ${{ secrets.BOT_TOKEN }}
+      discord_token: ${{ secrets.BOT_TOKEN }}
