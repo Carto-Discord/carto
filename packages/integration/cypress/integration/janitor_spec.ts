@@ -16,7 +16,7 @@ import {
   teardownDynamoDB,
 } from "../support";
 
-describe("Ping", () => {
+describe("Janitor", () => {
   let url: string;
 
   const channelToDelete = {

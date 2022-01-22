@@ -15,6 +15,7 @@ module.exports = {
   target: "node",
   optimization: {
     usedExports: true,
+    minimize: false,
   },
   devtool: "source-map",
   module: {
