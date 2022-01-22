@@ -119,6 +119,7 @@ module "janitor_lambda" {
     "MAPS_BUCKET"    = aws_s3_bucket.maps_bucket.bucket
     "MAPS_TABLE"     = aws_dynamodb_table.map_table.name
     "CHANNELS_TABLE" = aws_dynamodb_table.channel_table.name
+    "DISCORD_TOKEN"  = var.discord_token
   }
 }
 
