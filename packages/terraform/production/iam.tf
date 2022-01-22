@@ -46,6 +46,7 @@ resource "aws_iam_policy" "access_dynamodb" {
           "dynamodb:GetItem",
           "dynamodb:PutItem",
           "dynamodb:Query",
+          "dynamodb:Scan",
           "dynamodb:UpdateItem",
         ]
         Effect = "Allow"
@@ -69,6 +70,7 @@ resource "aws_iam_policy" "access_s3" {
         Action = [
           "s3:GetObject",
           "s3:GetObjectAcl",
+          "s3:DeleteObject",
           "s3:PutObject",
           "s3:PubObjectAcl"
         ]
@@ -118,6 +120,12 @@ resource "aws_iam_role" "send_response_role" {
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
 }
 
+resource "aws_iam_role" "janitor_role" {
+  name = "janitor_role"
+
+  assume_role_policy = data.aws_iam_policy_document.assume_role.json
+}
+
 resource "aws_iam_policy_attachment" "dynamodb_attach" {
   name = "dynamodb-attachment"
   roles = [
@@ -126,6 +134,7 @@ resource "aws_iam_policy_attachment" "dynamodb_attach" {
     aws_iam_role.delete_map_role.name,
     aws_iam_role.add_token_role.name,
     aws_iam_role.move_delete_token_role.name,
+    aws_iam_role.janitor_role.name
   ]
   policy_arn = aws_iam_policy.access_dynamodb.arn
 }
@@ -137,6 +146,7 @@ resource "aws_iam_policy_attachment" "s3_attach" {
     aws_iam_role.delete_map_role.name,
     aws_iam_role.add_token_role.name,
     aws_iam_role.move_delete_token_role.name,
+    aws_iam_role.janitor_role.name
   ]
   policy_arn = aws_iam_policy.access_s3.arn
 }
