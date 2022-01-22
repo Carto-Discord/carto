@@ -55,11 +55,8 @@ const currentMapId = uuids[1];
 const previousMapId = uuids[2];
 
 const mapIds = [baseMapId, currentMapId, previousMapId];
+const content = fs.readFileSync(resolve(__dirname, `assets/test-map.png`));
 
-mapIds.forEach(async (id, i) => {
-  const content = fs.readFileSync(
-    resolve(__dirname, `assets/test-map-${i + 1}.png`)
-  );
-
+mapIds.forEach(async (id) => {
   await uploadToS3(content, `${id}.png`);
 });
