@@ -4,7 +4,7 @@ import { mockClient } from "aws-sdk-client-mock";
 
 import { Client } from "discord.js";
 
-import { deleteChannelData } from "../src/cleanup";
+import { deleteChannelData, deleteOrphanedMaps } from "../src/cleanup";
 import { getChannels } from "../src/dynamodb";
 import { handler } from "../src/index";
 
@@ -18,9 +18,12 @@ const mockGetChannels = getChannels as jest.MockedFunction<typeof getChannels>;
 const mockDeleteChannelData = deleteChannelData as jest.MockedFunction<
   typeof deleteChannelData
 >;
+const mockDeleteOrphanedMaps = deleteOrphanedMaps as jest.MockedFunction<
+  typeof deleteOrphanedMaps
+>;
 
-const mockDynamodbClient = mockClient(DynamoDBClient);
-const mockS3Client = mockClient(S3Client);
+mockClient(DynamoDBClient);
+mockClient(S3Client);
 
 describe("Handler", () => {
   const mockLogin = jest.fn();
@@ -50,7 +53,7 @@ describe("Handler", () => {
     await handler();
 
     expect(mockLogin).toBeCalledWith("mockToken");
-    expect(getChannels).toBeCalledTimes(1);
+    expect(mockGetChannels).toBeCalledTimes(1);
 
     expect(mockDeleteChannelData).toBeCalledTimes(2);
     expect(mockDeleteChannelData.mock.calls[0][0]).toMatchObject({
@@ -59,6 +62,8 @@ describe("Handler", () => {
     expect(mockDeleteChannelData.mock.calls[1][0]).toMatchObject({
       channelId: "5678",
     });
+
+    expect(mockDeleteOrphanedMaps).toBeCalledTimes(1);
   });
 
   describe("given only some channels exist", () => {
@@ -72,7 +77,7 @@ describe("Handler", () => {
       await handler();
 
       expect(mockLogin).toBeCalledWith("mockToken");
-      expect(getChannels).toBeCalledTimes(1);
+      expect(mockGetChannels).toBeCalledTimes(1);
 
       expect(mockDeleteChannelData).toBeCalledTimes(1);
       expect(mockDeleteChannelData.mock.calls[0][0]).toMatchObject({

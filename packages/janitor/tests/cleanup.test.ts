@@ -42,6 +42,8 @@ describe("Cleanup functions", () => {
   beforeEach(() => {
     mockDynamodbClient.reset();
     mockS3Client.reset();
+
+    jest.clearAllMocks();
   });
 
   describe("deleteChannelData", () => {
@@ -132,6 +134,19 @@ describe("Cleanup functions", () => {
       expect(mockDeleteMapsData).toBeCalledWith({
         mapIds: ["1", "2", "3"],
         dynamodbClient,
+      });
+    });
+
+    describe("given no mapIds are orphaned", () => {
+      beforeEach(() => {
+        mockGetOrphanedMapIds.mockResolvedValue([]);
+      });
+
+      it("should not call any S3 functions", async () => {
+        await deleteOrphanedMaps({ dynamodbClient, s3Client });
+
+        expect(mockS3Client.calls).toHaveLength(0);
+        expect(mockDeleteMapsData).not.toBeCalled();
       });
     });
   });

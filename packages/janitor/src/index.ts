@@ -1,7 +1,7 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { S3Client } from "@aws-sdk/client-s3";
 import { Client } from "discord.js";
-import { deleteChannelData } from "./cleanup";
+import { deleteChannelData, deleteOrphanedMaps } from "./cleanup";
 import { getChannels } from "./dynamodb";
 
 export const handler = async () => {
@@ -36,6 +36,8 @@ export const handler = async () => {
     )
   ).filter(Boolean) as string[];
 
+  console.log("Channels to delete", missingChannels);
+
   await Promise.all(
     missingChannels.map((channelId) =>
       deleteChannelData({ channelId, dynamodbClient, s3Client }).catch(
@@ -43,4 +45,8 @@ export const handler = async () => {
       )
     )
   );
+
+  console.log("Deleting orphaned maps");
+
+  await deleteOrphanedMaps({ dynamodbClient, s3Client });
 };

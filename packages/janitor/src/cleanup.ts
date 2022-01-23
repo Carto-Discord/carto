@@ -63,6 +63,8 @@ export const deleteOrphanedMaps = async ({
 }: ClientProps) => {
   const mapIds = await getOrphanedMapIds(dynamodbClient);
 
+  if (!mapIds.length) return;
+
   const deleteObjectsCommand = new DeleteObjectsCommand({
     Bucket: process.env.MAPS_BUCKET,
     Delete: { Objects: mapIds.map((id) => ({ Key: `${id}.png` })) },
