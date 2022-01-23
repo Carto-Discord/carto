@@ -1,9 +1,9 @@
 import { nanoid } from "nanoid";
 
+import { baseMapId, currentMapId, previousMapId } from "../fixtures/maps.json";
 import mockImage from "../fixtures/mockImage";
 
 import {
-  deleteObject,
   deleteObjects,
   getDocument,
   getJanitorInvokeUrl,
@@ -82,10 +82,20 @@ describe("Janitor", () => {
     cy.log(`Janitor URL: ${url}`);
   });
 
+  const idsToKeep = [
+    `${baseMapId}.png`,
+    `${currentMapId}.png`,
+    `${previousMapId}.png`,
+  ];
+
   beforeEach(async () => {
     const { Contents } = await listObjects();
 
-    await deleteObjects(Contents.map(({ Key }) => Key));
+    await deleteObjects(
+      Contents.map(({ Key }) =>
+        !idsToKeep.includes(Key) ? Key : undefined
+      ).filter(Boolean)
+    );
 
     await teardownDynamoDB();
   });

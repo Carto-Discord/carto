@@ -1,10 +1,6 @@
 import fs from "fs";
 import { resolve } from "path";
-import {
-  S3Client,
-  PutObjectCommand,
-  DeleteObjectCommand,
-} from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 
 const AWSConfig = {
   region: "us-east-1",
@@ -38,16 +34,6 @@ export const uploadToS3 = async (fileContent: Buffer, id: string) => {
   });
 
   await client.send(command);
-};
-
-export const deleteObject = (id: string) => {
-  const client = new S3Client(AWSConfig);
-  const command = new DeleteObjectCommand({
-    Bucket: process.env.CYPRESS_MAP_BUCKET,
-    Key: id,
-  });
-
-  return client.send(command);
 };
 
 const content = fs.readFileSync(resolve(__dirname, `assets/test-map.png`));
