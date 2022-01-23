@@ -1,10 +1,6 @@
 import fs from "fs";
 import { resolve } from "path";
-import {
-  S3Client,
-  PutObjectCommand,
-  DeleteObjectCommand,
-} from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 
 const AWSConfig = {
   region: "us-east-1",
@@ -13,7 +9,7 @@ const AWSConfig = {
   forcePathStyle: true,
 };
 
-const uuids = [
+const ids = [
   "sB4DTyyTaOcYQHst4VKwU",
   "DkYqcO4unB-GWnsUv10ZE",
   "SO9hNroDn2kIAaPP7vAx6",
@@ -40,26 +36,8 @@ export const uploadToS3 = async (fileContent: Buffer, id: string) => {
   await client.send(command);
 };
 
-export const deleteObject = (id: string) => {
-  const client = new S3Client(AWSConfig);
-  const command = new DeleteObjectCommand({
-    Bucket: process.env.CYPRESS_MAP_BUCKET,
-    Key: id,
-  });
+const content = fs.readFileSync(resolve(__dirname, `assets/test-map.png`));
 
-  return client.send(command);
-};
-
-const baseMapId = uuids[0];
-const currentMapId = uuids[1];
-const previousMapId = uuids[2];
-
-const mapIds = [baseMapId, currentMapId, previousMapId];
-
-mapIds.forEach(async (id, i) => {
-  const content = fs.readFileSync(
-    resolve(__dirname, `assets/test-map-${i + 1}.png`)
-  );
-
+ids.forEach(async (id) => {
   await uploadToS3(content, `${id}.png`);
 });

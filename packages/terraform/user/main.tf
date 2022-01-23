@@ -235,6 +235,7 @@ resource "aws_iam_group_policy" "iam" {
           "iam:CreateRole",
           "iam:DeleteRole",
           "iam:DeletePolicy",
+          "iam:DeletePolicyVersion",
           "iam:DeleteRolePolicy",
           "iam:DetachRolePolicy",
           "iam:PutRolePolicy",
@@ -276,6 +277,31 @@ resource "aws_iam_group_policy" "stepfunctions" {
         ]
         Effect   = "Allow"
         Resource = "arn:aws:iam:::role/*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_group_policy" "events" {
+  name  = "ManageCloudwatchEvents"
+  group = aws_iam_group.deployer.name
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid = "ManageEvents"
+        Action = [
+          "events:DeleteRule",
+          "events:DescribeRule",
+          "events:ListTagsForResource",
+          "events:ListTargetsByRule",
+          "events:PutRule",
+          "events:PutTargets",
+          "events:RemoveTargets"
+        ]
+        Effect   = "Allow"
+        Resource = "arn:aws:events:*:*:*"
       }
     ]
   })
