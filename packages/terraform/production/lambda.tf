@@ -113,8 +113,8 @@ module "janitor_lambda" {
   app_name             = var.app_name
   function_name        = "janitor"
   runtime              = "nodejs14.x"
-  lambda_iam_role_arn  = aws_iam_role.send_response_role.arn
-  lambda_iam_role_name = aws_iam_role.send_response_role.name
+  lambda_iam_role_arn  = aws_iam_role.janitor_role.arn
+  lambda_iam_role_name = aws_iam_role.janitor_role.name
   environment_variables = {
     "MAPS_BUCKET"    = aws_s3_bucket.maps_bucket.bucket
     "MAPS_TABLE"     = aws_dynamodb_table.map_table.name
