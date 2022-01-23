@@ -98,12 +98,12 @@ describe("Janitor", () => {
     );
 
     await teardownDynamoDB();
+
+    await Promise.all(ids.map((id) => putObject(mockImage, `${id}.png`)));
   });
 
   describe("given a channel can be deleted", () => {
     beforeEach(async () => {
-      await Promise.all(ids.map((id) => putObject(mockImage, `${id}.png`)));
-
       await initialiseDynamoDB({
         table: Table.CHANNELS,
         contents: [channelToDelete, channelToKeep],
@@ -136,31 +136,18 @@ describe("Janitor", () => {
         })
         // Inspect Map documents
         .then(() =>
-          getDocument({
-            table: Table.MAPS,
-            key: { id: channelToDelete.baseMap },
-          })
+          Promise.all(
+            [
+              channelToDelete.baseMap,
+              channelToDelete.currentMap,
+              channelToDelete.history[0],
+            ].map((id) => getDocument({ table: Table.MAPS, key: { id } }))
+          )
         )
-        .then(({ Item }) => {
-          expect(Item).to.be.undefined;
-        })
-        .then(() =>
-          getDocument({
-            table: Table.MAPS,
-            key: { id: channelToDelete.currentMap },
-          })
-        )
-        .then(({ Item }) => {
-          expect(Item).to.be.undefined;
-        })
-        .then(() =>
-          getDocument({
-            table: Table.MAPS,
-            key: { id: channelToDelete.history[0] },
-          })
-        )
-        .then(({ Item }) => {
-          expect(Item).to.be.undefined;
+        .then((documents) => {
+          expect(documents[0].Item).to.be.undefined;
+          expect(documents[1].Item).to.be.undefined;
+          expect(documents[2].Item).to.be.undefined;
         })
         // Inspect S3 bucket
         .then(() => listObjects())
@@ -176,10 +163,6 @@ describe("Janitor", () => {
 
   describe("given no channel should be deleted", () => {
     beforeEach(async () => {
-      await Promise.all(
-        mapContentsToKeep.map(({ id }) => putObject(mockImage, `${id}.png`))
-      );
-
       await initialiseDynamoDB({
         table: Table.CHANNELS,
         contents: [channelToKeep],
@@ -215,31 +198,18 @@ describe("Janitor", () => {
         })
         // Inspect Map documents
         .then(() =>
-          getDocument({
-            table: Table.MAPS,
-            key: { id: channelToKeep.baseMap },
-          })
+          Promise.all(
+            [
+              channelToKeep.baseMap,
+              channelToKeep.currentMap,
+              channelToKeep.history[0],
+            ].map((id) => getDocument({ table: Table.MAPS, key: { id } }))
+          )
         )
-        .then(({ Item }) => {
-          expect(Item).to.deep.eq(mapContentsToKeep[0]);
-        })
-        .then(() =>
-          getDocument({
-            table: Table.MAPS,
-            key: { id: channelToKeep.currentMap },
-          })
-        )
-        .then(({ Item }) => {
-          expect(Item).to.deep.eq(mapContentsToKeep[1]);
-        })
-        .then(() =>
-          getDocument({
-            table: Table.MAPS,
-            key: { id: channelToKeep.history[0] },
-          })
-        )
-        .then(({ Item }) => {
-          expect(Item).to.deep.eq(mapContentsToKeep[2]);
+        .then((documents) => {
+          expect(documents[0].Item).to.deep.eq(mapContentsToKeep[0]);
+          expect(documents[1].Item).to.deep.eq(mapContentsToKeep[1]);
+          expect(documents[2].Item).to.deep.eq(mapContentsToKeep[2]);
         })
         // Inspect S3 bucket
         .then(() => listObjects())
@@ -248,6 +218,56 @@ describe("Janitor", () => {
             `${channelToKeep.baseMap}.png`,
             `${channelToKeep.currentMap}.png`,
             `${channelToKeep.history[0]}.png`,
+          ]);
+        });
+    });
+  });
+
+  describe("given some maps are orphaned", () => {
+    beforeEach(async () => {
+      await initialiseDynamoDB({
+        table: Table.CHANNELS,
+        contents: [channelToKeep],
+      });
+
+      await initialiseDynamoDB({
+        table: Table.MAPS,
+        contents: [...mapContentsToDelete, ...mapContentsToKeep],
+      });
+    });
+
+    it("should delete those orphaned maps", () => {
+      // Wait for S3 uploads to be registered
+      cy.wait(2000);
+
+      cy.request({
+        method: "GET",
+        url,
+      })
+        .its("status")
+        .should("eq", 200)
+        // Inspect Map documents
+        .then(() =>
+          Promise.all(
+            [
+              channelToDelete.baseMap,
+              channelToDelete.currentMap,
+              channelToDelete.history[0],
+            ].map((id) => getDocument({ table: Table.MAPS, key: { id } }))
+          )
+        )
+        .then((documents) => {
+          expect(documents[0].Item).to.be.undefined;
+          expect(documents[1].Item).to.be.undefined;
+          expect(documents[2].Item).to.be.undefined;
+        })
+        // Inspect S3 bucket
+        .then(() => listObjects())
+        .then(({ Contents }) => {
+          expect(Contents.map(({ Key }) => Key)).not.to.have.members([
+            `${channelToDelete.baseMap}.png`,
+            `${channelToDelete.currentMap}.png`,
+            `${channelToDelete.history[0]}.png`,
           ]);
         });
     });

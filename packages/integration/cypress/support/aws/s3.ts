@@ -1,6 +1,6 @@
 import {
   S3Client,
-  ListObjectsV2Command,
+  ListObjectsCommand,
   GetObjectCommand,
   PutObjectCommand,
   DeleteObjectCommand,
@@ -11,7 +11,7 @@ import { AWSConfig } from "./common";
 const client = new S3Client({ ...AWSConfig, forcePathStyle: true });
 
 export const listObjects = () => {
-  const command = new ListObjectsV2Command({
+  const command = new ListObjectsCommand({
     Bucket: Cypress.env("MAP_BUCKET"),
   });
 
