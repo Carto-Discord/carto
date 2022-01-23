@@ -25,6 +25,8 @@ jobs:
   integration:
     needs: build
     uses: carto-discord/carto/.github/workflows/integration-test.yml@main
+    secrets:
+      discord_token: ${{ secrets.BOT_TOKEN }}
   deploy:
     needs: [lint, unit, integration]
     uses: carto-discord/carto/.github/workflows/deploy.yml@main
