@@ -20,6 +20,8 @@ on:
         required: true
       discord_token:
         required: true
+      contact_email:
+        required: true
 
 jobs:
   deploy:
@@ -55,4 +57,5 @@ jobs:
             -var="app_name=${{ inputs.app_name }}" \
             -var="discord_public_key=${{ secrets.discord_public_key }}" \
             -var="discord_token=${{ secrets.discord_token }}" \
+            -var="contact_email=${{ secrets.contact_email }}" \
             -auto-approve
