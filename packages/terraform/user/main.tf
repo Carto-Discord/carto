@@ -306,3 +306,26 @@ resource "aws_iam_group_policy" "events" {
     ]
   })
 }
+
+
+resource "aws_iam_group_policy" "budgets" {
+  name  = "ManageBudgets"
+  group = aws_iam_group.deployer.name
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid = "ManageEvents"
+        Action = [
+          "budgets:CreateBudgetAction",
+          "budgets:DeleteBudgetAction",
+          "budgets:ModifyBudget",
+          "budgets:ViewBudget",
+        ]
+        Effect   = "Allow"
+        Resource = "*"
+      }
+    ]
+  })
+}
