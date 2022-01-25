@@ -22,7 +22,7 @@ export const deleteAllTokens = ({ baseMapId, channelId }: Props) => {
       "SET currentMap = :base, #history = list_append(:base, #history)",
     ExpressionAttributeNames: { "#history": "history" },
     ExpressionAttributeValues: {
-      ":base": { S: baseMapId },
+      ":base": { L: [{ S: baseMapId }] },
     },
   });
 

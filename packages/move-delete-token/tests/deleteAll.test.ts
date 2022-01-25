@@ -25,7 +25,7 @@ describe("Delete All Tokens", () => {
         "SET currentMap = :base, #history = list_append(:base, #history)",
       ExpressionAttributeNames: { "#history": "history" },
       ExpressionAttributeValues: {
-        ":base": { S: "123" },
+        ":base": { L: [{ S: "123" }] },
       },
     });
   });
