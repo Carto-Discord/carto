@@ -170,7 +170,7 @@ describe("Delete Token", () => {
       .then(({ Item }) => {
         const { tokens } = Item as CartoMap;
 
-        expect(tokens).to.have.length(0);
+        expect(tokens).to.have.length(1);
       })
       // Inspect S3 bucket
       .then(() => getObject(`${newImageId}.png`))

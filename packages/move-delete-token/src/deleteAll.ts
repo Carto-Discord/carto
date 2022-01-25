@@ -6,7 +6,14 @@ type Props = {
 };
 
 export const deleteAllTokens = ({ baseMapId, channelId }: Props) => {
-  const client = new DynamoDBClient({ region: process.env.AWS_REGION });
+  // Local testing only, ignored in production
+  const endpoint = process.env.LOCALSTACK_HOSTNAME
+    ? `http://localhost:4566`
+    : undefined;
+  const client = new DynamoDBClient({
+    region: process.env.AWS_REGION,
+    endpoint,
+  });
 
   const updateItemCommand = new UpdateItemCommand({
     TableName: process.env.CHANNELS_TABLE,
