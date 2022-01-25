@@ -10,36 +10,41 @@ import {
   uploadMap,
 } from "@carto/token-utils";
 import { nanoid } from "nanoid";
+import { deleteAllTokens } from "./deleteAll";
 
 type CommonEvent = {
   application_id: string;
   channel_id: string;
   token: string;
-  name: string;
 };
-
-export type Event =
-  | (CommonEvent & {
-      action: "move";
-      row: number;
-      column: string;
-    })
-  | (CommonEvent & {
-      action: "delete";
-    });
 
 type ResponseProps = {
   statusCode: number;
   description: string;
 };
 
+export type Event =
+  | (CommonEvent & {
+      subCommand: "move";
+      name: string;
+      row: number;
+      column: string;
+    })
+  | (CommonEvent & {
+      subCommand: "delete";
+      name?: string;
+      all?: boolean;
+    });
+
 setupLibraries();
 
 export const handler = async (event: Event): Promise<APIGatewayProxyResult> => {
-  const { application_id, channel_id, token, action, name } = event;
+  const { application_id, channel_id, token, subCommand, name } = event;
 
-  const ERROR_TITLE = `Token ${action === "move" ? "Move" : "Delete"} error`;
-  const SUCCESS_TITLE = `Token ${action === "move" ? "moved" : "deleted"}`;
+  const ERROR_TITLE = `Token ${
+    subCommand === "move" ? "Move" : "Delete"
+  } error`;
+  const SUCCESS_TITLE = `Token ${subCommand === "move" ? "moved" : "deleted"}`;
 
   const formatResponse = ({
     statusCode,
@@ -95,14 +100,24 @@ export const handler = async (event: Event): Promise<APIGatewayProxyResult> => {
 
   const tokenNames = tokens.L.map(({ M }) => M?.name?.S);
 
-  if (!tokenNames.includes(name)) {
+  if (
+    (subCommand === "move" && !name) ||
+    (subCommand === "delete" && !name && !event.all)
+  ) {
+    return formatResponse({
+      statusCode: 400,
+      description: "You must supply a name with this command",
+    });
+  }
+
+  if (name && !tokenNames.includes(name)) {
     return formatResponse({
       statusCode: 400,
       description: `Token ${name} not found in map. Token names are case sensitive, so try again or add it using \`/token add\``,
     });
   }
 
-  if (action === "move") {
+  if (subCommand === "move") {
     const { row, column } = event;
     const tokenPositionValid = validateTokenPosition({
       token: { row, column },
@@ -130,8 +145,8 @@ export const handler = async (event: Event): Promise<APIGatewayProxyResult> => {
     const tokenColor = color.S || "";
     const tokenSize = parseFloat(size.N || Size.MEDIUM.toString());
 
-    if (tokenName.S === name) {
-      if (action === "move") {
+    if (name && tokenName.S === name) {
+      if (subCommand === "move") {
         const { row, column } = event;
         return {
           name,
@@ -152,7 +167,44 @@ export const handler = async (event: Event): Promise<APIGatewayProxyResult> => {
     };
   });
 
-  if (action === "delete") {
+  if (subCommand === "delete") {
+    const { all } = event;
+
+    const baseMapId = baseMapData.Item.id?.S;
+
+    if (all) {
+      if (!baseMapId) {
+        return formatResponse({
+          statusCode: 404,
+          description:
+            "Map data for this channel is incomplete.\nCreate the map again or [report it](https://www.github.com/carto-discord/carto/issues).",
+        });
+      }
+
+      await deleteAllTokens({
+        baseMapId,
+        channelId: channel_id,
+      });
+
+      const imageUrl = `https://s3.${process.env.AWS_REGION}.amazonaws.com/${process.env.MAPS_BUCKET}/${baseMapId}.png`;
+
+      return {
+        statusCode: 200,
+        body: JSON.stringify({
+          application_id,
+          token,
+          embed: {
+            title: SUCCESS_TITLE,
+            description: "All Tokens removed",
+            image: {
+              url: imageUrl,
+            },
+            type: "rich",
+          },
+        }),
+      };
+    }
+
     newTokens = newTokens.filter(({ name: tokenName }) => tokenName !== name);
   }
 
