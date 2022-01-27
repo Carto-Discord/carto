@@ -30,11 +30,12 @@ export const updateChannelBaseMap =
           Key: { id: { S: channelId } },
           TableName: process.env.CHANNELS_TABLE,
           UpdateExpression:
-            "SET currentMap = :current, #history = list_append(:current, #history), baseMap = :base",
+            "SET currentMap = :current, #history = list_append(:newHist, #history), baseMap = :base",
           ExpressionAttributeNames: { "#history": "history" },
           ExpressionAttributeValues: {
             ":base": { S: baseMap },
             ":current": { S: mapId },
+            ":newHist": { L: [{ S: mapId }] },
           },
         })
       : new UpdateItemCommand({

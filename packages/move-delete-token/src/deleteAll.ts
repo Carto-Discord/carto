@@ -19,9 +19,10 @@ export const deleteAllTokens = ({ baseMapId, channelId }: Props) => {
     TableName: process.env.CHANNELS_TABLE,
     Key: { id: { S: channelId } },
     UpdateExpression:
-      "SET currentMap = :base, #history = list_append(:base, #history)",
+      "SET currentMap = :current, #history = list_append(:base, #history)",
     ExpressionAttributeNames: { "#history": "history" },
     ExpressionAttributeValues: {
+      ":current": { S: baseMapId },
       ":base": { L: [{ S: baseMapId }] },
     },
   });

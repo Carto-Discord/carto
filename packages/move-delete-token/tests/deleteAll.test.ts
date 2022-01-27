@@ -22,9 +22,10 @@ describe("Delete All Tokens", () => {
       TableName: "channels",
       Key: { id: { S: "456" } },
       UpdateExpression:
-        "SET currentMap = :base, #history = list_append(:base, #history)",
+        "SET currentMap = :current, #history = list_append(:base, #history)",
       ExpressionAttributeNames: { "#history": "history" },
       ExpressionAttributeValues: {
+        ":current": { S: "123" },
         ":base": { L: [{ S: "123" }] },
       },
     });
