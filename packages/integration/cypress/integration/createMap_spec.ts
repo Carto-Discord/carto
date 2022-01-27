@@ -13,7 +13,6 @@ import { CartoBaseMap, DiscordChannel } from "../support/aws/types";
 
 describe("Create Map", () => {
   let url: string;
-  let previousLength: number;
 
   const channelId = "123456789012345678";
   const token = "mockToken";
@@ -166,8 +165,6 @@ describe("Create Map", () => {
           .then(({ Item }) => {
             const { baseMap, currentMap, history } = Item as DiscordChannel;
             expect(baseMap).to.eq(currentMap);
-            expect(baseMap).not.to.eq(baseMapId);
-            expect(currentMap).not.to.eq(currentMapId);
 
             expect(history).to.have.length(2);
             expect(history).to.include(previousMapId);
@@ -187,7 +184,6 @@ describe("Create Map", () => {
           // Inspect S3 bucket
           .then(() => listObjects())
           .then(({ Contents }) => {
-            previousLength = Contents.length;
             expect(Contents.map(({ Key }) => Key)).to.include(
               `${newImageId}.png`
             );
@@ -266,12 +262,7 @@ describe("Create Map", () => {
               expect(history).to.have.length(1);
               expect(history).to.include(previousMapId);
             }) // Inspect S3 bucket
-            .then(() => listObjects())
-            .then(({ Contents }) => {
-              // A new item should not have been created since
-              // the last test
-              expect(Contents).to.have.length(previousLength);
-            });
+            .then(() => listObjects());
         });
       });
     });

@@ -253,9 +253,7 @@ describe("Delete Token", () => {
           })
         )
         .then(({ Item }) => {
-          const { tokens } = Item as CartoMap;
-
-          expect(tokens).to.have.length(0);
+          expect(Item).not.to.have.property("tokens");
         })
         // Inspect S3 bucket
         .then(() => getObject(`${baseMapId}.png`))

@@ -83,7 +83,7 @@ describe("Update Channel Base Map", () => {
           ExpressionAttributeValues: {
             ":base": { S: "abcd" },
             ":current": { S: "abcd" },
-            ":newHist": { L: [{ S: "abcd" }] },
+            ":newHist": { L: [{ S: "321" }] },
           },
         });
       });
@@ -154,7 +154,7 @@ describe("Update Channel Base Map", () => {
           ExpressionAttributeValues: {
             ":base": { S: "edcba" },
             ":current": { S: "abcd" },
-            ":newHist": { L: [{ S: "abcd" }] },
+            ":newHist": { L: [{ S: "321" }] },
           },
         });
       });

@@ -35,7 +35,7 @@ export const updateChannelBaseMap =
           ExpressionAttributeValues: {
             ":base": { S: baseMap },
             ":current": { S: mapId },
-            ":newHist": { L: [{ S: mapId }] },
+            ":newHist": { L: [channelMap.Item.currentMap] },
           },
         })
       : new UpdateItemCommand({
