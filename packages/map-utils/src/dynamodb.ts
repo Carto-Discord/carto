@@ -20,28 +20,34 @@ export const updateChannelBaseMap =
 
     const channelMap = await client.send(getChannelMapCommand);
 
-    const history = [];
     let baseMap = mapId;
-    if (channelMap.Item) {
-      const prevMap = channelMap.Item.currentMap;
-      const prevHistory = channelMap.Item.history.L || [];
-
-      if (!isBase) baseMap = channelMap.Item?.baseMap?.S ?? mapId;
-
-      history.push(prevMap, ...prevHistory);
+    if (channelMap.Item && !isBase) {
+      baseMap = channelMap.Item?.baseMap?.S ?? mapId;
     }
 
-    const updateChannelMapCommand = new UpdateItemCommand({
-      Key: { id: { S: channelId } },
-      TableName: process.env.CHANNELS_TABLE,
-      UpdateExpression:
-        "SET currentMap = :current, history = :history, baseMap = :base",
-      ExpressionAttributeValues: {
-        ":base": { S: baseMap },
-        ":current": { S: mapId },
-        ":history": { L: history },
-      },
-    });
+    const updateChannelMapCommand = channelMap?.Item
+      ? new UpdateItemCommand({
+          Key: { id: { S: channelId } },
+          TableName: process.env.CHANNELS_TABLE,
+          UpdateExpression:
+            "SET currentMap = :current, #history = list_append(:current, #history), baseMap = :base",
+          ExpressionAttributeNames: { "#history": "history" },
+          ExpressionAttributeValues: {
+            ":base": { S: baseMap },
+            ":current": { S: mapId },
+          },
+        })
+      : new UpdateItemCommand({
+          Key: { id: { S: channelId } },
+          TableName: process.env.CHANNELS_TABLE,
+          UpdateExpression:
+            "SET currentMap = :current, history = :history, baseMap = :base",
+          ExpressionAttributeValues: {
+            ":base": { S: baseMap },
+            ":current": { S: mapId },
+            ":history": { L: [] },
+          },
+        });
 
     return client.send(updateChannelMapCommand);
   };
