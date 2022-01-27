@@ -225,7 +225,6 @@ describe("Delete Token", () => {
           );
           expect(embed.title).to.eq("Token deleted");
           expect(embed.description).to.eq("All Tokens removed");
-          expect(embed.fields).to.have.length(0);
           expect(embed.type).to.eq("rich");
         })
         // Inspect Channel document
