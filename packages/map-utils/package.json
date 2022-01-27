@@ -6,7 +6,7 @@
   "type": "commonjs",
   "devDependencies": {
     "@swc/cli": "0.1.55",
-    "@swc/core": "1.2.133",
+    "@swc/core": "1.2.135",
     "@swc/jest": "0.2.17",
     "@types/jest": "27.0.3",
     "@typescript-eslint/eslint-plugin": "5.10.1",
