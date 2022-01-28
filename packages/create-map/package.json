@@ -28,8 +28,8 @@
     "webpack-cli": "4.9.2"
   },
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.45.0",
-    "@aws-sdk/client-s3": "^3.45.0",
+    "@aws-sdk/client-dynamodb": "^3.48.0",
+    "@aws-sdk/client-s3": "^3.48.0",
     "@carto/map-utils": "*",
     "canvas": "^2.8.0",
     "nanoid": "^3.1.30"
