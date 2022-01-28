@@ -144,15 +144,7 @@
     },
     "MoveToken": {
       "Type": "Task",
-      "Parameters": {
-        "application_id.$": "$.application_id",
-        "token.$": "$.token",
-        "channel_id.$": "$.channel_id",
-        "action": "move",
-        "name.$": "$.name",
-        "row.$": "$.row",
-        "column.$": "$.column"
-      },
+      "InputPath": "$",
       "Resource": "${moveDeleteTokenLambdaArn}",
       "Catch": [
         {
@@ -168,13 +160,7 @@
     },
     "DeleteToken": {
       "Type": "Task",
-      "Parameters": {
-        "application_id.$": "$.application_id",
-        "token.$": "$.token",
-        "channel_id.$": "$.channel_id",
-        "action": "delete",
-        "name.$": "$.name"
-      },
+      "InputPath": "$",
       "Resource": "${moveDeleteTokenLambdaArn}",
       "Catch": [
         {

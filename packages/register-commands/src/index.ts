@@ -142,14 +142,20 @@ const tokenCommand: PartialApplicationCommand = {
     },
     {
       name: SubCommand.TOKEN_DELETE,
-      description: "Remove a token from the map",
+      description: "Remove one or more tokens from the map",
       type: ApplicationCommandOptionType.SUB_COMMAND,
       options: [
         {
           name: "name",
           description: "Name of the token to delete",
-          required: true,
+          required: false,
           type: ApplicationCommandOptionType.STRING,
+        },
+        {
+          name: "all",
+          description: "If true, all tokens will be deleted",
+          required: false,
+          type: ApplicationCommandOptionType.BOOLEAN,
         },
       ],
     },

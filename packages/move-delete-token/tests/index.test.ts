@@ -6,10 +6,12 @@ import {
   uploadMap,
 } from "@carto/token-utils";
 
+import { deleteAllTokens } from "../src/deleteAll";
 import { handler, Event } from "../src/index";
 
 jest.mock("@carto/token-utils");
 jest.mock("nanoid", () => ({ nanoid: () => "4567" }));
+jest.mock("../src/deleteAll");
 
 const mockValidateMapData = validateMapData as jest.MockedFunction<
   typeof validateMapData
@@ -24,13 +26,16 @@ const mockApplyTokensToGrid = applyTokensToGrid as jest.MockedFunction<
   typeof applyTokensToGrid
 >;
 const mockUploadMap = uploadMap as jest.MockedFunction<typeof uploadMap>;
+const mockDeleteAllTokens = deleteAllTokens as jest.MockedFunction<
+  typeof deleteAllTokens
+>;
 
 describe("Handler", () => {
   const defaultProps: Event = {
     application_id: "1234",
     channel_id: "1234567890",
     token: "mockToken",
-    action: "move",
+    subCommand: "move",
     name: "existing1",
     row: 4,
     column: "B",
@@ -66,6 +71,7 @@ describe("Handler", () => {
       statusCode: 200,
       baseMapData: {
         Item: {
+          id: { S: "1234567890" },
           margin: { M: { x: { N: "55" }, y: { N: "65" } } },
           rows: { N: "6" },
           columns: { N: "9" },
@@ -125,25 +131,122 @@ describe("Handler", () => {
     });
   });
 
-  describe("given delete action is requested", () => {
-    it("should return a 200 response", async () => {
-      const response = await handler({ ...defaultProps, action: "delete" });
+  describe("given delete subCommand is requested", () => {
+    describe("given a name is provided", () => {
+      it("should return a 200 response", async () => {
+        const response = await handler({
+          ...defaultProps,
+          subCommand: "delete",
+        });
 
-      expect(response).toEqual({
-        statusCode: 200,
-        body: JSON.stringify({
-          application_id: defaultProps.application_id,
-          token: defaultProps.token,
-          embed: {
-            title: "Token deleted",
-            description: "All Tokens removed",
-            image: {
-              url: "https://s3.eu-central-1.amazonaws.com/maps/4567.png",
+        expect(response).toEqual({
+          statusCode: 200,
+          body: JSON.stringify({
+            application_id: defaultProps.application_id,
+            token: defaultProps.token,
+            embed: {
+              title: "Token deleted",
+              description: "All Tokens removed",
+              image: {
+                url: "https://s3.eu-central-1.amazonaws.com/maps/4567.png",
+              },
+              fields: [],
+              type: "rich",
             },
-            fields: [],
-            type: "rich",
-          },
-        }),
+          }),
+        });
+      });
+    });
+
+    describe("given all tokens should be deleted", () => {
+      describe("given the baseMap has no id", () => {
+        beforeEach(() => {
+          mockValidateMapData.mockResolvedValue({
+            statusCode: 200,
+            baseMapData: {
+              Item: {
+                margin: { M: { x: { N: "55" }, y: { N: "65" } } },
+                rows: { N: "6" },
+                columns: { N: "9" },
+              },
+              $metadata: {},
+            },
+            baseMapFilename: "object.png",
+            currentMapData: {
+              Item: {
+                tokens: {
+                  L: [
+                    {
+                      M: {
+                        name: { S: "existing1" },
+                        row: { N: "7" },
+                        column: { S: "E" },
+                        color: { S: "purple" },
+                        size: { N: "1" },
+                      },
+                    },
+                  ],
+                },
+              },
+              $metadata: {},
+            },
+          });
+        });
+
+        it("should return a 404 response", async () => {
+          const response = await handler({
+            ...defaultProps,
+            all: true,
+            name: undefined,
+            subCommand: "delete",
+          });
+
+          expect(mockDeleteAllTokens).not.toBeCalled();
+
+          expect(response).toEqual({
+            statusCode: 404,
+            body: JSON.stringify({
+              application_id: defaultProps.application_id,
+              token: defaultProps.token,
+              embed: {
+                title: "Token Delete error",
+                description:
+                  "Map data for this channel is incomplete.\nCreate the map again or [report it](https://www.github.com/carto-discord/carto/issues).",
+                type: "rich",
+              },
+            }),
+          });
+        });
+      });
+
+      it("should return a 200 response", async () => {
+        const response = await handler({
+          ...defaultProps,
+          all: true,
+          name: undefined,
+          subCommand: "delete",
+        });
+
+        expect(mockDeleteAllTokens).toBeCalledWith({
+          baseMapId: "1234567890",
+          channelId: defaultProps.channel_id,
+        });
+
+        expect(response).toEqual({
+          statusCode: 200,
+          body: JSON.stringify({
+            application_id: defaultProps.application_id,
+            token: defaultProps.token,
+            embed: {
+              title: "Token deleted",
+              description: "All Tokens removed",
+              image: {
+                url: "https://s3.eu-central-1.amazonaws.com/maps/1234567890.png",
+              },
+              type: "rich",
+            },
+          }),
+        });
       });
     });
   });

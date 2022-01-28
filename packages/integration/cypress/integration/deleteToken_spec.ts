@@ -45,6 +45,13 @@ describe("Delete Token", () => {
           row: 7,
           size: 1,
         },
+        {
+          color: "Red",
+          column: "A",
+          name: "Bob",
+          row: 3,
+          size: 1,
+        },
       ],
     },
     {
@@ -128,8 +135,11 @@ describe("Delete Token", () => {
           `https://s3.us-east-1.amazonaws.com/carto-bot-maps/${newImageId}.png`
         );
         expect(embed.title).to.eq("Token deleted");
-        expect(embed.description).to.eq("All Tokens removed");
-        expect(embed.fields).to.have.length(0);
+        expect(embed.description).to.eq("Token positions:");
+        expect(embed.fields).to.have.length(1);
+        expect(embed.fields[0].inline).to.be.true;
+        expect(embed.fields[0].name).to.eq("Bob");
+        expect(embed.fields[0].value).to.eq("A3");
         expect(embed.type).to.eq("rich");
       })
       // Inspect Channel document
@@ -160,13 +170,97 @@ describe("Delete Token", () => {
       .then(({ Item }) => {
         const { tokens } = Item as CartoMap;
 
-        expect(tokens).to.have.length(0);
+        expect(tokens).to.have.length(1);
       })
       // Inspect S3 bucket
       .then(() => getObject(`${newImageId}.png`))
       .then((obj) => {
         expect(obj).to.have.property("Body");
       });
+  });
+
+  describe("given the all parameter is sent", () => {
+    it("should add a new map with all the tokens removed", () => {
+      const deleteAllBody = {
+        ...deleteBody,
+        data: {
+          options: [
+            {
+              name: "delete",
+              options: [
+                {
+                  name: "all",
+                  value: true,
+                },
+              ],
+            },
+          ],
+          name: "token",
+          id: "token-id",
+        },
+      };
+
+      const headers = generateHeaders(deleteAllBody);
+
+      cy.request({
+        method: "POST",
+        url,
+        body: deleteAllBody,
+        headers,
+      })
+        .its("status")
+        .should("eq", 200);
+
+      cy.get("ul li", { timeout: 30000 })
+        .then((item) => {
+          const { params, body } = JSON.parse(item.text());
+          expect(params).to.deep.equal({
+            applicationId: application_id,
+            token,
+          });
+          const embed = body.embeds[0];
+
+          expect(embed.image.url).to.eq(
+            `https://s3.us-east-1.amazonaws.com/carto-bot-maps/${baseMapId}.png`
+          );
+          expect(embed.title).to.eq("Token deleted");
+          expect(embed.description).to.eq("All Tokens removed");
+          expect(embed.type).to.eq("rich");
+        })
+        // Inspect Channel document
+        .then(() =>
+          getDocument({
+            table: Table.CHANNELS,
+            key: {
+              id: channelId,
+            },
+          })
+        )
+        .then(({ Item }) => {
+          const { baseMap, currentMap, history } = Item as DiscordChannel;
+
+          expect(baseMap).to.eq(baseMapId);
+          expect(currentMap).to.eq(baseMapId);
+          expect(history).to.have.length(2);
+        })
+        // Inspect Map document
+        .then(() =>
+          getDocument({
+            table: Table.MAPS,
+            key: {
+              id: baseMapId,
+            },
+          })
+        )
+        .then(({ Item }) => {
+          expect(Item).not.to.have.property("tokens");
+        })
+        // Inspect S3 bucket
+        .then(() => getObject(`${baseMapId}.png`))
+        .then((obj) => {
+          expect(obj).to.have.property("Body");
+        });
+    });
   });
 
   describe("given the named token is not found", () => {

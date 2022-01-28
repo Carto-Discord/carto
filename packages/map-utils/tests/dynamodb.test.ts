@@ -78,11 +78,12 @@ describe("Update Channel Base Map", () => {
           Key: { id: { S: "1234" } },
           TableName: "channels",
           UpdateExpression:
-            "SET currentMap = :current, history = :history, baseMap = :base",
+            "SET currentMap = :current, #history = list_append(:newHist, #history), baseMap = :base",
+          ExpressionAttributeNames: { "#history": "history" },
           ExpressionAttributeValues: {
             ":base": { S: "abcd" },
             ":current": { S: "abcd" },
-            ":history": { L: [{ S: "321" }, { S: "567" }, { S: "890" }] },
+            ":newHist": { L: [{ S: "321" }] },
           },
         });
       });
@@ -148,11 +149,12 @@ describe("Update Channel Base Map", () => {
           Key: { id: { S: "1234" } },
           TableName: "channels",
           UpdateExpression:
-            "SET currentMap = :current, history = :history, baseMap = :base",
+            "SET currentMap = :current, #history = list_append(:newHist, #history), baseMap = :base",
+          ExpressionAttributeNames: { "#history": "history" },
           ExpressionAttributeValues: {
             ":base": { S: "edcba" },
             ":current": { S: "abcd" },
-            ":history": { L: [{ S: "321" }, { S: "567" }, { S: "890" }] },
+            ":newHist": { L: [{ S: "321" }] },
           },
         });
       });
