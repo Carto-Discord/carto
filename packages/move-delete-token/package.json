@@ -2,7 +2,40 @@
   "name": "@carto/move-delete-token",
   "version": "1.0.0",
   "description": "Moves or deletes a token on the existing channel map",
+  "homepage": "https://github.com/Carto-Discord/carto#readme",
+  "bugs": {
+    "url": "https://github.com/Carto-Discord/carto/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Carto-Discord/carto.git"
+  },
+  "license": "MIT",
+  "author": "Miles Bardon",
   "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc --noEmit && webpack",
+    "lint": "eslint ./src/**/*",
+    "test": "jest"
+  },
+  "jest": {
+    "moduleNameMapper": {
+      "^@carto/map-utils$": "<rootDir>/packages/map-utils",
+      "^@carto/token-utils$": "<rootDir>/packages/token-utils"
+    },
+    "rootDir": "../../",
+    "transform": {
+      "^.+\\.ts?$": [
+        "@swc/jest"
+      ]
+    }
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.49.0",
+    "@carto/map-utils": "*",
+    "@carto/token-utils": "*",
+    "nanoid": "^3.2.0"
+  },
   "devDependencies": {
     "@swc/cli": "0.1.55",
     "@swc/core": "1.2.135",
@@ -27,38 +60,5 @@
     "webpack": "5.67.0",
     "webpack-cli": "4.9.2",
     "webpack-merge": "5.8.0"
-  },
-  "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.49.0",
-    "@carto/map-utils": "*",
-    "@carto/token-utils": "*",
-    "nanoid": "^3.2.0"
-  },
-  "scripts": {
-    "build": "tsc --noEmit && webpack",
-    "lint": "eslint ./src/**/*",
-    "test": "jest"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Carto-Discord/carto.git"
-  },
-  "author": "Miles Bardon",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/Carto-Discord/carto/issues"
-  },
-  "homepage": "https://github.com/Carto-Discord/carto#readme",
-  "jest": {
-    "transform": {
-      "^.+\\.ts?$": [
-        "@swc/jest"
-      ]
-    },
-    "rootDir": "../../",
-    "moduleNameMapper": {
-      "^@carto/map-utils$": "<rootDir>/packages/map-utils",
-      "^@carto/token-utils$": "<rootDir>/packages/token-utils"
-    }
   }
 }

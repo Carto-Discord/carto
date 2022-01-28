@@ -2,11 +2,34 @@
   "name": "@carto/janitor",
   "version": "1.0.0",
   "description": "Tidies up Carto storage by checking for stale Discord channels",
+  "homepage": "https://github.com/Carto-Discord/carto#readme",
+  "bugs": {
+    "url": "https://github.com/Carto-Discord/carto/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Carto-Discord/carto.git"
+  },
+  "license": "MIT",
+  "author": "Miles Bardon",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc --noEmit && webpack",
     "lint": "eslint ./src/**/*",
     "test": "jest"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.ts?$": [
+        "@swc/jest"
+      ]
+    }
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.49.0",
+    "@aws-sdk/client-s3": "^3.49.0",
+    "discord.js": "^12.5.3",
+    "ffmpeg-static": "^4.4.1"
   },
   "devDependencies": {
     "@swc/cli": "0.1.55",
@@ -29,28 +52,5 @@
     "webpack": "5.67.0",
     "webpack-cli": "4.9.2",
     "webpack-merge": "5.8.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Carto-Discord/carto.git"
-  },
-  "author": "Miles Bardon",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/Carto-Discord/carto/issues"
-  },
-  "homepage": "https://github.com/Carto-Discord/carto#readme",
-  "jest": {
-    "transform": {
-      "^.+\\.ts?$": [
-        "@swc/jest"
-      ]
-    }
-  },
-  "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.49.0",
-    "@aws-sdk/client-s3": "^3.49.0",
-    "discord.js": "^12.5.3",
-    "ffmpeg-static": "^4.4.1"
   }
 }
