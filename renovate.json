@@ -9,5 +9,6 @@
       "automergeType": "pr",
       "automergeStrategy": "squash"
     }
-  ]
+  ],
+  "rangeStrategy": "bump"
 }
