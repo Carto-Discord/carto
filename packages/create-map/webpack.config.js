@@ -1,5 +1,6 @@
 const path = require("path");
 const CopyPlugin = require("copy-webpack-plugin");
+const swcOptions = require("../../.swcrc.json");
 
 module.exports = {
   mode: "production",
@@ -28,6 +29,7 @@ module.exports = {
         exclude: /node_modules/,
         use: {
           loader: "swc-loader",
+          options: swcOptions,
         },
       },
       {
