@@ -1,5 +1,5 @@
 const path = require("path");
-const swcOptions = require("../../.swcrc.json");
+const swcOptions = require("./.swcrc.json");
 
 module.exports = {
   mode: "production",
@@ -7,8 +7,8 @@ module.exports = {
   resolve: {
     extensions: [".js", ".json", ".ts"],
     alias: {
-      "@carto/map-utils": path.resolve(__dirname, "../map-utils"),
-      "@carto/token-utils": path.resolve(__dirname, "../token-utils"),
+      "@carto/map-utils": path.resolve(__dirname, "./packages/map-utils"),
+      "@carto/token-utils": path.resolve(__dirname, "./packages/token-utils"),
     },
   },
   output: {

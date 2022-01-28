@@ -1,36 +1,10 @@
-const path = require("path");
-const swcOptions = require("../../.swcrc.json");
+const { merge } = require("webpack-merge");
+const common = require("../../webpack.common.js");
 
-module.exports = {
-  mode: "production",
-  entry: "./src/index.ts",
+module.exports = merge(common, {
   resolve: {
     extensions: [".js", ".json", ".ts"],
     mainFields: ["main"],
-  },
-  output: {
-    libraryTarget: "commonjs",
-    path: path.join(__dirname, "dist"),
-    filename: "index.js",
-  },
-  target: "node",
-  optimization: {
-    usedExports: true,
-    minimize: false,
-  },
-  devtool: "source-map",
-  module: {
-    rules: [
-      {
-        // Include ts files.
-        test: /\.ts$/,
-        exclude: /node_modules/,
-        use: {
-          loader: "swc-loader",
-          options: swcOptions,
-        },
-      },
-    ],
   },
   externals: {
     bufferutil: "bufferutil",
@@ -38,4 +12,4 @@ module.exports = {
     "utf-8-validate": "utf-8-validate",
     "zlib-sync": "zlib-sync",
   },
-};
+});

@@ -27,7 +27,7 @@
     "webpack-merge": "5.8.0"
   },
   "scripts": {
-    "build": "tsc --noEmit && webpack",
+    "build": "tsc --noEmit && webpack --config ../../webpack.common.js",
     "lint": "eslint ./src/**/*",
     "test": "jest"
   },
