@@ -13,7 +13,6 @@ module.exports = {
   },
   output: {
     libraryTarget: "commonjs",
-    path: path.join(__dirname, "dist"),
     filename: "index.js",
   },
   target: "node",
