@@ -30,7 +30,7 @@
   "dependencies": {
     "@carto/map-utils": "*",
     "@carto/token-utils": "*",
-    "nanoid": "^3.1.30"
+    "nanoid": "^3.2.0"
   },
   "scripts": {
     "build": "tsc --noEmit && webpack",
