@@ -8,7 +8,7 @@
     "@swc/core": "1.2.135",
     "@swc/jest": "0.2.17",
     "@types/aws-lambda": "8.10.92",
-    "@types/jest": "27.0.3",
+    "@types/jest": "27.4.0",
     "@typescript-eslint/eslint-plugin": "5.10.1",
     "@typescript-eslint/parser": "5.10.1",
     "discord.js": "13.6.0",
