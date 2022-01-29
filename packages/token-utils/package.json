@@ -2,8 +2,40 @@
   "name": "@carto/token-utils",
   "version": "1.0.0",
   "description": "Reusable utilities for Token related activities",
-  "main": "dist/index.js",
+  "homepage": "https://github.com/Carto-Discord/carto#readme",
+  "bugs": {
+    "url": "https://github.com/Carto-Discord/carto/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Carto-Discord/carto.git"
+  },
+  "license": "MIT",
+  "author": "Miles Bardon",
   "type": "commonjs",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc && swc src -d dist --config-file ../../.swcrc.json",
+    "lint": "eslint ./src/**/*",
+    "test": "jest"
+  },
+  "jest": {
+    "moduleNameMapper": {
+      "^@carto/map-utils$": "<rootDir>/packages/map-utils"
+    },
+    "rootDir": "../../",
+    "transform": {
+      "^.+\\.ts?$": [
+        "@swc/jest"
+      ]
+    }
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.49.0",
+    "@aws-sdk/client-s3": "^3.49.0",
+    "@carto/map-utils": "*",
+    "canvas": "^2.9.0"
+  },
   "devDependencies": {
     "@swc/cli": "0.1.55",
     "@swc/core": "1.2.135",
@@ -23,37 +55,5 @@
     "regenerator-runtime": "0.13.9",
     "swc-loader": "0.1.15",
     "typescript": "4.5.5"
-  },
-  "scripts": {
-    "build": "tsc && swc src -d dist",
-    "lint": "eslint ./src/**/*",
-    "test": "jest"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Carto-Discord/carto.git"
-  },
-  "author": "Miles Bardon",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/Carto-Discord/carto/issues"
-  },
-  "homepage": "https://github.com/Carto-Discord/carto#readme",
-  "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.49.0",
-    "@aws-sdk/client-s3": "^3.49.0",
-    "@carto/map-utils": "*",
-    "canvas": "^2.9.0"
-  },
-  "jest": {
-    "transform": {
-      "^.+\\.ts?$": [
-        "@swc/jest"
-      ]
-    },
-    "rootDir": "../../",
-    "moduleNameMapper": {
-      "^@carto/map-utils$": "<rootDir>/packages/map-utils"
-    }
   }
 }

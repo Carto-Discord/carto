@@ -2,7 +2,36 @@
   "name": "@carto/send-response",
   "version": "1.0.0",
   "description": "Sends PATCH response to Discord to complete command execution",
+  "keywords": [
+    "discord",
+    "embed"
+  ],
+  "homepage": "https://github.com/Carto-Discord/carto#readme",
+  "bugs": {
+    "url": "https://github.com/Carto-Discord/carto/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Carto-Discord/carto.git"
+  },
+  "license": "MIT",
+  "author": "Miles Bardon",
   "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc --noEmit && webpack",
+    "lint": "eslint ./src/**/*",
+    "test": "jest"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.ts?$": [
+        "@swc/jest"
+      ]
+    }
+  },
+  "dependencies": {
+    "axios": "^0.25.0"
+  },
   "devDependencies": {
     "@swc/cli": "0.1.55",
     "@swc/core": "1.2.135",
@@ -24,35 +53,7 @@
     "swc-loader": "0.1.15",
     "typescript": "4.5.5",
     "webpack": "5.67.0",
-    "webpack-cli": "4.9.2"
-  },
-  "jest": {
-    "transform": {
-      "^.+\\.ts?$": [
-        "@swc/jest"
-      ]
-    }
-  },
-  "scripts": {
-    "build": "tsc --noEmit && webpack",
-    "lint": "eslint ./src/**/*",
-    "test": "jest"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Carto-Discord/carto.git"
-  },
-  "keywords": [
-    "discord",
-    "embed"
-  ],
-  "author": "Miles Bardon",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/Carto-Discord/carto/issues"
-  },
-  "homepage": "https://github.com/Carto-Discord/carto#readme",
-  "dependencies": {
-    "axios": "^0.25.0"
+    "webpack-cli": "4.9.2",
+    "webpack-merge": "5.8.0"
   }
 }

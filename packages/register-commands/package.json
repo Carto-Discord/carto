@@ -2,26 +2,26 @@
   "name": "@carto/register-commands",
   "version": "1.0.0",
   "description": "Registers Discord slash commands via the REST API",
-  "main": "dist/index.js",
-  "type": "module",
-  "scripts": {
-    "build": "tsc --noEmit && swc src -d dist",
-    "start": "node ."
+  "keywords": [
+    "discord",
+    "slash-commands"
+  ],
+  "homepage": "https://github.com/Carto-Discord/carto#readme",
+  "bugs": {
+    "url": "https://github.com/Carto-Discord/carto/issues"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Carto-Discord/carto.git"
   },
-  "keywords": [
-    "discord",
-    "slash-commands"
-  ],
-  "author": "Miles Bardon",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/Carto-Discord/carto/issues"
+  "author": "Miles Bardon",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc --noEmit && swc src -d dist",
+    "start": "node ."
   },
-  "homepage": "https://github.com/Carto-Discord/carto#readme",
   "dependencies": {
     "@carto/token-utils": "*",
     "slash-commands": "^1.5.0"

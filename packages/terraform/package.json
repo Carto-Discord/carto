@@ -2,20 +2,20 @@
   "name": "terraform",
   "version": "1.0.0",
   "description": "Deployment configuration for Carto",
-  "devDependencies": {
-    "asl-validator": "1.10.0"
-  },
-  "scripts": {
-    "lint": "asl-validator --json-path state_machine.asl.json"
+  "homepage": "https://github.com/Carto-Discord/carto#readme",
+  "bugs": {
+    "url": "https://github.com/Carto-Discord/carto/issues"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Carto-Discord/carto.git"
   },
-  "author": "Miles Bardon",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/Carto-Discord/carto/issues"
+  "author": "Miles Bardon",
+  "scripts": {
+    "lint": "asl-validator --json-path state_machine.asl.json"
   },
-  "homepage": "https://github.com/Carto-Discord/carto#readme"
+  "devDependencies": {
+    "asl-validator": "1.10.0"
+  }
 }

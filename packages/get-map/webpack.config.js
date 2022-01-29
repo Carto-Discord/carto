@@ -1,31 +1,9 @@
 const path = require("path");
+const { merge } = require("webpack-merge");
+const common = require("../../webpack.common.js");
 
-module.exports = {
-  mode: "production",
-  entry: "./src/index.ts",
-  resolve: {
-    extensions: [".js", ".json", ".ts"],
-  },
+module.exports = merge(common, {
   output: {
-    libraryTarget: "commonjs",
     path: path.join(__dirname, "dist"),
-    filename: "index.js",
   },
-  target: "node",
-  optimization: {
-    usedExports: true,
-  },
-  devtool: "source-map",
-  module: {
-    rules: [
-      {
-        // Include ts files.
-        test: /\.ts$/,
-        exclude: /node_modules/,
-        use: {
-          loader: "swc-loader",
-        },
-      },
-    ],
-  },
-};
+});

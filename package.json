@@ -2,6 +2,21 @@
   "name": "@carto/carto",
   "version": "0.1.0",
   "description": "Track player and monster movements around a virtual D&D map",
+  "keywords": [
+    "dnd",
+    "dungeons",
+    "dragons"
+  ],
+  "homepage": "https://github.com/Carto-Discord/carto#readme",
+  "bugs": {
+    "url": "https://github.com/Carto-Discord/carto/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Carto-Discord/carto.git"
+  },
+  "license": "MIT",
+  "author": "Miles Bardon",
   "workspaces": [
     "./packages/*"
   ],
@@ -11,21 +26,6 @@
     "lint": "npm run lint --workspaces --if-present",
     "test": "npm t --workspaces --if-present"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Carto-Discord/carto.git"
-  },
-  "keywords": [
-    "dnd",
-    "dungeons",
-    "dragons"
-  ],
-  "author": "Miles Bardon",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/Carto-Discord/carto/issues"
-  },
-  "homepage": "https://github.com/Carto-Discord/carto#readme",
   "devDependencies": {
     "@tsconfig/node14": "1.0.1"
   }

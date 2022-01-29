@@ -2,6 +2,21 @@
   "name": "@carto/integration",
   "version": "1.0.0",
   "description": "Integration testing suite for Carto",
+  "homepage": "https://github.com/Carto-Discord/carto#readme",
+  "bugs": {
+    "url": "https://github.com/Carto-Discord/carto/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Carto-Discord/carto.git"
+  },
+  "license": "MIT",
+  "author": "Miles Bardon",
+  "scripts": {
+    "int:open": "cypress open",
+    "int:run": "cypress run",
+    "setup": "ts-node src/setupS3.ts"
+  },
   "devDependencies": {
     "@aws-sdk/client-api-gateway": "3.49.0",
     "@aws-sdk/client-dynamodb": "3.49.0",
@@ -12,20 +27,5 @@
     "ts-node": "10.4.0",
     "tweetnacl": "1.0.3",
     "typescript": "4.5.5"
-  },
-  "scripts": {
-    "setup": "ts-node src/setupS3.ts",
-    "int:open": "cypress open",
-    "int:run": "cypress run"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Carto-Discord/carto.git"
-  },
-  "author": "Miles Bardon",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/Carto-Discord/carto/issues"
-  },
-  "homepage": "https://github.com/Carto-Discord/carto#readme"
+  }
 }
