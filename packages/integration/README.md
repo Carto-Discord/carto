@@ -32,4 +32,6 @@ Back in this package directory, you can now run `npm run setup`, making sure you
 
 ## Running the tests
 
+The Cypress tests are configured to run against the [`mock-discord` server](../mock-discord) which must be started up before Cypress is opened. Failure to do so will result in the tests not working correctly.
+
 With the `CYPRESS_PRIVATE_KEY` and `CYPRESS_MAP_BUCKET` environment variables still set, run `npm run int:open` to open the Cypress UI and run whichever test suite you'd like. To run tests as they are run in CI, run `npm run int:run`
