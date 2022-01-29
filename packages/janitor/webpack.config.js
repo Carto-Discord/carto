@@ -6,6 +6,10 @@ module.exports = merge(common, {
   output: {
     path: path.join(__dirname, "dist"),
   },
+  optimization: {
+    usedExports: true,
+    minimize: false,
+  },
   resolve: {
     extensions: [".js", ".json", ".ts"],
     mainFields: ["main"],
