@@ -1,7 +1,7 @@
-import { NodeCanvasRenderingContext2D } from "canvas";
+import { CanvasRenderingContext2D } from "canvas";
 
 type OptimalFontSizeProps = {
-  context: NodeCanvasRenderingContext2D;
+  context: CanvasRenderingContext2D;
   text: string;
   maxWidth: number;
   maxHeight: number;
