@@ -22,13 +22,6 @@
     "lint": "eslint ./src/**/*",
     "test": "jest"
   },
-  "jest": {
-    "transform": {
-      "^.+\\.ts?$": [
-        "@swc/jest"
-      ]
-    }
-  },
   "dependencies": {
     "axios": "^0.25.0"
   },

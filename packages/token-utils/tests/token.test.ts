@@ -90,7 +90,7 @@ describe.skip("Apply tokens to grid", () => {
         color: "blue",
         column: "D",
         row: 7,
-        size: Size.MEDIUM,
+        size: Size.HUGE,
       },
       {
         name: "Ben",

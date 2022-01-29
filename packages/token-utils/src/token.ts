@@ -92,7 +92,9 @@ export const applyTokensToGrid = async ({
   margin,
   tokens,
 }: ApplyTokensProps) => {
-  registerFont("./OpenSans-Regular.ttf", { family: "Open Sans" });
+  registerFont("./OpenSans-Regular.ttf", {
+    family: "Open Sans",
+  });
 
   const image = await loadImage(baseFilename).catch(console.warn);
 
@@ -108,14 +110,14 @@ export const applyTokensToGrid = async ({
   let tinyTokensCount = 0;
 
   tokens.forEach((token) => {
-    const { row, name, size, color } = token;
-    const col = getColumnNumber(token.column);
+    const { row, column, name, size, color } = token;
+    const col = getColumnNumber(column);
 
     const initialY1 = image.width - row * margin.y;
 
     let coordinates: Coordinates = {
-      x0: (col - 1) * margin.x,
-      x1: (col - 1 + size) * margin.x,
+      x0: col * margin.x,
+      x1: (col + size) * margin.x,
       y0: initialY1 - size * margin.y,
       y1: initialY1,
     };
@@ -128,7 +130,7 @@ export const applyTokensToGrid = async ({
         coordinates: {
           ...coordinates,
           y0: image.width - (row + 1) * margin.y,
-          x1: col * margin.x,
+          x1: (col + 1) * margin.x,
         },
       });
     }
@@ -150,11 +152,13 @@ export const applyTokensToGrid = async ({
 
     const label = name.slice(0, 1).toUpperCase();
 
+    const realTokenSize = size === 0 ? 0.5 : size;
+
     findOptimalFontSize({
       context: ctx,
       text: label,
-      maxWidth: margin.x * size * 0.7,
-      maxHeight: margin.y * size * 0.7,
+      maxWidth: margin.x * realTokenSize * 0.7,
+      maxHeight: margin.y * realTokenSize * 0.7,
     });
 
     ctx.fillText(label, x, y);

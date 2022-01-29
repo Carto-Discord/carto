@@ -23,13 +23,6 @@
     "lint": "eslint ./src/**/*",
     "test": "jest"
   },
-  "jest": {
-    "transform": {
-      "^.+\\.ts?$": [
-        "@swc/jest"
-      ]
-    }
-  },
   "dependencies": {
     "canvas": "^2.9.0"
   },

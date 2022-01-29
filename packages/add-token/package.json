@@ -18,18 +18,6 @@
     "lint": "eslint ./src/**/*",
     "test": "jest"
   },
-  "jest": {
-    "moduleNameMapper": {
-      "^@carto/map-utils$": "<rootDir>/packages/map-utils",
-      "^@carto/token-utils$": "<rootDir>/packages/token-utils"
-    },
-    "rootDir": "../../",
-    "transform": {
-      "^.+\\.ts?$": [
-        "@swc/jest"
-      ]
-    }
-  },
   "dependencies": {
     "@carto/map-utils": "*",
     "@carto/token-utils": "*",
