@@ -19,17 +19,6 @@
     "lint": "eslint ./src/**/*",
     "test": "jest"
   },
-  "jest": {
-    "moduleNameMapper": {
-      "^@carto/map-utils$": "<rootDir>/packages/map-utils"
-    },
-    "rootDir": "../../",
-    "transform": {
-      "^.+\\.ts?$": [
-        "@swc/jest"
-      ]
-    }
-  },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.49.0",
     "@aws-sdk/client-s3": "^3.49.0",
