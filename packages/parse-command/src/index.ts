@@ -63,8 +63,7 @@ export const handler = async (
       };
 
       // Local testing only, ignored in production
-      const { LOCALSTACK_HOSTNAME } = process.env;
-      const endpoint = LOCALSTACK_HOSTNAME
+      const endpoint = process.env.LOCALSTACK_HOSTNAME
         ? `http://localhost:4566`
         : undefined;
 
