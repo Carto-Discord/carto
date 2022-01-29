@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - "packages/register-commands"
+      - "packages/register-commands/**"
       - ".github/workflows/register-commands.yml"
 
 jobs:
