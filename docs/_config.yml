@@ -1,0 +1,7 @@
+title: "Carto"
+baseurl: "/carto"
+url: "https://carto-discord.github.io"
+
+remote_theme: pmarsceill/just-the-docs
+color_scheme: "dark"
+search_enabled: true
