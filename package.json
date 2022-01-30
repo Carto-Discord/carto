@@ -28,5 +28,9 @@
   },
   "devDependencies": {
     "@tsconfig/node14": "1.0.1"
+  },
+  "engines": {
+    "node": "^14 || ^16",
+    "npm": "^7 || ^8"
   }
 }
