@@ -19,7 +19,7 @@
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc --noEmit && swc src -d dist",
+    "build": "tsc",
     "start": "node ."
   },
   "dependencies": {
