@@ -51,7 +51,7 @@ describe("Handler", () => {
       embed: {
         title: "Token Move error",
         description:
-          "Map data for this channel is incomplete.\nCreate the map again or [report it](https://www.github.com/carto-discord/carto/issues).",
+          "Map data for this channel is incomplete.\nFor help, refer to the [troubleshooting](https://carto-discord.github.io/carto/troubleshooting) page.",
         type: "rich",
       },
     }),
@@ -211,7 +211,7 @@ describe("Handler", () => {
               embed: {
                 title: "Token Delete error",
                 description:
-                  "Map data for this channel is incomplete.\nCreate the map again or [report it](https://www.github.com/carto-discord/carto/issues).",
+                  "Map data for this channel is incomplete.\nFor help, refer to the [troubleshooting](https://carto-discord.github.io/carto/troubleshooting) page.",
                 type: "rich",
               },
             }),

@@ -48,7 +48,7 @@ describe("Handler", () => {
       embed: {
         title: "Token Add error",
         description:
-          "Map data for this channel is incomplete.\nCreate the map again or [report it](https://www.github.com/carto-discord/carto/issues).",
+          "Map data for this channel is incomplete.\nFor help, refer to the [troubleshooting](https://carto-discord.github.io/carto/troubleshooting) page.",
         type: "rich",
       },
     }),
@@ -425,7 +425,7 @@ describe("Handler", () => {
           embed: {
             title: "Token Add error",
             description:
-              "An error occured while creating the new map. Please try again later",
+              "An error occured while uploading the new map. Please try again later",
             type: "rich",
           },
         }),

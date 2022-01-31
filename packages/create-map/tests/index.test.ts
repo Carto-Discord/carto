@@ -152,7 +152,8 @@ describe("Handler", () => {
             token: defaultProps.token,
             embed: {
               title: "Map create error",
-              description: `Map could not be created due to an internal error.\nTry again later, or [report it](https://www.github.com/carto-discord/carto/issues).`,
+              description:
+                "Map data could not be saved due to an internal error.\nFor help, refer to the [troubleshooting](https://carto-discord.github.io/carto/troubleshooting) page.",
               type: "rich",
             },
           }),

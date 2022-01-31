@@ -65,7 +65,7 @@ export const handler = async (event: Event): Promise<APIGatewayProxyResult> => {
   const serverError = formatResponse({
     statusCode: 500,
     description:
-      "Map data for this channel is incomplete.\nCreate the map again or [report it](https://www.github.com/carto-discord/carto/issues).",
+      "Map data for this channel is incomplete.\nFor help, refer to the [troubleshooting](https://carto-discord.github.io/carto/troubleshooting) page.",
   });
 
   const validation = await validateMapData(channel_id);
@@ -177,7 +177,7 @@ export const handler = async (event: Event): Promise<APIGatewayProxyResult> => {
         return formatResponse({
           statusCode: 404,
           description:
-            "Map data for this channel is incomplete.\nCreate the map again or [report it](https://www.github.com/carto-discord/carto/issues).",
+            "Map data for this channel is incomplete.\nFor help, refer to the [troubleshooting](https://carto-discord.github.io/carto/troubleshooting) page.",
         });
       }
 
