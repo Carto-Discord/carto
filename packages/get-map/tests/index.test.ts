@@ -92,7 +92,8 @@ describe("Handler", () => {
 
       const expectedEmbed = {
         title: "Error retrieving map",
-        description: "Map data in incomplete, please report this to bot admins",
+        description:
+          "Map data for this channel is incomplete\nFor help, refer to the [troubleshooting](https://carto-discord.github.io/carto/troubleshooting) page.",
         type: "rich",
       };
 

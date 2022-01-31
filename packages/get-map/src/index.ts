@@ -17,8 +17,9 @@ export const handler = async ({
   token,
 }: Event): Promise<APIGatewayProxyResult> => {
   // Local testing only, ignored in production
-  const { LOCALSTACK_HOSTNAME } = process.env;
-  const endpoint = LOCALSTACK_HOSTNAME ? `http://localhost:4566` : undefined;
+  const endpoint = process.env.LOCALSTACK_HOSTNAME
+    ? `http://localhost:4566`
+    : undefined;
 
   const dynamodbClient = new DynamoDBClient({
     region: process.env.AWS_REGION,
@@ -65,7 +66,8 @@ export const handler = async ({
 
     const embed = {
       title: ERROR_TITLE,
-      description: "Map data in incomplete, please report this to bot admins",
+      description:
+        "Map data for this channel is incomplete\nFor help, refer to the [troubleshooting](https://carto-discord.github.io/carto/troubleshooting) page.",
       type: "rich",
     };
 

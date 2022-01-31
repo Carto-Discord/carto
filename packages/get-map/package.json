@@ -1,5 +1,5 @@
 {
-  "name": "@carto/retrieve-map",
+  "name": "@carto/get-map",
   "version": "1.0.0",
   "description": "Retrieves the requested map from S3",
   "keywords": [

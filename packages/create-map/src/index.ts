@@ -50,8 +50,9 @@ export const handler = async ({
   const mapId = nanoid();
 
   // Local testing only, ignored in production
-  const { LOCALSTACK_HOSTNAME } = process.env;
-  const endpoint = LOCALSTACK_HOSTNAME ? `http://localhost:4566` : undefined;
+  const endpoint = process.env.LOCALSTACK_HOSTNAME
+    ? `http://localhost:4566`
+    : undefined;
 
   const s3Client = new S3Client({
     region: process.env.AWS_REGION,
@@ -101,7 +102,7 @@ export const handler = async ({
         token,
         embed: {
           title: ERROR_TITLE,
-          description: `Map could not be created due to an internal error.\nTry again later, or [report it](https://www.github.com/carto-discord/carto/issues).`,
+          description: `Map data could not be saved due to an internal error.\nFor help, refer to the [troubleshooting](https://carto-discord.github.io/carto/troubleshooting) page.`,
           type: "rich",
         },
       }),
