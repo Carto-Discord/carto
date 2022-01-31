@@ -19,7 +19,7 @@
   "type": "commonjs",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc && swc src -d dist --config-file ../../.swcrc.json",
+    "build": "tsc",
     "lint": "eslint ./src/**/*",
     "test": "jest"
   },
@@ -27,9 +27,6 @@
     "canvas": "^2.9.0"
   },
   "devDependencies": {
-    "@swc/cli": "0.1.55",
-    "@swc/core": "1.2.135",
-    "@swc/jest": "0.2.17",
     "@types/jest": "27.4.0",
     "@typescript-eslint/eslint-plugin": "5.10.2",
     "@typescript-eslint/parser": "5.10.2",
@@ -40,8 +37,6 @@
     "eslint-plugin-node": "11.1.0",
     "eslint-plugin-promise": "6.0.0",
     "jest": "27.4.7",
-    "regenerator-runtime": "0.13.9",
-    "swc-loader": "0.1.15",
     "typescript": "4.5.5"
   }
 }
