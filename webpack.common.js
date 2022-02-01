@@ -1,15 +1,8 @@
-const path = require("path");
-const swcOptions = require("./.swcrc.json");
-
 module.exports = {
   mode: "production",
   entry: "./src/index.ts",
   resolve: {
     extensions: [".js", ".json", ".ts"],
-    alias: {
-      "@carto/map-utils": path.resolve(__dirname, "./packages/map-utils"),
-      "@carto/token-utils": path.resolve(__dirname, "./packages/token-utils"),
-    },
   },
   output: {
     libraryTarget: "commonjs",
@@ -27,8 +20,10 @@ module.exports = {
         test: /\.ts$/,
         exclude: /node_modules/,
         use: {
-          loader: "swc-loader",
-          options: swcOptions,
+          loader: "ts-loader",
+          options: {
+            projectReferences: true,
+          },
         },
       },
       {

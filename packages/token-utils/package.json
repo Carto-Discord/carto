@@ -15,7 +15,7 @@
   "type": "commonjs",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc && swc src -d dist --config-file ../../.swcrc.json",
+    "build": "tsc",
     "lint": "eslint ./src/**/*",
     "test": "jest"
   },

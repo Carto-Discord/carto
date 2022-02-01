@@ -1,4 +1,11 @@
 {
   "extends": "../../tsconfig.json",
-  "include": ["./src/**/*"]
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@carto/map-utils": ["../map-utils"]
+    }
+  },
+  "include": ["./src/**/*"],
+  "references": [{ "path": "../map-utils" }]
 }

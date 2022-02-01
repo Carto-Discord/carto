@@ -14,19 +14,14 @@
   "author": "Miles Bardon",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc --noEmit && webpack",
+    "build": "webpack",
     "lint": "eslint ./src/**/*",
     "test": "jest"
   },
   "dependencies": {
-    "@carto/map-utils": "*",
-    "@carto/token-utils": "*",
     "nanoid": "^3.2.0"
   },
   "devDependencies": {
-    "@swc/cli": "0.1.55",
-    "@swc/core": "1.2.135",
-    "@swc/jest": "0.2.17",
     "@types/aws-lambda": "8.10.92",
     "@types/jest": "27.4.0",
     "@typescript-eslint/eslint-plugin": "5.10.2",
@@ -41,8 +36,8 @@
     "eslint-plugin-promise": "6.0.0",
     "jest": "27.4.7",
     "node-loader": "2.0.0",
-    "regenerator-runtime": "0.13.9",
-    "swc-loader": "0.1.15",
+    "ts-loader": "9.2.6",
+    "tsconfig-paths-webpack-plugin": "3.5.2",
     "typescript": "4.5.5",
     "webpack": "5.68.0",
     "webpack-cli": "4.9.2",
