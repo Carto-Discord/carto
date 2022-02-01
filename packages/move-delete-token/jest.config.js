@@ -5,7 +5,4 @@ module.exports = {
     "^@carto/map-utils$": path.join(__dirname, "../map-utils"),
     "^@carto/token-utils$": path.join(__dirname, "../token-utils"),
   },
-  transform: {
-    "^.+\\.ts?$": ["@swc/jest"],
-  },
 };
