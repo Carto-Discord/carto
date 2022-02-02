@@ -23,7 +23,6 @@
     "start": "node ."
   },
   "dependencies": {
-    "@carto/token-utils": "*",
     "slash-commands": "^1.5.0"
   },
   "devDependencies": {

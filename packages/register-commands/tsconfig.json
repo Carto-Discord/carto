@@ -1,7 +1,14 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "outDir": "dist"
+    "module": "es6",
+    "moduleResolution": "node",
+    "outDir": "dist",
+    "baseUrl": ".",
+    "paths": {
+      "@carto/token-utils": ["../token-utils"]
+    }
   },
-  "include": ["./src/**/*"]
+  "include": ["./src/**/*"],
+  "references": [{ "path": "../token-utils" }]
 }
