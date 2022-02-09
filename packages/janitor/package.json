@@ -19,8 +19,8 @@
     "test": "jest"
   },
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.49.0",
-    "@aws-sdk/client-s3": "^3.49.0",
+    "@aws-sdk/client-dynamodb": "^3.50.0",
+    "@aws-sdk/client-s3": "^3.50.0",
     "discord.js": "^12.5.3",
     "ffmpeg-static": "^4.4.1"
   },
