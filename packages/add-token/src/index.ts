@@ -114,6 +114,21 @@ export const handler = async ({
   const { tokens } = currentMapData.Item;
   const existingTokens = tokens?.L ?? [];
 
+  if (existingTokens.map(({ M }) => M?.name.S).includes(name)) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({
+        application_id,
+        token,
+        embed: {
+          title: ERROR_TITLE,
+          description: `A token called ${name} already exists on the map. \nMove it with \`/token move\` or remove it with \`/token delete\``,
+          type: "rich",
+        },
+      }),
+    };
+  }
+
   const newTokens: Token[] = existingTokens
     .map((token) => {
       const { name, row, column, color, size } = token.M || {};
