@@ -1,5 +1,9 @@
+variable "app_name" {
+  default = "carto"
+}
+
 resource "aws_iam_user" "terraform" {
-  name = "carto-terraform"
+  name = "${var.app_name}-terraform"
 }
 
 resource "aws_iam_access_key" "key" {
@@ -7,11 +11,11 @@ resource "aws_iam_access_key" "key" {
 }
 
 resource "aws_iam_group" "deployer" {
-  name = "deployer"
+  name = "${var.app_name}-deployer"
 }
 
 resource "aws_iam_group_membership" "deployers" {
-  name = "deployer-group-membership"
+  name = "${var.app_name}-deployer-group-membership"
 
   users = [
     aws_iam_user.terraform.name
@@ -21,7 +25,7 @@ resource "aws_iam_group_membership" "deployers" {
 }
 
 resource "aws_iam_user_policy" "s3backend" {
-  name = "TerraformBackendAccess"
+  name = "${var.app_name}-TerraformBackendAccess"
   user = aws_iam_user.terraform.name
 
   policy = jsonencode({
@@ -48,7 +52,7 @@ resource "aws_iam_user_policy" "s3backend" {
 }
 
 resource "aws_iam_group_policy" "s3" {
-  name  = "DeployS3Bucket"
+  name  = "${var.app_name}-DeployS3Bucket"
   group = aws_iam_group.deployer.name
 
   policy = jsonencode({
@@ -71,7 +75,7 @@ resource "aws_iam_group_policy" "s3" {
 }
 
 resource "aws_iam_group_policy" "dynamodb" {
-  name  = "DeployDynamoDBTables"
+  name  = "${var.app_name}-DeployDynamoDBTables"
   group = aws_iam_group.deployer.name
 
   policy = jsonencode({
@@ -93,7 +97,7 @@ resource "aws_iam_group_policy" "dynamodb" {
 }
 
 resource "aws_iam_group_policy" "apigateway" {
-  name  = "DeployAPIGateway"
+  name  = "${var.app_name}-DeployAPIGateway"
   group = aws_iam_group.deployer.name
 
   policy = jsonencode({
@@ -125,7 +129,7 @@ resource "aws_iam_group_policy" "apigateway" {
 }
 
 resource "aws_iam_group_policy" "lambda" {
-  name  = "DeployLambda"
+  name  = "${var.app_name}-DeployLambda"
   group = aws_iam_group.deployer.name
 
   policy = jsonencode({
@@ -199,7 +203,7 @@ resource "aws_iam_group_policy" "lambda" {
 }
 
 resource "aws_iam_group_policy" "cloudwatch" {
-  name  = "CreateCloudwatchLogGroups"
+  name  = "${var.app_name}-CreateCloudwatchLogGroups"
   group = aws_iam_group.deployer.name
 
   policy = jsonencode({
@@ -221,7 +225,7 @@ resource "aws_iam_group_policy" "cloudwatch" {
 }
 
 resource "aws_iam_group_policy" "iam" {
-  name  = "ManageIAMRoles"
+  name  = "${var.app_name}-ManageIAMRoles"
   group = aws_iam_group.deployer.name
 
   policy = jsonencode({
@@ -252,7 +256,7 @@ resource "aws_iam_group_policy" "iam" {
 }
 
 resource "aws_iam_group_policy" "stepfunctions" {
-  name  = "DeployStepFunctions"
+  name  = "${var.app_name}-DeployStepFunctions"
   group = aws_iam_group.deployer.name
 
   policy = jsonencode({
@@ -283,7 +287,7 @@ resource "aws_iam_group_policy" "stepfunctions" {
 }
 
 resource "aws_iam_group_policy" "events" {
-  name  = "ManageCloudwatchEvents"
+  name  = "${var.app_name}-ManageCloudwatchEvents"
   group = aws_iam_group.deployer.name
 
   policy = jsonencode({
@@ -308,7 +312,7 @@ resource "aws_iam_group_policy" "events" {
 }
 
 resource "aws_iam_group_policy" "budgets" {
-  name  = "ManageBudgets"
+  name  = "${var.app_name}-ManageBudgets"
   group = aws_iam_group.deployer.name
 
   policy = jsonencode({
@@ -330,7 +334,7 @@ resource "aws_iam_group_policy" "budgets" {
 }
 
 resource "aws_iam_group_policy" "alarms" {
-  name  = "ManageAlarms"
+  name  = "${var.app_name}-ManageAlarms"
   group = aws_iam_group.deployer.name
 
   policy = jsonencode({
