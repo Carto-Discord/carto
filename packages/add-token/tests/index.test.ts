@@ -316,6 +316,25 @@ describe("Handler", () => {
     });
   });
 
+  describe("given the token name already exists on the map", () => {
+    it("should return a 400 response", async () => {
+      const response = await handler({ ...defaultProps, name: "existing1" });
+
+      expect(response).toEqual({
+        statusCode: 400,
+        body: JSON.stringify({
+          application_id: defaultProps.application_id,
+          token: defaultProps.token,
+          embed: {
+            title: "Token Add error",
+            description: `A token called existing1 already exists on the map. \nMove it with \`/token move\` or remove it with \`/token delete\``,
+            type: "rich",
+          },
+        }),
+      });
+    });
+  });
+
   describe("given the image download fails", () => {
     beforeEach(() => {
       mockDownloadImage.mockRejectedValue(new Error("Something went wrong"));

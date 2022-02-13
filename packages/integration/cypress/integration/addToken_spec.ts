@@ -145,7 +145,7 @@ describe("Add Token", () => {
           token,
         });
         const embed = body.embeds[0];
-        newImageId = embed.image.url.replace(/^.*[\\\/]/, "").split(".")[0];
+        newImageId = embed.image.url.replace(/^.*[\\/]/, "").split(".")[0];
 
         expect(embed.image.url).to.eq(
           `https://s3.us-east-1.amazonaws.com/carto-bot-maps/${newImageId}.png`
@@ -260,7 +260,7 @@ describe("Add Token", () => {
           token,
         });
         const embed = body.embeds[0];
-        newImageId = embed.image.url.replace(/^.*[\\\/]/, "").split(".")[0];
+        newImageId = embed.image.url.replace(/^.*[\\/]/, "").split(".")[0];
 
         expect(embed.image.url).to.eq(
           `https://s3.us-east-1.amazonaws.com/carto-bot-maps/${newImageId}.png`
@@ -376,7 +376,7 @@ describe("Add Token", () => {
           token,
         });
         const embed = body.embeds[0];
-        newImageId = embed.image.url.replace(/^.*[\\\/]/, "").split(".")[0];
+        newImageId = embed.image.url.replace(/^.*[\\/]/, "").split(".")[0];
 
         expect(embed.image.url).to.eq(
           `https://s3.us-east-1.amazonaws.com/carto-bot-maps/${newImageId}.png`
@@ -486,6 +486,82 @@ describe("Add Token", () => {
           expect(embed.title).to.eq("Token Add error");
           expect(embed.description).to.eq(
             "The row or column you entered is out of bounds.\nThis map's bounds are 40 rows by 40 columns"
+          );
+
+          expect(embed).not.to.have.property("fields");
+
+          expect(embed.type).to.eq("rich");
+        })
+        // Inspect Channel document
+        .then(() =>
+          getDocument({
+            table: Table.CHANNELS,
+            key: {
+              id: channelId,
+            },
+          })
+        )
+        .then(({ Item }) => {
+          const { history } = Item as DiscordChannel;
+
+          // Check length is still the same
+          expect(history).to.have.length(1);
+        });
+    });
+  });
+
+  describe("given a token with the same name as an existing one is added", () => {
+    it("should not add a new map and return an error", () => {
+      const body = {
+        ...addBody,
+        data: {
+          options: [
+            {
+              name: "add",
+              options: [
+                {
+                  name: "name",
+                  value: "Alvyn",
+                },
+                {
+                  name: "row",
+                  value: 1,
+                },
+                {
+                  name: "column",
+                  value: "A",
+                },
+              ],
+            },
+          ],
+          name: "token",
+          id: "token-id",
+        },
+      };
+
+      const headers = generateHeaders(body);
+
+      cy.request({
+        method: "POST",
+        url,
+        body,
+        headers,
+      })
+        .its("status")
+        .should("eq", 200);
+
+      cy.get("ul li", { timeout: 30000 })
+        .then((item) => {
+          const { params, body } = JSON.parse(item.text());
+          expect(params).to.deep.equal({
+            applicationId: application_id,
+            token,
+          });
+          const embed = body.embeds[0];
+
+          expect(embed.title).to.eq("Token Add error");
+          expect(embed.description).to.eq(
+            "A token called Alvyn already exists on the map. \nMove it with `/token move` or remove it with `/token delete`"
           );
 
           expect(embed).not.to.have.property("fields");
