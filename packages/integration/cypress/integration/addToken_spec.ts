@@ -145,7 +145,7 @@ describe("Add Token", () => {
           token,
         });
         const embed = body.embeds[0];
-        newImageId = embed.image.url.replace(/^.*[\\\/]/, "").split(".")[0];
+        newImageId = embed.image.url.replace(/^.*[\\/]/, "").split(".")[0];
 
         expect(embed.image.url).to.eq(
           `https://s3.us-east-1.amazonaws.com/carto-bot-maps/${newImageId}.png`
@@ -260,7 +260,7 @@ describe("Add Token", () => {
           token,
         });
         const embed = body.embeds[0];
-        newImageId = embed.image.url.replace(/^.*[\\\/]/, "").split(".")[0];
+        newImageId = embed.image.url.replace(/^.*[\\/]/, "").split(".")[0];
 
         expect(embed.image.url).to.eq(
           `https://s3.us-east-1.amazonaws.com/carto-bot-maps/${newImageId}.png`
@@ -376,7 +376,7 @@ describe("Add Token", () => {
           token,
         });
         const embed = body.embeds[0];
-        newImageId = embed.image.url.replace(/^.*[\\\/]/, "").split(".")[0];
+        newImageId = embed.image.url.replace(/^.*[\\/]/, "").split(".")[0];
 
         expect(embed.image.url).to.eq(
           `https://s3.us-east-1.amazonaws.com/carto-bot-maps/${newImageId}.png`
