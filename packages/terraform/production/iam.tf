@@ -42,6 +42,7 @@ resource "aws_iam_policy" "access_dynamodb" {
     Statement = [
       {
         Action = [
+          "dynamodb:BatchWriteItem",
           "dynamodb:DeleteItem",
           "dynamodb:GetItem",
           "dynamodb:PutItem",
