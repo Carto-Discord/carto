@@ -159,9 +159,9 @@ describe("Janitor", () => {
         .then(() => listObjects())
         .then(({ Contents }) => {
           expect(Contents.map(({ Key }) => Key)).not.to.have.members([
-            `${channelToDelete}/${channelToDelete.baseMap}.png`,
-            `${channelToDelete}/${channelToDelete.currentMap}.png`,
-            `${channelToDelete}/${channelToDelete.history[0]}.png`,
+            `${channelToDelete.id}/${channelToDelete.baseMap}.png`,
+            `${channelToDelete.id}/${channelToDelete.currentMap}.png`,
+            `${channelToDelete.id}/${channelToDelete.history[0]}.png`,
           ]);
         });
     });
@@ -221,9 +221,9 @@ describe("Janitor", () => {
         .then(() => listObjects())
         .then(({ Contents }) => {
           expect(Contents.map(({ Key }) => Key)).to.include.members([
-            `${channelToKeep}/${channelToKeep.baseMap}.png`,
-            `${channelToKeep}/${channelToKeep.currentMap}.png`,
-            `${channelToKeep}/${channelToKeep.history[0]}.png`,
+            `${channelToKeep.id}/${channelToKeep.baseMap}.png`,
+            `${channelToKeep.id}/${channelToKeep.currentMap}.png`,
+            `${channelToKeep.id}/${channelToKeep.history[0]}.png`,
           ]);
         });
     });
@@ -271,9 +271,9 @@ describe("Janitor", () => {
         .then(() => listObjects())
         .then(({ Contents }) => {
           expect(Contents.map(({ Key }) => Key)).not.to.have.members([
-            `${channelToDelete.baseMap}.png`,
-            `${channelToDelete.currentMap}.png`,
-            `${channelToDelete.history[0]}.png`,
+            `${channelToDelete.id}/${channelToDelete.baseMap}.png`,
+            `${channelToDelete.id}/${channelToDelete.currentMap}.png`,
+            `${channelToDelete.id}/${channelToDelete.history[0]}.png`,
           ]);
         });
     });
