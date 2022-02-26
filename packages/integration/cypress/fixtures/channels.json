@@ -1,4 +1,5 @@
 {
   "existingChannel": "123456789012345678",
+  "newExistingChannel": "123456789012345679",
   "nonExistentChannel": "badchannelid"
 }

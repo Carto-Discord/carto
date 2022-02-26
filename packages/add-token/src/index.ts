@@ -206,7 +206,7 @@ export const handler = async ({
   });
 
   if (successful) {
-    const imageUrl = `https://s3.${process.env.AWS_REGION}.amazonaws.com/${process.env.MAPS_BUCKET}/${mapId}.png`;
+    const imageUrl = `https://s3.${process.env.AWS_REGION}.amazonaws.com/${process.env.MAPS_BUCKET}/${channel_id}/${mapId}.png`;
 
     return {
       statusCode: 200,

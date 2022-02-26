@@ -1,4 +1,5 @@
 import { baseMapId, currentMapId, previousMapId } from "../fixtures/maps.json";
+import { existingChannel, newExistingChannel } from "../fixtures/channels.json";
 import {
   getLambdaInvokeUrl,
   initialiseDynamoDB,
@@ -14,20 +15,18 @@ import { CartoMap, DiscordChannel } from "../support/aws/types";
 describe("Add Token", () => {
   let url: string;
 
-  const channelId = "123456789012345678";
-  const newChannelId = "123456789012345679";
   const token = "mockToken";
   const application_id = "mockApplicationId";
 
   const channelContents = [
     {
-      id: channelId,
+      id: existingChannel,
       baseMap: baseMapId,
       currentMap: currentMapId,
       history: [previousMapId],
     },
     {
-      id: newChannelId,
+      id: newExistingChannel,
       baseMap: baseMapId,
       currentMap: baseMapId,
       history: [],
@@ -70,7 +69,7 @@ describe("Add Token", () => {
 
   const addBody: Command = {
     type: 2,
-    channel_id: channelId,
+    channel_id: existingChannel,
     token,
     application_id,
     data: {
@@ -173,7 +172,7 @@ describe("Add Token", () => {
         getDocument({
           table: Table.CHANNELS,
           key: {
-            id: channelId,
+            id: existingChannel,
           },
         })
       )
@@ -288,7 +287,7 @@ describe("Add Token", () => {
         getDocument({
           table: Table.CHANNELS,
           key: {
-            id: channelId,
+            id: existingChannel,
           },
         })
       )
@@ -331,7 +330,7 @@ describe("Add Token", () => {
 
     const noTokensBody = {
       ...addBody,
-      channel_id: newChannelId,
+      channel_id: newExistingChannel,
       data: {
         options: [
           {
@@ -401,7 +400,7 @@ describe("Add Token", () => {
         getDocument({
           table: Table.CHANNELS,
           key: {
-            id: newChannelId,
+            id: newExistingChannel,
           },
         })
       )
@@ -497,7 +496,7 @@ describe("Add Token", () => {
           getDocument({
             table: Table.CHANNELS,
             key: {
-              id: channelId,
+              id: existingChannel,
             },
           })
         )
@@ -573,7 +572,7 @@ describe("Add Token", () => {
           getDocument({
             table: Table.CHANNELS,
             key: {
-              id: channelId,
+              id: existingChannel,
             },
           })
         )

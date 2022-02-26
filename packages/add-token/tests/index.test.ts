@@ -117,7 +117,7 @@ describe("Handler", () => {
           title: "Token added",
           description: "Token positions:",
           image: {
-            url: "https://s3.eu-central-1.amazonaws.com/maps/4567.png",
+            url: "https://s3.eu-central-1.amazonaws.com/maps/1234567890/4567.png",
           },
           fields: [
             { name: "existing1", value: "E7", inline: true },
@@ -278,7 +278,7 @@ describe("Handler", () => {
             title: "Token added",
             description: "Token positions:",
             image: {
-              url: "https://s3.eu-central-1.amazonaws.com/maps/4567.png",
+              url: "https://s3.eu-central-1.amazonaws.com/maps/1234567890/4567.png",
             },
             fields: [{ name: "token1", value: "B4", inline: true }],
             type: "rich",
