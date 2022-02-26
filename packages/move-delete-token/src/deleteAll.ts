@@ -10,6 +10,7 @@ export const deleteAllTokens = ({ baseMapId, channelId }: Props) => {
   const endpoint = process.env.LOCALSTACK_HOSTNAME
     ? `http://localhost:4566`
     : undefined;
+
   const client = new DynamoDBClient({
     region: process.env.AWS_REGION,
     endpoint,

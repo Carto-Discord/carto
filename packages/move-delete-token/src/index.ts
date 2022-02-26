@@ -186,7 +186,7 @@ export const handler = async (event: Event): Promise<APIGatewayProxyResult> => {
         channelId: channel_id,
       });
 
-      const imageUrl = `https://s3.${process.env.AWS_REGION}.amazonaws.com/${process.env.MAPS_BUCKET}/${baseMapId}.png`;
+      const imageUrl = `https://s3.${process.env.AWS_REGION}.amazonaws.com/${process.env.MAPS_BUCKET}/${channel_id}/${baseMapId}.png`;
 
       return {
         statusCode: 200,
@@ -249,7 +249,7 @@ export const handler = async (event: Event): Promise<APIGatewayProxyResult> => {
   });
 
   if (successful) {
-    const imageUrl = `https://s3.${process.env.AWS_REGION}.amazonaws.com/${process.env.MAPS_BUCKET}/${mapId}.png`;
+    const imageUrl = `https://s3.${process.env.AWS_REGION}.amazonaws.com/${process.env.MAPS_BUCKET}/${channel_id}/${mapId}.png`;
 
     const description = newTokens.length
       ? "Token positions:"

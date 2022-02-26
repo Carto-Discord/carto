@@ -1,4 +1,5 @@
 import { baseMapId, currentMapId, previousMapId } from "../fixtures/maps.json";
+import { existingChannel, nonExistentChannel } from "../fixtures/channels.json";
 import {
   getLambdaInvokeUrl,
   initialiseDynamoDB,
@@ -14,13 +15,12 @@ import { CartoBaseMap, DiscordChannel } from "../support/aws/types";
 describe("Create Map", () => {
   let url: string;
 
-  const channelId = "123456789012345678";
   const token = "mockToken";
   const applicationId = "mockApplicationId";
 
   const channelContents = [
     {
-      id: channelId,
+      id: existingChannel,
       baseMap: baseMapId,
       currentMap: currentMapId,
       history: [previousMapId],
@@ -65,7 +65,7 @@ describe("Create Map", () => {
 
   const body: Command = {
     type: 2,
-    channel_id: channelId,
+    channel_id: existingChannel,
     token,
     application_id: applicationId,
     data: {
@@ -139,7 +139,7 @@ describe("Create Map", () => {
             newImageId = embed.image.url.replace(/^.*[\\/]/, "").split(".")[0];
 
             expect(embed.image.url).to.eq(
-              `https://s3.us-east-1.amazonaws.com/carto-bot-maps/${newImageId}.png`
+              `https://s3.us-east-1.amazonaws.com/carto-bot-maps/${existingChannel}/${newImageId}.png`
             );
             expect(embed.title).to.eq("Map created");
 
@@ -158,7 +158,7 @@ describe("Create Map", () => {
             getDocument({
               table: Table.CHANNELS,
               key: {
-                id: channelId,
+                id: existingChannel,
               },
             })
           )
@@ -185,7 +185,7 @@ describe("Create Map", () => {
           .then(() => listObjects())
           .then(({ Contents }) => {
             expect(Contents.map(({ Key }) => Key)).to.include(
-              `${newImageId}.png`
+              `${existingChannel}/${newImageId}.png`
             );
           });
       });
@@ -249,7 +249,7 @@ describe("Create Map", () => {
               getDocument({
                 table: Table.CHANNELS,
                 key: {
-                  id: channelId,
+                  id: existingChannel,
                 },
               })
             )
@@ -261,23 +261,20 @@ describe("Create Map", () => {
 
               expect(history).to.have.length(1);
               expect(history).to.include(previousMapId);
-            }) // Inspect S3 bucket
-            .then(() => listObjects());
+            });
         });
       });
     });
   });
 
   describe("given the channel has no associated map", () => {
-    const newChannel = "123456789012345679";
-
     describe("given all data is valid", () => {
       it("should create a map and create a new map config", () => {
         let newImageId: string;
 
         const newBody = {
           ...body,
-          channel_id: newChannel,
+          channel_id: nonExistentChannel,
         };
 
         const headers = generateHeaders(newBody);
@@ -302,7 +299,7 @@ describe("Create Map", () => {
             newImageId = embed.image.url.replace(/^.*[\\/]/, "").split(".")[0];
 
             expect(embed.image.url).to.eq(
-              `https://s3.us-east-1.amazonaws.com/carto-bot-maps/${newImageId}.png`
+              `https://s3.us-east-1.amazonaws.com/carto-bot-maps/${nonExistentChannel}/${newImageId}.png`
             );
             expect(embed.title).to.eq("Map created");
 
@@ -321,7 +318,7 @@ describe("Create Map", () => {
             getDocument({
               table: Table.CHANNELS,
               key: {
-                id: newChannel,
+                id: nonExistentChannel,
               },
             })
           )
@@ -345,10 +342,8 @@ describe("Create Map", () => {
           }) // Inspect S3 bucket
           .then(() => listObjects())
           .then(({ Contents }) => {
-            // Including from the last test
-            // expect(Contents).to.have.length(previousLength + 1);
             expect(Contents.map(({ Key }) => Key)).to.include(
-              `${newImageId}.png`
+              `${nonExistentChannel}/${newImageId}.png`
             );
           });
       });

@@ -1,4 +1,5 @@
 import { baseMapId, currentMapId, previousMapId } from "../fixtures/maps.json";
+import { existingChannel } from "../fixtures/channels.json";
 import {
   getLambdaInvokeUrl,
   initialiseDynamoDB,
@@ -12,13 +13,12 @@ import {
 describe("Delete Map", () => {
   let url: string;
 
-  const channelId = "123456789012345678";
   const token = "mockToken";
   const applicationId = "mockApplicationId";
 
   const channelContents = [
     {
-      id: channelId,
+      id: existingChannel,
       baseMap: baseMapId,
       currentMap: currentMapId,
       history: [previousMapId],
@@ -61,7 +61,7 @@ describe("Delete Map", () => {
 
   const body: Command = {
     type: 2,
-    channel_id: channelId,
+    channel_id: existingChannel,
     token,
     application_id: applicationId,
     data: {
@@ -130,7 +130,7 @@ describe("Delete Map", () => {
           getDocument({
             table: Table.CHANNELS,
             key: {
-              id: channelId,
+              id: existingChannel,
             },
           })
         )

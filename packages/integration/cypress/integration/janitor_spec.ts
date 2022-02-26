@@ -1,6 +1,7 @@
 import { nanoid } from "nanoid";
 
 import { baseMapId, currentMapId, previousMapId } from "../fixtures/maps.json";
+import { existingChannel, newExistingChannel } from "../fixtures/channels.json";
 import mockImage from "../fixtures/mockImage";
 
 import {
@@ -83,9 +84,12 @@ describe("Janitor", () => {
   });
 
   const idsToKeep = [
-    `${baseMapId}.png`,
-    `${currentMapId}.png`,
-    `${previousMapId}.png`,
+    `${existingChannel}/${baseMapId}.png`,
+    `${existingChannel}/${currentMapId}.png`,
+    `${existingChannel}/${previousMapId}.png`,
+    `${newExistingChannel}/${baseMapId}.png`,
+    `${newExistingChannel}/${currentMapId}.png`,
+    `${newExistingChannel}/${previousMapId}.png`,
   ];
 
   beforeEach(async () => {
@@ -99,7 +103,9 @@ describe("Janitor", () => {
 
     await teardownDynamoDB();
 
-    await Promise.all(ids.map((id) => putObject(mockImage, `${id}.png`)));
+    await Promise.all(
+      ids.map((id) => putObject(mockImage, `${channelToKeep.id}/${id}.png`))
+    );
   });
 
   describe("given a channel can be deleted", () => {
@@ -153,9 +159,9 @@ describe("Janitor", () => {
         .then(() => listObjects())
         .then(({ Contents }) => {
           expect(Contents.map(({ Key }) => Key)).not.to.have.members([
-            `${channelToDelete.baseMap}.png`,
-            `${channelToDelete.currentMap}.png`,
-            `${channelToDelete.history[0]}.png`,
+            `${channelToDelete.id}/${channelToDelete.baseMap}.png`,
+            `${channelToDelete.id}/${channelToDelete.currentMap}.png`,
+            `${channelToDelete.id}/${channelToDelete.history[0]}.png`,
           ]);
         });
     });
@@ -215,9 +221,9 @@ describe("Janitor", () => {
         .then(() => listObjects())
         .then(({ Contents }) => {
           expect(Contents.map(({ Key }) => Key)).to.include.members([
-            `${channelToKeep.baseMap}.png`,
-            `${channelToKeep.currentMap}.png`,
-            `${channelToKeep.history[0]}.png`,
+            `${channelToKeep.id}/${channelToKeep.baseMap}.png`,
+            `${channelToKeep.id}/${channelToKeep.currentMap}.png`,
+            `${channelToKeep.id}/${channelToKeep.history[0]}.png`,
           ]);
         });
     });
@@ -265,9 +271,9 @@ describe("Janitor", () => {
         .then(() => listObjects())
         .then(({ Contents }) => {
           expect(Contents.map(({ Key }) => Key)).not.to.have.members([
-            `${channelToDelete.baseMap}.png`,
-            `${channelToDelete.currentMap}.png`,
-            `${channelToDelete.history[0]}.png`,
+            `${channelToDelete.id}/${channelToDelete.baseMap}.png`,
+            `${channelToDelete.id}/${channelToDelete.currentMap}.png`,
+            `${channelToDelete.id}/${channelToDelete.history[0]}.png`,
           ]);
         });
     });

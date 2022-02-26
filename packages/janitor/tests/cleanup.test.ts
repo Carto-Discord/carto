@@ -1,5 +1,9 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DeleteObjectsCommand, S3Client } from "@aws-sdk/client-s3";
+import {
+  DeleteObjectsCommand,
+  ListObjectsV2Command,
+  S3Client,
+} from "@aws-sdk/client-s3";
 import {
   deleteChannelItem,
   deleteMapsData,
@@ -66,7 +70,11 @@ describe("Cleanup functions", () => {
       expect(mockS3Client.call(0).args[0].input).toEqual({
         Bucket: "maps",
         Delete: {
-          Objects: [{ Key: "123.png" }, { Key: "456.png" }, { Key: "789.png" }],
+          Objects: [
+            { Key: "123/123.png" },
+            { Key: "123/456.png" },
+            { Key: "123/789.png" },
+          ],
         },
       });
 
@@ -95,7 +103,7 @@ describe("Cleanup functions", () => {
 
         expect(mockS3Client.call(0).args[0].input).toEqual({
           Bucket: "maps",
-          Delete: { Objects: [{ Key: "123.png" }, { Key: "456.png" }] },
+          Delete: { Objects: [{ Key: "123/123.png" }, { Key: "123/456.png" }] },
         });
       });
     });
@@ -117,6 +125,25 @@ describe("Cleanup functions", () => {
   describe("deleteOrphanedMaps", () => {
     beforeEach(() => {
       mockS3Client.on(DeleteObjectsCommand).resolves({});
+      mockS3Client.on(ListObjectsV2Command).resolves({
+        Contents: [
+          {
+            Key: "123/1.png",
+          },
+          {
+            Key: "234/2.png",
+          },
+          {
+            Key: "345/3.png",
+          },
+          {
+            Key: "456/4.png",
+          },
+          {
+            Key: "567/5.png",
+          },
+        ],
+      });
       mockDeleteMapsData.mockResolvedValue({ $metadata: {} });
       mockGetOrphanedMapIds.mockResolvedValue(["1", "2", "3"]);
     });
@@ -124,10 +151,14 @@ describe("Cleanup functions", () => {
     it("should delete both map objects and items", async () => {
       await deleteOrphanedMaps({ dynamodbClient, s3Client });
 
-      expect(mockS3Client.call(0).args[0].input).toEqual({
+      expect(mockS3Client.call(1).args[0].input).toEqual({
         Bucket: "maps",
         Delete: {
-          Objects: [{ Key: "1.png" }, { Key: "2.png" }, { Key: "3.png" }],
+          Objects: [
+            { Key: "123/1.png" },
+            { Key: "234/2.png" },
+            { Key: "345/3.png" },
+          ],
         },
       });
 

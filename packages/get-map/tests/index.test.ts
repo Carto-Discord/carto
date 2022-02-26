@@ -168,7 +168,7 @@ describe("Handler", () => {
       const expectedEmbed = {
         title: "Retrieved map",
         image: {
-          url: "https://s3.eu-central-1.amazonaws.com/carto-bot-maps/map-1234.png",
+          url: `https://s3.eu-central-1.amazonaws.com/carto-bot-maps/${event.channel_id}/map-1234.png`,
         },
         fields: expectedFields,
         type: "rich",

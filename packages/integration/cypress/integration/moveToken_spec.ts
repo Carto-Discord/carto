@@ -1,4 +1,5 @@
 import { baseMapId, currentMapId, previousMapId } from "../fixtures/maps.json";
+import { existingChannel, newExistingChannel } from "../fixtures/channels.json";
 import {
   getLambdaInvokeUrl,
   initialiseDynamoDB,
@@ -14,20 +15,18 @@ import { CartoMap, DiscordChannel } from "../support/aws/types";
 describe("Move Token", () => {
   let url: string;
 
-  const channelId = "123456789012345678";
-  const newChannelId = "123456789012345679";
   const token = "mockToken";
   const application_id = "mockApplicationId";
 
   const channelContents = [
     {
-      id: channelId,
+      id: existingChannel,
       baseMap: baseMapId,
       currentMap: currentMapId,
       history: [previousMapId],
     },
     {
-      id: newChannelId,
+      id: newExistingChannel,
       baseMap: baseMapId,
       currentMap: baseMapId,
       history: [],
@@ -70,7 +69,7 @@ describe("Move Token", () => {
 
   const moveBody: Command = {
     type: 2,
-    channel_id: channelId,
+    channel_id: existingChannel,
     token,
     application_id,
     data: {
@@ -140,7 +139,7 @@ describe("Move Token", () => {
         newImageId = embed.image.url.replace(/^.*[\\/]/, "").split(".")[0];
 
         expect(embed.image.url).to.eq(
-          `https://s3.us-east-1.amazonaws.com/carto-bot-maps/${newImageId}.png`
+          `https://s3.us-east-1.amazonaws.com/carto-bot-maps/${existingChannel}/${newImageId}.png`
         );
         expect(embed.title).to.eq("Token moved");
         expect(embed.description).to.eq("Token positions:");
@@ -157,7 +156,7 @@ describe("Move Token", () => {
         getDocument({
           table: Table.CHANNELS,
           key: {
-            id: channelId,
+            id: existingChannel,
           },
         })
       )
@@ -188,7 +187,7 @@ describe("Move Token", () => {
         expect(tokens[0].size).to.eq(1);
       })
       // Inspect S3 bucket
-      .then(() => getObject(`${newImageId}.png`))
+      .then(() => getObject(`${existingChannel}/${newImageId}.png`))
       .then((obj) => {
         expect(obj).to.have.property("Body");
       });
@@ -256,7 +255,7 @@ describe("Move Token", () => {
           getDocument({
             table: Table.CHANNELS,
             key: {
-              id: channelId,
+              id: existingChannel,
             },
           })
         )
@@ -271,7 +270,7 @@ describe("Move Token", () => {
     it("should not add a new map", () => {
       const body = {
         ...moveBody,
-        channel_id: newChannelId,
+        channel_id: newExistingChannel,
         data: {
           options: [
             {
@@ -330,7 +329,7 @@ describe("Move Token", () => {
           getDocument({
             table: Table.CHANNELS,
             key: {
-              id: channelId,
+              id: existingChannel,
             },
           })
         )

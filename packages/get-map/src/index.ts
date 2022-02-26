@@ -31,9 +31,9 @@ export const handler = async ({
   });
 
   const channelItem = await dynamodbClient.send(getChannelItemCommand);
-  const uuid = channelItem.Item?.currentMap?.S;
+  const mapId = channelItem.Item?.currentMap?.S;
 
-  if (!channelItem.Item || !uuid) {
+  if (!channelItem.Item || !mapId) {
     console.warn(`This channel has no map associated with it: ${channel_id}`);
 
     const embed = {
@@ -52,17 +52,17 @@ export const handler = async ({
     };
   }
 
-  console.info(`Getting map for channel ${uuid}`);
+  console.info(`Getting map for channel ${mapId}`);
 
   const getMapItemCommand = new GetItemCommand({
     TableName: process.env.MAPS_TABLE,
-    Key: { id: { S: uuid } },
+    Key: { id: { S: mapId } },
   });
 
   const mapItem = await dynamodbClient.send(getMapItemCommand);
 
   if (!mapItem.Item) {
-    console.warn(`Map data is missing: ${uuid}`);
+    console.warn(`Map data is missing: ${mapId}`);
 
     const embed = {
       title: ERROR_TITLE,
@@ -88,7 +88,7 @@ export const handler = async ({
     inline: true,
   }));
 
-  const url = `https://s3.${process.env.AWS_REGION}.amazonaws.com/${process.env.MAPS_BUCKET}/${uuid}.png`;
+  const url = `https://s3.${process.env.AWS_REGION}.amazonaws.com/${process.env.MAPS_BUCKET}/${channel_id}/${mapId}.png`;
 
   const embed = {
     title: SUCCESS_TITLE,

@@ -64,7 +64,7 @@ describe("Upload Map", () => {
     ).resolves.toBe(true);
 
     expect(mockS3Client.call(0).args[0].input).toEqual({
-      Key: "abcdefg.png",
+      Key: "1234567890/abcdefg.png",
       Bucket: "maps",
       Body: buffer,
       ContentEncoding: "base64",
