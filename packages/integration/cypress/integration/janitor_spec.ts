@@ -1,6 +1,7 @@
 import { nanoid } from "nanoid";
 
 import { baseMapId, currentMapId, previousMapId } from "../fixtures/maps.json";
+import { existingChannel, newExistingChannel } from "../fixtures/channels.json";
 import mockImage from "../fixtures/mockImage";
 
 import {
@@ -83,9 +84,12 @@ describe("Janitor", () => {
   });
 
   const idsToKeep = [
-    `${baseMapId}.png`,
-    `${currentMapId}.png`,
-    `${previousMapId}.png`,
+    `${existingChannel}/${baseMapId}.png`,
+    `${existingChannel}/${currentMapId}.png`,
+    `${existingChannel}/${previousMapId}.png`,
+    `${newExistingChannel}/${baseMapId}.png`,
+    `${newExistingChannel}/${currentMapId}.png`,
+    `${newExistingChannel}/${previousMapId}.png`,
   ];
 
   beforeEach(async () => {
