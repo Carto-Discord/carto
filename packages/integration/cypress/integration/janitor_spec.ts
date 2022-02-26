@@ -104,7 +104,7 @@ describe("Janitor", () => {
     await teardownDynamoDB();
 
     await Promise.all(
-      ids.map((id) => putObject(mockImage, `${existingChannel}/${id}.png`))
+      ids.map((id) => putObject(mockImage, `${channelToKeep.id}/${id}.png`))
     );
   });
 
