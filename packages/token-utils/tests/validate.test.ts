@@ -140,7 +140,7 @@ describe("Validate map data", () => {
       expect(result).toEqual({
         statusCode: 200,
         baseMapData: { Item: { data: { S: "base-data" } } },
-        baseMapFilename: "base-123.png",
+        baseMapFilename: "1234/base-123.png",
         currentMapData: { Item: { data: { S: "current-data" } } },
       });
     });

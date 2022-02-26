@@ -69,7 +69,7 @@ export const validateMapData = async (
   return {
     statusCode: 200,
     baseMapData,
-    baseMapFilename: `${baseMapId}.png`,
+    baseMapFilename: `${channelId}/${baseMapId}.png`,
     currentMapData,
   };
 };

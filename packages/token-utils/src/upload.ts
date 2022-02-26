@@ -32,7 +32,7 @@ export const uploadMap = async ({
   });
 
   const putObjectCommand = new PutObjectCommand({
-    Key: `${mapId}.png`,
+    Key: `${channelId}/${mapId}.png`,
     Bucket: process.env.MAPS_BUCKET,
     Body: buffer,
     ContentEncoding: "base64",
