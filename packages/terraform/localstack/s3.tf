@@ -1,5 +1,9 @@
 resource "aws_s3_bucket" "maps_bucket" {
   bucket = "${var.app_name}-maps"
+}
+
+resource "aws_s3_bucket_acl" "maps_bucket_acl" {
+  bucket = aws_s3_bucket.maps_bucket.id
   acl    = "public-read"
 }
 
