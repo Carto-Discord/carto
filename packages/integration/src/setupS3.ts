@@ -2,6 +2,8 @@ import fs from "fs";
 import { resolve } from "path";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 
+import { existingChannel } from "../cypress/fixtures/channels.json";
+
 const AWSConfig = {
   region: "us-east-1",
   endpoint: "http://localhost:4566",
@@ -39,5 +41,5 @@ export const uploadToS3 = async (fileContent: Buffer, id: string) => {
 const content = fs.readFileSync(resolve(__dirname, `assets/test-map.png`));
 
 ids.forEach(async (id) => {
-  await uploadToS3(content, `${id}.png`);
+  await uploadToS3(content, `${existingChannel}/${id}.png`);
 });

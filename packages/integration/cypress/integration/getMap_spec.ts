@@ -1,4 +1,5 @@
 import { baseMapId, currentMapId, previousMapId } from "../fixtures/maps.json";
+import { existingChannel, nonExistentChannel } from "../fixtures/channels.json";
 import {
   getLambdaInvokeUrl,
   initialiseDynamoDB,
@@ -11,13 +12,12 @@ import {
 describe("Get Map", () => {
   let url: string;
 
-  const channelId = "123456789012345678";
   const token = "mockToken";
   const application_id = "mockApplicationId";
 
   const body: Command = {
     type: 2,
-    channel_id: channelId,
+    channel_id: existingChannel,
     token,
     application_id,
     data: {
@@ -33,7 +33,7 @@ describe("Get Map", () => {
 
   const channelContents = [
     {
-      id: channelId,
+      id: existingChannel,
       baseMap: baseMapId,
       currentMap: currentMapId,
       history: [previousMapId],
@@ -114,7 +114,7 @@ describe("Get Map", () => {
         const embed = body.embeds[0];
 
         expect(embed.image.url).to.eq(
-          `https://s3.us-east-1.amazonaws.com/carto-bot-maps/${currentMapId}.png`
+          `https://s3.us-east-1.amazonaws.com/carto-bot-maps/${existingChannel}/${currentMapId}.png`
         );
         expect(embed.fields).to.have.length(1);
         expect(embed.fields[0].inline).to.be.true;
@@ -130,7 +130,7 @@ describe("Get Map", () => {
     it("should respond with an error message", () => {
       const badBody = {
         ...body,
-        channel_id: "badchannelid",
+        channel_id: nonExistentChannel,
       };
 
       const headers = generateHeaders(badBody);
