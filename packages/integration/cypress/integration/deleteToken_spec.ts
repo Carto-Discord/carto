@@ -173,7 +173,7 @@ describe("Delete Token", () => {
         expect(tokens).to.have.length(1);
       })
       // Inspect S3 bucket
-      .then(() => getObject(`${newImageId}.png`))
+      .then(() => getObject(`${existingChannel}/${newImageId}.png`))
       .then((obj) => {
         expect(obj).to.have.property("Body");
       });
