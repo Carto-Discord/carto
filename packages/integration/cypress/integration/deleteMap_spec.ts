@@ -1,4 +1,5 @@
 import { baseMapId, currentMapId, previousMapId } from "../fixtures/maps.json";
+import { existingChannel, nonExistentChannel } from "../fixtures/channels.json";
 import {
   getLambdaInvokeUrl,
   initialiseDynamoDB,
@@ -12,13 +13,12 @@ import {
 describe("Delete Map", () => {
   let url: string;
 
-  const channelId = "123456789012345678";
   const token = "mockToken";
   const applicationId = "mockApplicationId";
 
   const channelContents = [
     {
-      id: channelId,
+      id: existingChannel,
       baseMap: baseMapId,
       currentMap: currentMapId,
       history: [previousMapId],
@@ -61,7 +61,7 @@ describe("Delete Map", () => {
 
   const body: Command = {
     type: 2,
-    channel_id: channelId,
+    channel_id: existingChannel,
     token,
     application_id: applicationId,
     data: {
@@ -130,13 +130,47 @@ describe("Delete Map", () => {
           getDocument({
             table: Table.CHANNELS,
             key: {
-              id: channelId,
+              id: existingChannel,
             },
           })
         )
         .then(({ Item }) => {
           expect(Item).to.be.undefined;
         });
+    });
+  });
+
+  describe("given the channel does not have an associated map", () => {
+    it("should return an error message", () => {
+      const newBody = { ...body, channel_id: nonExistentChannel };
+
+      const headers = generateHeaders(newBody);
+
+      cy.request({
+        method: "POST",
+        url,
+        body: newBody,
+        headers,
+      })
+        .its("status")
+        .should("eq", 200);
+
+      cy.get("ul li", { timeout: 30000 }).then((item) => {
+        const { params, body } = JSON.parse(item.text());
+        expect(params).to.deep.equal({
+          applicationId,
+          token,
+        });
+        const embed = body.embeds[0];
+
+        expect(embed.title).to.eq("Deletion error");
+
+        expect(embed.description).to.eq(
+          "Data couldn't be deleted, likely because it never existed"
+        );
+
+        expect(embed.type).to.eq("rich");
+      });
     });
   });
 });
