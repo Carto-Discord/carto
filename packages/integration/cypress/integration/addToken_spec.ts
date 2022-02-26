@@ -147,7 +147,7 @@ describe("Add Token", () => {
         newImageId = embed.image.url.replace(/^.*[\\/]/, "").split(".")[0];
 
         expect(embed.image.url).to.eq(
-          `https://s3.us-east-1.amazonaws.com/carto-bot-maps/${newImageId}.png`
+          `https://s3.us-east-1.amazonaws.com/carto-bot-maps/${existingChannel}/${newImageId}.png`
         );
         expect(embed.title).to.eq("Token added");
         expect(embed.description).to.eq("Token positions:");
@@ -163,7 +163,7 @@ describe("Add Token", () => {
         expect(embed.type).to.eq("rich");
       })
       // Inspect S3 bucket
-      .then(() => getObject(`${newImageId}.png`))
+      .then(() => getObject(`${existingChannel}/${newImageId}.png`))
       .then((obj) => {
         expect(obj).to.have.property("Body");
       })
@@ -262,7 +262,7 @@ describe("Add Token", () => {
         newImageId = embed.image.url.replace(/^.*[\\/]/, "").split(".")[0];
 
         expect(embed.image.url).to.eq(
-          `https://s3.us-east-1.amazonaws.com/carto-bot-maps/${newImageId}.png`
+          `https://s3.us-east-1.amazonaws.com/carto-bot-maps/${existingChannel}/${newImageId}.png`
         );
         expect(embed.title).to.eq("Token added");
         expect(embed.description).to.eq("Token positions:");
@@ -278,7 +278,7 @@ describe("Add Token", () => {
         expect(embed.type).to.eq("rich");
       })
       // Inspect S3 bucket
-      .then(() => getObject(`${newImageId}.png`))
+      .then(() => getObject(`${existingChannel}/${newImageId}.png`))
       .then((obj) => {
         expect(obj).to.have.property("Body");
       })
@@ -378,7 +378,7 @@ describe("Add Token", () => {
         newImageId = embed.image.url.replace(/^.*[\\/]/, "").split(".")[0];
 
         expect(embed.image.url).to.eq(
-          `https://s3.us-east-1.amazonaws.com/carto-bot-maps/${newImageId}.png`
+          `https://s3.us-east-1.amazonaws.com/carto-bot-maps/${newExistingChannel}/${newImageId}.png`
         );
         expect(embed.title).to.eq("Token added");
         expect(embed.description).to.eq("Token positions:");
@@ -391,7 +391,7 @@ describe("Add Token", () => {
         expect(embed.type).to.eq("rich");
       })
       // Inspect S3 bucket
-      .then(() => getObject(`${newImageId}.png`))
+      .then(() => getObject(`${newExistingChannel}/${newImageId}.png`))
       .then((obj) => {
         expect(obj).to.have.property("Body");
       })

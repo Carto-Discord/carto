@@ -121,7 +121,7 @@ describe("Handler", () => {
             title: "Token moved",
             description: "Token positions:",
             image: {
-              url: "https://s3.eu-central-1.amazonaws.com/maps/4567.png",
+              url: "https://s3.eu-central-1.amazonaws.com/maps/1234567890/4567.png",
             },
             fields: [{ name: "existing1", value: "B4", inline: true }],
             type: "rich",
@@ -148,7 +148,7 @@ describe("Handler", () => {
               title: "Token deleted",
               description: "All Tokens removed",
               image: {
-                url: "https://s3.eu-central-1.amazonaws.com/maps/4567.png",
+                url: "https://s3.eu-central-1.amazonaws.com/maps/1234567890/4567.png",
               },
               fields: [],
               type: "rich",
@@ -241,7 +241,7 @@ describe("Handler", () => {
               title: "Token deleted",
               description: "All Tokens removed",
               image: {
-                url: "https://s3.eu-central-1.amazonaws.com/maps/1234567890.png",
+                url: "https://s3.eu-central-1.amazonaws.com/maps/1234567890/1234567890.png",
               },
               type: "rich",
             },

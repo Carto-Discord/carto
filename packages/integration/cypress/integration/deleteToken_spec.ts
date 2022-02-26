@@ -1,4 +1,5 @@
 import { baseMapId, currentMapId, previousMapId } from "../fixtures/maps.json";
+import { existingChannel } from "../fixtures/channels.json";
 import {
   getLambdaInvokeUrl,
   initialiseDynamoDB,
@@ -14,13 +15,12 @@ import { CartoMap, DiscordChannel } from "../support/aws/types";
 describe("Delete Token", () => {
   let url: string;
 
-  const channelId = "123456789012345678";
   const token = "mockToken";
   const application_id = "mockApplicationId";
 
   const channelContents = [
     {
-      id: channelId,
+      id: existingChannel,
       baseMap: baseMapId,
       currentMap: currentMapId,
       history: [previousMapId],
@@ -70,7 +70,7 @@ describe("Delete Token", () => {
 
   const deleteBody: Command = {
     type: 2,
-    channel_id: channelId,
+    channel_id: existingChannel,
     token,
     application_id,
     data: {
@@ -132,7 +132,7 @@ describe("Delete Token", () => {
         newImageId = embed.image.url.replace(/^.*[\\/]/, "").split(".")[0];
 
         expect(embed.image.url).to.eq(
-          `https://s3.us-east-1.amazonaws.com/carto-bot-maps/${newImageId}.png`
+          `https://s3.us-east-1.amazonaws.com/carto-bot-maps/${existingChannel}/${newImageId}.png`
         );
         expect(embed.title).to.eq("Token deleted");
         expect(embed.description).to.eq("Token positions:");
@@ -147,7 +147,7 @@ describe("Delete Token", () => {
         getDocument({
           table: Table.CHANNELS,
           key: {
-            id: channelId,
+            id: existingChannel,
           },
         })
       )
@@ -221,7 +221,7 @@ describe("Delete Token", () => {
           const embed = body.embeds[0];
 
           expect(embed.image.url).to.eq(
-            `https://s3.us-east-1.amazonaws.com/carto-bot-maps/${baseMapId}.png`
+            `https://s3.us-east-1.amazonaws.com/carto-bot-maps/${existingChannel}/${baseMapId}.png`
           );
           expect(embed.title).to.eq("Token deleted");
           expect(embed.description).to.eq("All Tokens removed");
@@ -232,7 +232,7 @@ describe("Delete Token", () => {
           getDocument({
             table: Table.CHANNELS,
             key: {
-              id: channelId,
+              id: existingChannel,
             },
           })
         )
@@ -256,7 +256,7 @@ describe("Delete Token", () => {
           expect(Item).not.to.have.property("tokens");
         })
         // Inspect S3 bucket
-        .then(() => getObject(`${baseMapId}.png`))
+        .then(() => getObject(`${existingChannel}/${baseMapId}.png`))
         .then((obj) => {
           expect(obj).to.have.property("Body");
         });
@@ -316,7 +316,7 @@ describe("Delete Token", () => {
           getDocument({
             table: Table.CHANNELS,
             key: {
-              id: channelId,
+              id: existingChannel,
             },
           })
         )
