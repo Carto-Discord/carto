@@ -84,7 +84,7 @@ describe("Handler", () => {
       await handler(defaultProps);
 
       expect(mockS3Client.call(0).args[0].input).toEqual({
-        Key: expect.stringMatching(/.*.png/),
+        Key: expect.stringMatching(/4567\/.*.png/),
         Bucket: "maps",
         Body: buffer,
         ContentEncoding: "base64",
@@ -127,7 +127,7 @@ describe("Handler", () => {
           ],
           image: {
             url: expect.stringMatching(
-              /https:\/\/s3.eu-central-1.amazonaws.com\/maps\/.*.png$/
+              /https:\/\/s3.eu-central-1.amazonaws.com\/maps\/4567\/.*.png$/
             ),
           },
           type: "rich",

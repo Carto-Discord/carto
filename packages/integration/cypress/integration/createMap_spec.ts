@@ -139,7 +139,7 @@ describe("Create Map", () => {
             newImageId = embed.image.url.replace(/^.*[\\/]/, "").split(".")[0];
 
             expect(embed.image.url).to.eq(
-              `https://s3.us-east-1.amazonaws.com/carto-bot-maps/${newImageId}.png`
+              `https://s3.us-east-1.amazonaws.com/carto-bot-maps/${channelId}/${newImageId}.png`
             );
             expect(embed.title).to.eq("Map created");
 
@@ -185,7 +185,7 @@ describe("Create Map", () => {
           .then(() => listObjects())
           .then(({ Contents }) => {
             expect(Contents.map(({ Key }) => Key)).to.include(
-              `${newImageId}.png`
+              `${channelId}/${newImageId}.png`
             );
           });
       });
@@ -261,8 +261,7 @@ describe("Create Map", () => {
 
               expect(history).to.have.length(1);
               expect(history).to.include(previousMapId);
-            }) // Inspect S3 bucket
-            .then(() => listObjects());
+            });
         });
       });
     });
@@ -302,7 +301,7 @@ describe("Create Map", () => {
             newImageId = embed.image.url.replace(/^.*[\\/]/, "").split(".")[0];
 
             expect(embed.image.url).to.eq(
-              `https://s3.us-east-1.amazonaws.com/carto-bot-maps/${newImageId}.png`
+              `https://s3.us-east-1.amazonaws.com/carto-bot-maps/${newChannel}/${newImageId}.png`
             );
             expect(embed.title).to.eq("Map created");
 
@@ -348,7 +347,7 @@ describe("Create Map", () => {
             // Including from the last test
             // expect(Contents).to.have.length(previousLength + 1);
             expect(Contents.map(({ Key }) => Key)).to.include(
-              `${newImageId}.png`
+              `${newChannel}/${newImageId}.png`
             );
           });
       });

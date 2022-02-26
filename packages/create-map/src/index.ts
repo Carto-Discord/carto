@@ -60,7 +60,7 @@ export const handler = async ({
     forcePathStyle: true,
   });
   const putObjectCommand = new PutObjectCommand({
-    Key: `${mapId}.png`,
+    Key: `${channel_id}/${mapId}.png`,
     Bucket: process.env.MAPS_BUCKET,
     Body: buffer,
     ContentEncoding: "base64",
@@ -109,7 +109,7 @@ export const handler = async ({
     };
   }
 
-  const imageUrl = `https://s3.${process.env.AWS_REGION}.amazonaws.com/${process.env.MAPS_BUCKET}/${mapId}.png`;
+  const imageUrl = `https://s3.${process.env.AWS_REGION}.amazonaws.com/${process.env.MAPS_BUCKET}/${channel_id}/${mapId}.png`;
 
   return {
     statusCode: 200,
