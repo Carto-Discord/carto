@@ -103,7 +103,9 @@ describe("Janitor", () => {
 
     await teardownDynamoDB();
 
-    await Promise.all(ids.map((id) => putObject(mockImage, `${id}.png`)));
+    await Promise.all(
+      ids.map((id) => putObject(mockImage, `${existingChannel}/${id}.png`))
+    );
   });
 
   describe("given a channel can be deleted", () => {
@@ -157,9 +159,9 @@ describe("Janitor", () => {
         .then(() => listObjects())
         .then(({ Contents }) => {
           expect(Contents.map(({ Key }) => Key)).not.to.have.members([
-            `${channelToDelete.baseMap}.png`,
-            `${channelToDelete.currentMap}.png`,
-            `${channelToDelete.history[0]}.png`,
+            `${channelToDelete}/${channelToDelete.baseMap}.png`,
+            `${channelToDelete}/${channelToDelete.currentMap}.png`,
+            `${channelToDelete}/${channelToDelete.history[0]}.png`,
           ]);
         });
     });
@@ -219,9 +221,9 @@ describe("Janitor", () => {
         .then(() => listObjects())
         .then(({ Contents }) => {
           expect(Contents.map(({ Key }) => Key)).to.include.members([
-            `${channelToKeep.baseMap}.png`,
-            `${channelToKeep.currentMap}.png`,
-            `${channelToKeep.history[0]}.png`,
+            `${channelToKeep}/${channelToKeep.baseMap}.png`,
+            `${channelToKeep}/${channelToKeep.currentMap}.png`,
+            `${channelToKeep}/${channelToKeep.history[0]}.png`,
           ]);
         });
     });
