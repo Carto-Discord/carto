@@ -87,7 +87,8 @@ resource "aws_iam_group_policy" "dynamodb" {
           "dynamodb:DeleteTable",
           "dynamodb:Describe*",
           "dynamodb:List*",
-          "dynamodb:TagResource"
+          "dynamodb:TagResource",
+          "dynamodb:UpdateTable"
         ]
         Effect   = "Allow"
         Resource = "*"
