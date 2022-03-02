@@ -20,7 +20,7 @@ jobs:
       CYPRESS_PRIVATE_KEY: 814d1a8737ba28a2ae72e39cac46468002525a64e4f002d7b52dd06efb9dc4b8a58293d7fa04d53ab90108be275a87fe890eece595962273a93e1f87d398df74
       CYPRESS_MAP_BUCKET: carto-bot-maps
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - uses: hashicorp/setup-terraform@v1
 
