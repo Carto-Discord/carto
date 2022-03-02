@@ -22,7 +22,7 @@
     "@aws-sdk/client-dynamodb": "^3.53.0",
     "@aws-sdk/client-s3": "^3.53.1",
     "discord.js": "^12.5.3",
-    "ffmpeg-static": "^4.4.1"
+    "ffmpeg-static": "^5.0.0"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.16.11",
