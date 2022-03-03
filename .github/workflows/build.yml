@@ -43,7 +43,7 @@ jobs:
           docker rm -v $id
 
       - name: Upload packages
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: packages
           path: packages/**/dist/
