@@ -23,7 +23,7 @@
     "@aws-sdk/client-s3": "3.56.0",
     "@aws-sdk/lib-dynamodb": "3.56.0",
     "cypress": "9.5.2",
-    "nanoid": "3.3.1",
+    "nanoid": "3.3.2",
     "ts-node": "10.7.0",
     "tweetnacl": "1.0.3",
     "typescript": "4.6.3"
