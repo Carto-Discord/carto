@@ -38,7 +38,7 @@
     "eslint-plugin-promise": "6.0.0",
     "jest": "28.0.3",
     "node-loader": "2.0.0",
-    "ts-loader": "9.2.9",
+    "ts-loader": "9.3.0",
     "tsconfig-paths-webpack-plugin": "3.5.2",
     "typescript": "4.6.4",
     "webpack": "5.72.0",
