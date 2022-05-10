@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.87.0",
-    "@aws-sdk/client-s3": "^3.87.0",
+    "@aws-sdk/client-s3": "^3.88.0",
     "discord.js": "^12.5.3",
     "ffmpeg-static": "^5.0.0"
   },
