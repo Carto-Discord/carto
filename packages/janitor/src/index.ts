@@ -1,11 +1,11 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { S3Client } from "@aws-sdk/client-s3";
-import { Client } from "discord.js";
+import { Client, Intents } from "discord.js";
 import { deleteChannelData, deleteOrphanedMaps } from "./cleanup";
 import { getChannels } from "./dynamodb";
 
 export const handler = async () => {
-  const client = new Client();
+  const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
 
   // Local testing only, ignored in production
   const endpoint = process.env.LOCALSTACK_HOSTNAME
