@@ -2,7 +2,7 @@ import express from "express";
 import { fileURLToPath } from "url";
 import path, { dirname } from "path";
 import http from "http";
-import { WebSocketServer, OPEN } from "ws";
+import WebSocket, { WebSocketServer } from "ws";
 
 const app = express();
 const server = http.createServer(app);
@@ -19,7 +19,7 @@ app.use(
 
 app.patch("/webhooks/:applicationId/:token/messages/@original", (req, res) => {
   wss.clients.forEach((client) => {
-    if (client.readyState === OPEN) {
+    if (client.readyState === WebSocket.OPEN) {
       const response = {
         params: req.params,
         body: req.body,
