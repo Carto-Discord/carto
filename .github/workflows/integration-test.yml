@@ -39,6 +39,9 @@ jobs:
           name: packages
           path: packages
 
+      - name: Build nodejs16.x Lambda Container
+        run: docker build -t lambci/lambda:nodejs16.x -f Dockerfile.nodejs16x .
+
       - name: Start Localstack
         working-directory: packages/integration
         run: docker-compose up -d

@@ -3,7 +3,7 @@ module "parse_command_lambda" {
 
   app_name             = var.app_name
   function_name        = "parse-command"
-  runtime              = "nodejs14.x"
+  runtime              = "nodejs16.x"
   lambda_iam_role_arn  = aws_iam_role.parse_command_role.arn
   lambda_iam_role_name = aws_iam_role.parse_command_role.name
   environment_variables = {
@@ -17,7 +17,7 @@ module "get_map_lambda" {
 
   app_name             = var.app_name
   function_name        = "get-map"
-  runtime              = "nodejs14.x"
+  runtime              = "nodejs16.x"
   lambda_iam_role_arn  = aws_iam_role.get_map_role.arn
   lambda_iam_role_name = aws_iam_role.get_map_role.name
   environment_variables = {
@@ -32,7 +32,7 @@ module "delete_map_lambda" {
 
   app_name             = var.app_name
   function_name        = "delete-map"
-  runtime              = "nodejs14.x"
+  runtime              = "nodejs16.x"
   lambda_iam_role_arn  = aws_iam_role.delete_map_role.arn
   lambda_iam_role_name = aws_iam_role.delete_map_role.name
   environment_variables = {
@@ -45,7 +45,7 @@ module "create_map_lambda" {
 
   app_name             = var.app_name
   function_name        = "create-map"
-  runtime              = "nodejs14.x"
+  runtime              = "nodejs16.x"
   timeout              = 20
   memory_size          = 512
   lambda_iam_role_arn  = aws_iam_role.create_map_role.arn
@@ -63,7 +63,7 @@ module "add_token_lambda" {
 
   app_name             = var.app_name
   function_name        = "add-token"
-  runtime              = "nodejs14.x"
+  runtime              = "nodejs16.x"
   timeout              = 20
   memory_size          = 512
   lambda_iam_role_arn  = aws_iam_role.add_token_role.arn
@@ -81,7 +81,7 @@ module "move_delete_token_lambda" {
 
   app_name             = var.app_name
   function_name        = "move-delete-token"
-  runtime              = "nodejs14.x"
+  runtime              = "nodejs16.x"
   timeout              = 20
   memory_size          = 512
   lambda_iam_role_arn  = aws_iam_role.move_delete_token_role.arn
@@ -99,7 +99,7 @@ module "send_response_lambda" {
 
   app_name             = var.app_name
   function_name        = "send-response"
-  runtime              = "nodejs14.x"
+  runtime              = "nodejs16.x"
   lambda_iam_role_arn  = aws_iam_role.send_response_role.arn
   lambda_iam_role_name = aws_iam_role.send_response_role.name
   environment_variables = {
@@ -112,7 +112,7 @@ module "janitor_lambda" {
 
   app_name             = var.app_name
   function_name        = "janitor"
-  runtime              = "nodejs14.x"
+  runtime              = "nodejs16.x"
   timeout              = 10
   lambda_iam_role_arn  = aws_iam_role.send_response_role.arn
   lambda_iam_role_name = aws_iam_role.send_response_role.name

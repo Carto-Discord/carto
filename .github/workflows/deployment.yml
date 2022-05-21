@@ -13,23 +13,21 @@ on:
 
 jobs:
   build:
-    uses: carto-discord/carto/.github/workflows/build.yml@main
-    with:
-      node-version: "14"
+    uses: ./.github/workflows/build.yml
   lint:
     needs: build
-    uses: carto-discord/carto/.github/workflows/lint.yml@main
+    uses: ./.github/workflows/lint.yml
   unit:
     needs: build
-    uses: carto-discord/carto/.github/workflows/unit-test.yml@main
+    uses: ./.github/workflows/unit-test.yml
   integration:
     needs: build
-    uses: carto-discord/carto/.github/workflows/integration-test.yml@main
+    uses: ./.github/workflows/integration-test.yml
     secrets:
       discord_token: ${{ secrets.BOT_TOKEN }}
   deploy:
     needs: [lint, unit, integration]
-    uses: carto-discord/carto/.github/workflows/deploy.yml@main
+    uses: ./.github/workflows/deploy.yml
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
