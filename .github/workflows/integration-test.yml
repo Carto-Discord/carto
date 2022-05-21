@@ -39,6 +39,11 @@ jobs:
           name: packages
           path: packages
 
+      - name: Alias nodejs16.x Lambda Container
+        run: |
+          docker pull amazon/aws-lambda-nodejs:16
+          docker tag amazon/aws-lambda-nodejs:16 lambci/lambda:nodejs16.x
+
       - name: Start Localstack
         working-directory: packages/integration
         run: docker-compose up -d
