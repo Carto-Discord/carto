@@ -24,7 +24,7 @@
     "@aws-sdk/lib-dynamodb": "3.100.0",
     "cypress": "9.7.0",
     "nanoid": "3.3.4",
-    "ts-node": "10.8.0",
+    "ts-node": "10.8.1",
     "tweetnacl": "1.0.3",
     "typescript": "4.7.2"
   }
