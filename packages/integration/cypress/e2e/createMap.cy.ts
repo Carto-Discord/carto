@@ -9,7 +9,7 @@ import {
   Table,
   Command,
   generateHeaders,
-} from "../support";
+} from "../support/e2e";
 import { CartoBaseMap, DiscordChannel } from "../support/aws/types";
 
 describe("Create Map", () => {

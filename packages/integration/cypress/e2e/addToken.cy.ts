@@ -9,7 +9,7 @@ import {
   getObject,
   Command,
   generateHeaders,
-} from "../support";
+} from "../support/e2e";
 import { CartoMap, DiscordChannel } from "../support/aws/types";
 
 describe("Add Token", () => {

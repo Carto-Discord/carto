@@ -13,7 +13,7 @@ import {
   putObject,
   Table,
   teardownDynamoDB,
-} from "../support";
+} from "../support/e2e";
 
 describe("Janitor", () => {
   let url: string;

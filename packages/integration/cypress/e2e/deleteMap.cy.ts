@@ -8,7 +8,7 @@ import {
   Table,
   Command,
   generateHeaders,
-} from "../support";
+} from "../support/e2e";
 
 describe("Delete Map", () => {
   let url: string;
