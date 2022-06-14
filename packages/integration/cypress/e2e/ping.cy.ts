@@ -3,7 +3,7 @@ import {
   generateSignature,
   generateHeaders,
   Command,
-} from "../support";
+} from "../support/e2e";
 
 describe("Ping", () => {
   let url: string;
