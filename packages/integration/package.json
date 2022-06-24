@@ -20,7 +20,7 @@
   "devDependencies": {
     "@aws-sdk/client-api-gateway": "3.116.0",
     "@aws-sdk/client-dynamodb": "3.113.0",
-    "@aws-sdk/client-s3": "3.113.0",
+    "@aws-sdk/client-s3": "3.117.0",
     "@aws-sdk/lib-dynamodb": "3.113.0",
     "cypress": "10.2.0",
     "nanoid": "4.0.0",
