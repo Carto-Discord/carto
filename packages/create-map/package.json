@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.118.1",
-    "@aws-sdk/client-s3": "^3.118.1",
+    "@aws-sdk/client-s3": "^3.120.0",
     "canvas": "^2.9.3",
     "nanoid": "^4.0.0"
   },
