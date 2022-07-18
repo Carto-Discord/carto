@@ -1,10 +1,10 @@
 import axios from "axios";
-import type { MessageEmbed } from "discord.js";
+import type { Embed } from "discord.js";
 
 export type Event = {
   application_id: string;
   token: string;
-  embed?: MessageEmbed;
+  embed?: Embed;
   error?: string;
 };
 
