@@ -2,17 +2,22 @@ import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { S3Client } from "@aws-sdk/client-s3";
 import { mockClient } from "aws-sdk-client-mock";
 
-import { Client } from "discord.js";
-
 import { deleteChannelData, deleteOrphanedMaps } from "../src/cleanup";
 import { getChannels } from "../src/dynamodb";
 import { handler } from "../src/index";
 
-jest.mock("discord.js");
+const mockLogin = jest.fn();
+const mockFetch = jest.fn();
+
+jest.mock("discord.js", () => ({
+  Client: class MockClient {
+    public login = mockLogin;
+    public channels = { fetch: mockFetch };
+  },
+  GatewayIntentBits: jest.requireActual("discord.js").GatewayIntentBits,
+}));
 jest.mock("../src/cleanup");
 jest.mock("../src/dynamodb");
-
-const mockDiscordClient = Client as jest.MockedClass<typeof Client>;
 
 const mockGetChannels = getChannels as jest.MockedFunction<typeof getChannels>;
 const mockDeleteChannelData = deleteChannelData as jest.MockedFunction<
@@ -26,9 +31,6 @@ mockClient(DynamoDBClient);
 mockClient(S3Client);
 
 describe("Handler", () => {
-  const mockLogin = jest.fn();
-  const mockFetch = jest.fn();
-
   beforeAll(() => {
     process.env.AWS_REGION = "eu-central-1";
     process.env.DISCORD_TOKEN = "mockToken";
@@ -37,13 +39,6 @@ describe("Handler", () => {
   beforeEach(() => {
     jest.resetAllMocks();
 
-    mockDiscordClient.mockImplementation(
-      () =>
-        ({
-          login: mockLogin,
-          channels: { fetch: mockFetch },
-        } as unknown as Client)
-    );
     mockFetch.mockRejectedValue({});
     mockDeleteChannelData.mockResolvedValue();
     mockGetChannels.mockResolvedValue(["1234", "5678"]);
