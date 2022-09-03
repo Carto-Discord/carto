@@ -21,6 +21,7 @@ export const generateHeaders = (command: Command) => {
   const timestamp = Date.now();
 
   return {
+    "Content-Type": "application/json",
     "x-signature-ed25519": generateSignature(
       JSON.stringify(command),
       timestamp.toString()

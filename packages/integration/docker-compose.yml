@@ -5,15 +5,13 @@ services:
     container_name: "localstack-main"
     image: localstack/localstack
     ports:
-      - "127.0.0.1:53:53"
-      - "127.0.0.1:53:53/udp"
       - "127.0.0.1:443:443"
       - "127.0.0.1:4566:4566"
       - "127.0.0.1:4571:4571"
     environment:
       - SERVICES=events,serverless,stepfunctions
       - DEBUG=true
-      - DATA_DIR=${DATA_DIR- }
+      - PERSISTENCE=${PERSISTENCE-}
       - LAMBDA_EXECUTOR=docker
       - LAMBDA_DOCKER_NETWORK=host
       - HOST_TMP_FOLDER=${TMPDIR:-/tmp/}localstack
@@ -22,5 +20,5 @@ services:
       - EXTRA_CORS_ALLOWED_HEADERS=*
       - ENFORCE_IAM=1
     volumes:
-      - "${TMPDIR:-/tmp}/localstack:/tmp/localstack"
+      - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"

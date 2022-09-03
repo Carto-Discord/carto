@@ -12,6 +12,18 @@ module "parse_command_lambda" {
   }
 }
 
+resource "aws_lambda_function_url" "parse_command_url" {
+  function_name      = module.parse_command_lambda.lambda_function_name
+  authorization_type = "NONE"
+
+  cors {
+    allow_origins = ["*"]
+    allow_methods = ["POST"]
+    allow_headers = ["*"]
+    max_age       = 300
+  }
+}
+
 module "get_map_lambda" {
   source = "../lambda"
 
@@ -124,3 +136,14 @@ module "janitor_lambda" {
   }
 }
 
+resource "aws_lambda_function_url" "janitor_url" {
+  function_name      = module.janitor_lambda.lambda_function_name
+  authorization_type = "NONE"
+
+  cors {
+    allow_origins = ["*"]
+    allow_methods = ["POST"]
+    allow_headers = ["*"]
+    max_age       = 300
+  }
+}
