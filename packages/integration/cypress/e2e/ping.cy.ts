@@ -31,7 +31,7 @@ describe("Ping", () => {
         failOnStatusCode: false,
       }).then((response) => {
         cy.log(JSON.stringify({ response }));
-        // expect(response.status).to.eq(401);
+        expect(response.status).to.eq(401);
         expect(response.body).to.eq("invalid request signature");
       });
     });
