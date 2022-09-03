@@ -14,7 +14,7 @@ describe("Ping", () => {
   });
 
   describe("given the signature is invalid", () => {
-    it("should respond with a 401 status", () => {
+    it("should respond with an invalid request signature", () => {
       const body = { type: 1 };
       const timestamp = Date.now();
 
@@ -30,14 +30,12 @@ describe("Ping", () => {
         headers,
         failOnStatusCode: false,
       }).then((response) => {
-        cy.log(JSON.stringify({ response }));
-        expect(response.status).to.eq(401);
         expect(response.body).to.eq("invalid request signature");
       });
     });
   });
 
-  it("should respond with OK", () => {
+  it("should respond with PONG", () => {
     const body: Command = { type: 1 };
 
     const headers = generateHeaders(body);
@@ -47,8 +45,8 @@ describe("Ping", () => {
       url,
       body,
       headers,
-    })
-      .its("status")
-      .should("eq", 200);
+    }).then((response) => {
+      expect(response.body).to.have.property("type", 1);
+    });
   });
 });
