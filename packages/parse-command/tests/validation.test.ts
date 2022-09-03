@@ -1,4 +1,4 @@
-import { APIGatewayProxyEvent } from "aws-lambda";
+import { APIGatewayProxyEventV2 } from "aws-lambda";
 import { validateRequest } from "../src/validation";
 
 describe("Validation", () => {
@@ -13,11 +13,11 @@ describe("Validation", () => {
     const mockEvent = {
       headers: {
         "X-Signature-Ed25519":
-          "3a25f3db58760e73b1a0ac5163b331e23c81483177d819158a6c6514a54a3a0ad630fdb35b0bd110d6b701511f70cb28fa00fd417e8868341ce0f25d488b390b",
-        "X-Signature-Timestamp": "1641309313810",
+          "71c8a6014b34c1c9812587079e770711a518c133c64511640ee0d757c4f6b4f28a9771cc18e40b8bf141bcebe6414380d6062ca095f22dd863b9f7e85e5ebf06",
+        "X-Signature-Timestamp": "1662218997328",
       },
       body,
-    } as unknown as APIGatewayProxyEvent;
+    } as unknown as APIGatewayProxyEventV2;
 
     const result = validateRequest(mockEvent);
 
