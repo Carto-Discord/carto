@@ -5,7 +5,7 @@ import { deleteChannelData, deleteOrphanedMaps } from "./cleanup";
 import { getChannels } from "./dynamodb";
 
 export const handler = async () => {
-  const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+  const client = new Client({ intents: [GatewayIntentBits?.Guilds] });
 
   // Local testing only, ignored in production
   const endpoint = process.env.LOCALSTACK_HOSTNAME
