@@ -19,7 +19,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "@aws-sdk/client-sfn": "^3.169.0",
+    "@aws-sdk/client-sfn": "^3.170.0",
     "tweetnacl": "^1.0.3"
   },
   "devDependencies": {
