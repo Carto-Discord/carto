@@ -19,7 +19,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.171.0"
+    "@aws-sdk/client-dynamodb": "^3.172.0"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.19.1",
