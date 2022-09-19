@@ -41,6 +41,9 @@ data "template_file" "definition" {
     addTokenLambdaArn        = module.add_token_lambda.lambda_arn
     moveDeleteTokenLambdaArn = module.move_delete_token_lambda.lambda_arn
     sendResponseLambdaArn    = module.send_response_lambda.lambda_arn
+
+    channelTable = aws_dynamodb_table.channel_table.name
+    mapTable     = aws_dynamodb_table.map_table.name
   }
 }
 
