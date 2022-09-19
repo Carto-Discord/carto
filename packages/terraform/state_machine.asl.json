@@ -31,7 +31,7 @@
         {
           "Variable": "$.subCommand",
           "StringEquals": "delete",
-          "Next": "DeleteMap"
+          "Next": "DeleteMap_PerformDelete"
         },
         {
           "Variable": "$.subCommand",
@@ -163,26 +163,55 @@
       },
       "Next": "SendResponse"
     },
-    "DeleteMap": {
+    "DeleteMap_PerformDelete": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::dynamodb:deleteItem",
+      "Parameters": {
+        "TableName": "${channelTable}",
+        "Key": {
+          "id": {
+            "S": "$.channel_id"
+          }
+        }
+      },
+      "ResultPath": "$.dynamodb",
+      "Next": "DeleteMap_SendResponse",
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "Next": "DeleteMap_SendFailure"
+        }
+      ]
+    },
+    "DeleteMap_SendResponse": {
       "Type": "Task",
       "Parameters": {
         "application_id.$": "$.application_id",
         "token.$": "$.token",
-        "channel_id.$": "$.channel_id"
-      },
-      "Resource": "${deleteMapLambdaArn}",
-      "Catch": [
-        {
-          "ErrorEquals": ["States.ALL"],
-          "Next": "SendFailure",
-          "ResultPath": "$.error"
+        "embed": {
+          "title": "Channel data deleted",
+          "description": "All related maps will be erased from Carto within 24 hours",
+          "type": "rich"
         }
-      ],
-      "ResultSelector": {
-        "embed.$": "States.StringToJson($.body)"
       },
-      "Next": "SendResponse"
+      "Resource": "${sendResponseLambdaArn}",
+      "End": true
     },
+    "DeleteMap_SendFailure": {
+      "Type": "Task",
+      "Parameters": {
+        "application_id.$": "$.application_id",
+        "token.$": "$.token",
+        "embed": {
+          "title": "Deletion error",
+          "description": "Data couldn't be deleted, likely because it never existed",
+          "type": "rich"
+        }
+      },
+      "Resource": "${sendResponseLambdaArn}",
+      "End": true
+    },
+
     "CreateMap": {
       "Type": "Task",
       "Parameters": {
