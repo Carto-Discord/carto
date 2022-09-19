@@ -33,22 +33,7 @@ module "get_map_lambda" {
   lambda_iam_role_arn  = aws_iam_role.get_map_role.arn
   lambda_iam_role_name = aws_iam_role.get_map_role.name
   environment_variables = {
-    "MAPS_BUCKET"    = aws_s3_bucket.maps_bucket.bucket
-    "MAPS_TABLE"     = aws_dynamodb_table.map_table.name
-    "CHANNELS_TABLE" = aws_dynamodb_table.channel_table.name
-  }
-}
-
-module "delete_map_lambda" {
-  source = "../lambda"
-
-  app_name             = var.app_name
-  function_name        = "delete-map"
-  runtime              = "nodejs16.x"
-  lambda_iam_role_arn  = aws_iam_role.delete_map_role.arn
-  lambda_iam_role_name = aws_iam_role.delete_map_role.name
-  environment_variables = {
-    "CHANNELS_TABLE" = aws_dynamodb_table.channel_table.name
+    "MAPS_BUCKET" = aws_s3_bucket.maps_bucket.bucket
   }
 }
 

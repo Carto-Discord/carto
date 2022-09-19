@@ -26,12 +26,12 @@
         {
           "Variable": "$.subCommand",
           "StringEquals": "get",
-          "Next": "GetMap"
+          "Next": "GetMap_GetChannel"
         },
         {
           "Variable": "$.subCommand",
           "StringEquals": "delete",
-          "Next": "DeleteMap"
+          "Next": "DeleteMap_PerformDelete"
         },
         {
           "Variable": "$.subCommand",
@@ -63,12 +63,92 @@
       ],
       "Default": "Failure"
     },
-    "GetMap": {
+    "GetMap_GetChannel": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::dynamodb:getItem",
+      "Parameters": {
+        "TableName": "${channelTable}",
+        "Key": {
+          "id": {
+            "S.$": "$.channel_id"
+          }
+        }
+      },
+      "Next": "GetMap_HasChannel",
+      "ResultPath": "$.channel"
+    },
+    "GetMap_HasChannel": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.channel.Item",
+          "IsPresent": true,
+          "Next": "GetMap_GetMap"
+        }
+      ],
+      "Default": "HasChannel_ConstructError"
+    },
+    "HasChannel_ConstructError": {
       "Type": "Task",
       "Parameters": {
         "application_id.$": "$.application_id",
         "token.$": "$.token",
-        "channel_id.$": "$.channel_id"
+        "embed": {
+          "title": "Error retrieving map",
+          "description": "This channel has no map associated with it",
+          "type": "rich"
+        }
+      },
+      "Resource": "${sendResponseLambdaArn}",
+      "End": true
+    },
+    "GetMap_GetMap": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::dynamodb:getItem",
+      "Parameters": {
+        "TableName": "${mapTable}",
+        "Key": {
+          "id": {
+            "S.$": "$.currentMap.S"
+          }
+        }
+      },
+      "InputPath": "$.channel.Item",
+      "ResultPath": "$.map",
+      "Next": "GetMap_HasMap"
+    },
+    "GetMap_HasMap": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.map.Item",
+          "IsPresent": true,
+          "Next": "GetMap_ConstructResponse"
+        }
+      ],
+      "Default": "HasMap_ConstructError"
+    },
+    "HasMap_ConstructError": {
+      "Type": "Task",
+      "Parameters": {
+        "application_id.$": "$.application_id",
+        "token.$": "$.token",
+        "embed": {
+          "title": "Error retrieving map",
+          "description": "Map data for this channel is incomplete\nFor help, refer to the [troubleshooting](https://carto-discord.github.io/carto/troubleshooting) page.",
+          "type": "rich"
+        }
+      },
+      "Resource": "${sendResponseLambdaArn}",
+      "End": true
+    },
+    "GetMap_ConstructResponse": {
+      "Type": "Task",
+      "Parameters": {
+        "application_id.$": "$.application_id",
+        "channel.$": "$.channel",
+        "map.$": "$.map",
+        "token.$": "$.token"
       },
       "Resource": "${getMapLambdaArn}",
       "Catch": [
@@ -83,26 +163,55 @@
       },
       "Next": "SendResponse"
     },
-    "DeleteMap": {
+    "DeleteMap_PerformDelete": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::dynamodb:deleteItem",
+      "Parameters": {
+        "TableName": "${channelTable}",
+        "Key": {
+          "id": {
+            "S": "$.channel_id"
+          }
+        }
+      },
+      "ResultPath": "$.dynamodb",
+      "Next": "DeleteMap_SendResponse",
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "Next": "DeleteMap_SendFailure"
+        }
+      ]
+    },
+    "DeleteMap_SendResponse": {
       "Type": "Task",
       "Parameters": {
         "application_id.$": "$.application_id",
         "token.$": "$.token",
-        "channel_id.$": "$.channel_id"
-      },
-      "Resource": "${deleteMapLambdaArn}",
-      "Catch": [
-        {
-          "ErrorEquals": ["States.ALL"],
-          "Next": "SendFailure",
-          "ResultPath": "$.error"
+        "embed": {
+          "title": "Channel data deleted",
+          "description": "All related maps will be erased from Carto within 24 hours",
+          "type": "rich"
         }
-      ],
-      "ResultSelector": {
-        "embed.$": "States.StringToJson($.body)"
       },
-      "Next": "SendResponse"
+      "Resource": "${sendResponseLambdaArn}",
+      "End": true
     },
+    "DeleteMap_SendFailure": {
+      "Type": "Task",
+      "Parameters": {
+        "application_id.$": "$.application_id",
+        "token.$": "$.token",
+        "embed": {
+          "title": "Deletion error",
+          "description": "Data couldn't be deleted, likely because it never existed",
+          "type": "rich"
+        }
+      },
+      "Resource": "${sendResponseLambdaArn}",
+      "End": true
+    },
+
     "CreateMap": {
       "Type": "Task",
       "Parameters": {

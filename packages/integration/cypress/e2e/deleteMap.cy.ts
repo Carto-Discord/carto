@@ -108,35 +108,22 @@ describe("Delete Map", () => {
         .its("status")
         .should("eq", 200);
 
-      cy.get("ul li", { timeout: 30000 })
-        .then((item) => {
-          const { params, body } = JSON.parse(item.text());
-          expect(params).to.deep.equal({
-            applicationId,
-            token,
-          });
-          const embed = body.embeds[0];
-
-          expect(embed.title).to.eq("Channel data deleted");
-
-          expect(embed.description).to.eq(
-            "All related maps will be erased from Carto within 24 hours"
-          );
-
-          expect(embed.type).to.eq("rich");
-        })
-        // Inspect Channel document
-        .then(() =>
-          getDocument({
-            table: Table.CHANNELS,
-            key: {
-              id: existingChannel,
-            },
-          })
-        )
-        .then(({ Item }) => {
-          expect(Item).to.be.undefined;
+      cy.get("ul li", { timeout: 30000 }).then((item) => {
+        const { params, body } = JSON.parse(item.text());
+        expect(params).to.deep.equal({
+          applicationId,
+          token,
         });
+        const embed = body.embeds[0];
+
+        expect(embed.title).to.eq("Channel data deleted");
+
+        expect(embed.description).to.eq(
+          "All related maps will be erased from Carto within 24 hours"
+        );
+
+        expect(embed.type).to.eq("rich");
+      });
     });
   });
 });
