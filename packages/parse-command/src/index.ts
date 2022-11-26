@@ -1,7 +1,4 @@
-import {
-  ApplicationCommandInteractionDataOption,
-  Interaction,
-} from "slash-commands";
+import { ApplicationCommandInteractionDataOption } from "slash-commands";
 import type {
   APIGatewayProxyEventV2,
   APIGatewayProxyResultV2,
@@ -9,7 +6,7 @@ import type {
 
 import { SFNClient, StartExecutionCommand } from "@aws-sdk/client-sfn";
 
-import { InteractionResponseType, InteractionType } from "./types";
+import { InteractionResponseType, Interaction, InteractionType } from "./types";
 import { validateRequest } from "./validation";
 
 type DiscordResponse = {
