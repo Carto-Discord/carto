@@ -13,7 +13,6 @@ services:
       - DEBUG=true
       - PERSISTENCE=${PERSISTENCE-}
       - LAMBDA_EXECUTOR=docker
-      - LAMBDA_DOCKER_NETWORK=host
       - PROVIDER_OVERRIDE_LAMBDA=asf
       - HOST_TMP_FOLDER=${TMPDIR:-/tmp/}localstack
       - DOCKER_HOST=unix:///var/run/docker.sock
