@@ -23,7 +23,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "axios": "^1.2.4"
+    "axios": "^1.2.5"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.20.2",
