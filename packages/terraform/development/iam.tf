@@ -10,13 +10,13 @@ data "aws_iam_policy_document" "assume_role" {
 }
 
 resource "aws_iam_role" "parse_command_role" {
-  name = "parse_command_role"
+  name = "${var.app_name}-parse_command_role"
 
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
 }
 
 resource "aws_iam_role_policy" "start_state_machine" {
-  name = "start_state_machine"
+  name = "${var.app_name}-start_state_machine"
   role = aws_iam_role.parse_command_role.id
 
   policy = jsonencode({
@@ -34,7 +34,7 @@ resource "aws_iam_role_policy" "start_state_machine" {
 }
 
 resource "aws_iam_policy" "access_dynamodb" {
-  name        = "access_dynamodb"
+  name        = "${var.app_name}-access_dynamodb"
   description = "Access required commands on specific DynamoDB tables"
 
   policy = jsonencode({
@@ -61,7 +61,7 @@ resource "aws_iam_policy" "access_dynamodb" {
 }
 
 resource "aws_iam_policy" "access_s3" {
-  name        = "access_s3"
+  name        = "${var.app_name}-access_s3"
   description = "Access required commands on specific S3 buckets"
 
   policy = jsonencode({
@@ -86,49 +86,49 @@ resource "aws_iam_policy" "access_s3" {
 }
 
 resource "aws_iam_role" "get_map_role" {
-  name = "get_map_role"
+  name = "${var.app_name}-get_map_role"
 
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
 }
 
 resource "aws_iam_role" "create_map_role" {
-  name = "create_map_role"
+  name = "${var.app_name}-create_map_role"
 
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
 }
 
 resource "aws_iam_role" "delete_map_role" {
-  name = "delete_map_role"
+  name = "${var.app_name}-delete_map_role"
 
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
 }
 
 resource "aws_iam_role" "add_token_role" {
-  name = "add_token_role"
+  name = "${var.app_name}-add_token_role"
 
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
 }
 
 resource "aws_iam_role" "move_delete_token_role" {
-  name = "move_delete_token_role"
+  name = "${var.app_name}-move_delete_token_role"
 
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
 }
 
 resource "aws_iam_role" "send_response_role" {
-  name = "send_response_role"
+  name = "${var.app_name}-send_response_role"
 
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
 }
 
 resource "aws_iam_role" "janitor_role" {
-  name = "janitor_role"
+  name = "${var.app_name}-janitor_role"
 
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
 }
 
 resource "aws_iam_policy_attachment" "dynamodb_attach" {
-  name = "dynamodb-attachment"
+  name = "${var.app_name}-dynamodb-attachment"
   roles = [
     aws_iam_role.get_map_role.name,
     aws_iam_role.create_map_role.name,
@@ -141,7 +141,7 @@ resource "aws_iam_policy_attachment" "dynamodb_attach" {
 }
 
 resource "aws_iam_policy_attachment" "s3_attach" {
-  name = "s3-attachment"
+  name = "${var.app_name}-s3-attachment"
   roles = [
     aws_iam_role.create_map_role.name,
     aws_iam_role.delete_map_role.name,
