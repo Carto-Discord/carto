@@ -5,8 +5,10 @@ on: pull_request
 jobs:
   checks:
     uses: ./.github/workflows/checks.yml
-  integration:
+  deploy:
     needs: checks
-    uses: ./.github/workflows/integration-test.yml
+    uses: ./.github/workflows/pr-environment.yml
     secrets:
+      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       discord_token: ${{ secrets.BOT_TOKEN }}

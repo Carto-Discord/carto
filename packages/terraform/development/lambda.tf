@@ -45,13 +45,14 @@ module "create_map_lambda" {
   runtime              = "nodejs18.x"
   timeout              = 20
   memory_size          = 512
+  layers               = [data.aws_lambda_layer_version.node_canvas.arn]
   lambda_iam_role_arn  = aws_iam_role.create_map_role.arn
   lambda_iam_role_name = aws_iam_role.create_map_role.name
+
   environment_variables = {
     "MAPS_BUCKET"    = aws_s3_bucket.maps_bucket.bucket
     "MAPS_TABLE"     = aws_dynamodb_table.map_table.name
     "CHANNELS_TABLE" = aws_dynamodb_table.channel_table.name
-    "LD_PRELOAD"     = var.ld_preload
   }
 }
 
@@ -63,13 +64,14 @@ module "add_token_lambda" {
   runtime              = "nodejs18.x"
   timeout              = 20
   memory_size          = 512
+  layers               = [data.aws_lambda_layer_version.node_canvas.arn]
   lambda_iam_role_arn  = aws_iam_role.add_token_role.arn
   lambda_iam_role_name = aws_iam_role.add_token_role.name
+
   environment_variables = {
     "MAPS_BUCKET"    = aws_s3_bucket.maps_bucket.bucket
     "MAPS_TABLE"     = aws_dynamodb_table.map_table.name
     "CHANNELS_TABLE" = aws_dynamodb_table.channel_table.name
-    "LD_PRELOAD"     = var.ld_preload
   }
 }
 
@@ -81,13 +83,14 @@ module "move_delete_token_lambda" {
   runtime              = "nodejs18.x"
   timeout              = 20
   memory_size          = 512
+  layers               = [data.aws_lambda_layer_version.node_canvas.arn]
   lambda_iam_role_arn  = aws_iam_role.move_delete_token_role.arn
   lambda_iam_role_name = aws_iam_role.move_delete_token_role.name
+
   environment_variables = {
     "MAPS_BUCKET"    = aws_s3_bucket.maps_bucket.bucket
     "MAPS_TABLE"     = aws_dynamodb_table.map_table.name
     "CHANNELS_TABLE" = aws_dynamodb_table.channel_table.name
-    "LD_PRELOAD"     = var.ld_preload
   }
 }
 
@@ -100,7 +103,7 @@ module "send_response_lambda" {
   lambda_iam_role_arn  = aws_iam_role.send_response_role.arn
   lambda_iam_role_name = aws_iam_role.send_response_role.name
   environment_variables = {
-    "BASE_URL" = var.discord_base_url
+    "ENVIRONMENT" = "test"
   }
 }
 
@@ -131,4 +134,9 @@ resource "aws_lambda_function_url" "janitor_url" {
     allow_headers = ["*"]
     max_age       = 300
   }
+}
+
+data "aws_lambda_layer_version" "node_canvas" {
+  layer_name         = "canvas-nodejs"
+  compatible_runtime = "nodejs18.x"
 }

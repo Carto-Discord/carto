@@ -34,3 +34,10 @@ variable "lambda_iam_role_arn" {
 variable "lambda_iam_role_name" {
   description = "Lambda IAM role name"
 }
+
+variable "layers" {
+  type        = list(string)
+  description = "List of up to 5 layers to apply to the function"
+
+  default = []
+}

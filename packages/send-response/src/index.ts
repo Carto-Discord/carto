@@ -8,26 +8,32 @@ export type Event = {
   error?: string;
 };
 
+const errorEmbed = {
+  title: "Command execution failed",
+  description:
+    "The command failed to process, likely due to an internal error.",
+  type: "rich",
+};
+
 export const handler = async ({
   application_id,
   token,
   embed,
   error,
 }: Event) => {
-  const url = `${process.env.BASE_URL}/webhooks/${application_id}/${token}/messages/@original`;
-
-  const errorEmbed = {
-    title: "Command execution failed",
-    description:
-      "The command failed to process, likely due to an internal error.",
-    type: "rich",
-  };
+  const embeds = [error ? errorEmbed : embed];
 
   if (error) console.warn({ error }, "Handling error");
 
+  if (process.env.ENVIRONMENT === "test") {
+    return embeds;
+  }
+
+  const url = `${process.env.BASE_URL}/webhooks/${application_id}/${token}/messages/@original`;
+
   await axios.patch(
     url,
-    { embeds: [error ? errorEmbed : embed] },
+    { embeds },
     { headers: { "Content-Type": "application/json" } }
   );
 };

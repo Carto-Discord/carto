@@ -45,6 +45,7 @@ module "create_map_lambda" {
   runtime              = "nodejs18.x"
   timeout              = 20
   memory_size          = 512
+  layers               = [data.aws_lambda_layer_version.node_canvas.arn]
   lambda_iam_role_arn  = aws_iam_role.create_map_role.arn
   lambda_iam_role_name = aws_iam_role.create_map_role.name
   environment_variables = {
@@ -63,6 +64,7 @@ module "add_token_lambda" {
   runtime              = "nodejs18.x"
   timeout              = 20
   memory_size          = 512
+  layers               = [data.aws_lambda_layer_version.node_canvas.arn]
   lambda_iam_role_arn  = aws_iam_role.add_token_role.arn
   lambda_iam_role_name = aws_iam_role.add_token_role.name
   environment_variables = {
@@ -81,13 +83,13 @@ module "move_delete_token_lambda" {
   runtime              = "nodejs18.x"
   timeout              = 20
   memory_size          = 512
+  layers               = [data.aws_lambda_layer_version.node_canvas.arn]
   lambda_iam_role_arn  = aws_iam_role.move_delete_token_role.arn
   lambda_iam_role_name = aws_iam_role.move_delete_token_role.name
   environment_variables = {
     "MAPS_BUCKET"    = aws_s3_bucket.maps_bucket.bucket
     "MAPS_TABLE"     = aws_dynamodb_table.map_table.name
     "CHANNELS_TABLE" = aws_dynamodb_table.channel_table.name
-    "LD_PRELOAD"     = var.ld_preload
   }
 }
 
@@ -118,4 +120,9 @@ module "janitor_lambda" {
     "CHANNELS_TABLE" = aws_dynamodb_table.channel_table.name
     "DISCORD_TOKEN"  = var.discord_token
   }
+}
+
+data "aws_lambda_layer_version" "node_canvas" {
+  layer_name         = "canvas-nodejs"
+  compatible_runtime = "nodejs18.x"
 }

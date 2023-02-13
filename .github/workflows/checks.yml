@@ -26,16 +26,16 @@ jobs:
       - name: Build packages
         run: npm run build
 
-      - name: Build node-canvas libraries
-        run: docker build -t canvas-libs .
+      # - name: Build node-canvas libraries
+      #   run: docker build -t canvas-libs .
 
-      - name: Inject libraries
-        run: |
-          id=$(docker create canvas-libs)
-          docker cp $id:/root/dist ./packages/create-map
-          docker cp $id:/root/dist ./packages/add-token
-          docker cp $id:/root/dist ./packages/move-delete-token
-          docker rm -v $id
+      # - name: Inject libraries
+      #   run: |
+      #     id=$(docker create canvas-libs)
+      #     docker cp $id:/root/dist ./packages/create-map
+      #     docker cp $id:/root/dist ./packages/add-token
+      #     docker cp $id:/root/dist ./packages/move-delete-token
+      #     docker rm -v $id
 
       - name: Upload packages
         uses: actions/upload-artifact@v3
