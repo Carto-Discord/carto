@@ -64,6 +64,7 @@ resource "aws_iam_group_policy" "s3" {
           "s3:DeleteBucket",
           "s3:DeleteBucketPolicy",
           "s3:Get*",
+          "s3:List*",
           "s3:PutBucketAcl",
           "s3:PutBucketPolicy",
         ]
