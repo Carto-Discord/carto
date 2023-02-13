@@ -1,4 +1,4 @@
-name: Build
+name: Checks
 
 on:
   workflow_call:
@@ -42,3 +42,43 @@ jobs:
         with:
           name: packages
           path: packages/**/dist/
+  lint:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Node.JS
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: npm
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Lint packages
+        run: npm run lint
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Node.JS
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: npm
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Download packages
+        uses: actions/download-artifact@v3
+        with:
+          name: packages
+          path: packages
+
+      - name: Test packages
+        run: npm t --workspaces --if-present

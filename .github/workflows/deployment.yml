@@ -12,21 +12,15 @@ on:
       - "!packages/terraform/user/**"
 
 jobs:
-  build:
-    uses: ./.github/workflows/build.yml
-  lint:
-    needs: build
-    uses: ./.github/workflows/lint.yml
-  unit:
-    needs: build
-    uses: ./.github/workflows/unit-test.yml
+  checks:
+    uses: ./.github/workflows/checks.yml
   integration:
-    needs: build
+    needs: checks
     uses: ./.github/workflows/integration-test.yml
     secrets:
       discord_token: ${{ secrets.BOT_TOKEN }}
   deploy:
-    needs: [lint, unit, integration]
+    needs: integration
     uses: ./.github/workflows/deploy.yml
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
