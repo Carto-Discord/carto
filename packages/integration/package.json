@@ -19,7 +19,7 @@
   },
   "devDependencies": {
     "@aws-sdk/client-dynamodb": "3.279.0",
-    "@aws-sdk/client-lambda": "3.279.0",
+    "@aws-sdk/client-lambda": "3.280.0",
     "@aws-sdk/client-s3": "3.279.0",
     "@aws-sdk/lib-dynamodb": "3.279.0",
     "@babel/preset-env": "^7.20.2",
