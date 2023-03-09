@@ -18,10 +18,10 @@
     "setup": "ts-node src/setupS3.ts"
   },
   "devDependencies": {
-    "@aws-sdk/client-dynamodb": "3.287.0",
-    "@aws-sdk/client-lambda": "3.287.0",
-    "@aws-sdk/client-s3": "3.287.0",
-    "@aws-sdk/lib-dynamodb": "3.287.0",
+    "@aws-sdk/client-dynamodb": "3.288.0",
+    "@aws-sdk/client-lambda": "3.288.0",
+    "@aws-sdk/client-s3": "3.288.0",
+    "@aws-sdk/lib-dynamodb": "3.288.0",
     "@babel/preset-env": "^7.20.2",
     "@cypress/webpack-preprocessor": "^5.17.0",
     "babel-loader": "^9.1.2",
