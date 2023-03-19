@@ -1,10 +1,7 @@
 {
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "target": "es5",
-    "lib": ["es5", "dom"],
-    "types": ["cypress"],
-    "esModuleInterop": true,
     "resolveJsonModule": true
   },
-  "include": ["**/*.ts"]
+  "include": ["./tests/**/*"]
 }
