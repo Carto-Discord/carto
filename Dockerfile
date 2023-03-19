@@ -1,4 +1,4 @@
-FROM amazonlinux:latest
+FROM amazonlinux:2
 
 ARG LIBS=/usr/lib64
 ARG OUT=/root
