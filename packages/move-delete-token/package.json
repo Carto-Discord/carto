@@ -22,7 +22,7 @@
     "@aws-sdk/client-dynamodb": "^3.297.0",
     "@carto/map-utils": "*",
     "@carto/token-utils": "*",
-    "nanoid": "^4.0.1"
+    "nanoid": "^4.0.2"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.20.2",
