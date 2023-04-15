@@ -2,12 +2,6 @@ name: pr-checks
 
 on: pull_request
 
-env:
-  # These aren't actually secret, they're just for testing purposes.
-  public_key: a58293d7fa04d53ab90108be275a87fe890eece595962273a93e1f87d398df74
-  private_key: 814d1a8737ba28a2ae72e39cac46468002525a64e4f002d7b52dd06efb9dc4b8a58293d7fa04d53ab90108be275a87fe890eece595962273a93e1f87d398df74
-  map_bucket: carto-bot-pr-${{ github.event.pull_request.number }}-maps
-
 jobs:
   checks:
     uses: ./.github/workflows/checks.yml
@@ -15,7 +9,7 @@ jobs:
     needs: checks
     uses: ./.github/workflows/pr-environment.yml
     with:
-      public-key: ${{ env.public_key }}
+      public-key: a58293d7fa04d53ab90108be275a87fe890eece595962273a93e1f87d398df74
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -24,5 +18,6 @@ jobs:
     needs: deploy
     uses: ./.github/workflows/integration-test.yml
     with:
-      private-key: ${{ env.private_key }}
-      map-bucket: ${{ env.map_bucket }}
+      # Not actually private, just for testing purposes
+      private-key: 814d1a8737ba28a2ae72e39cac46468002525a64e4f002d7b52dd06efb9dc4b8a58293d7fa04d53ab90108be275a87fe890eece595962273a93e1f87d398df74
+      map-bucket: carto-bot-pr-${{ github.event.pull_request.number }}-maps
