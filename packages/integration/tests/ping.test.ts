@@ -12,7 +12,7 @@ describe("Ping", () => {
   const body: Command = { type: 1 };
 
   beforeAll(async () => {
-    url = await getLambdaInvokeUrl();
+    url = (await getLambdaInvokeUrl()) ?? "";
   });
 
   it("should respond with an invalid request signature", async () => {

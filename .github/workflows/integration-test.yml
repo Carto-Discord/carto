@@ -7,18 +7,20 @@ on:
         default: "18"
         required: false
         type: string
-    secrets:
-      discord_token:
+      private-key:
         required: true
+        type: string
+      map-bucket:
+        required: true
+        type: string
 
 jobs:
   test:
     runs-on: ubuntu-latest
     env:
       # These aren't actually secret, they're just for testing purposes.
-      PUBLIC_KEY: a58293d7fa04d53ab90108be275a87fe890eece595962273a93e1f87d398df74
-      CYPRESS_PRIVATE_KEY: 814d1a8737ba28a2ae72e39cac46468002525a64e4f002d7b52dd06efb9dc4b8a58293d7fa04d53ab90108be275a87fe890eece595962273a93e1f87d398df74
-      CYPRESS_MAP_BUCKET: carto-bot-maps
+      PRIVATE_KEY: ${{ inputs.private-key }}
+      MAP_BUCKET: ${{ inputs.map-bucket }}
     steps:
       - uses: actions/checkout@v3
 
@@ -39,39 +41,8 @@ jobs:
           name: packages
           path: packages
 
-      - name: Start Localstack
-        working-directory: packages/integration
-        run: docker-compose up -d
-
-      - name: Build test environment
-        working-directory: packages/terraform/localstack
-        run: |
-          terraform init
-          terraform apply \
-            -var="discord_public_key=${{ env.PUBLIC_KEY }}" \
-            -var="discord_token=${{ secrets.discord_token }}" \
-            -var="discord_base_url=http://172.17.0.1:3000" \
-            -auto-approve
+      - name: Setup tests
+        run: npm run setup --workspace=@carto/integration
 
       - name: Run tests
-        uses: cypress-io/github-action@v4
-        with:
-          build: npm run setup -w @carto/integration
-          start: npm start -w @carto/mock-discord
-          project: packages/integration
-
-      - name: Upload screenshots
-        uses: actions/upload-artifact@v3
-        if: failure()
-        with:
-          name: cypress-snapshots
-          path: packages/integration/cypress/screenshots
-
-      - name: Print docker-compose logs
-        if: failure()
-        working-directory: packages/integration
-        run: docker-compose logs
-
-      - name: Stop Localstack
-        working-directory: packages/integration
-        run: docker-compose down
+        run: npm run integration:test --workspace=@carto/integration

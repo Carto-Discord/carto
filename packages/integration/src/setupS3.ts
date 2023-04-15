@@ -7,13 +7,6 @@ import {
   newExistingChannel,
 } from "../cypress/fixtures/channels.json";
 
-const AWSConfig = {
-  region: "us-east-1",
-  endpoint: "http://0.0.0.0:4566",
-  credentials: { accessKeyId: "test", secretAccessKey: "test" },
-  forcePathStyle: true,
-};
-
 const ids = [
   "sB4DTyyTaOcYQHst4VKwU",
   "DkYqcO4unB-GWnsUv10ZE",
@@ -28,10 +21,10 @@ const ids = [
 ];
 
 export const uploadToS3 = async (fileContent: Buffer, id: string) => {
-  const client = new S3Client(AWSConfig);
+  const client = new S3Client({ region: "eu-central-1" });
 
   const command = new PutObjectCommand({
-    Bucket: process.env.CYPRESS_MAP_BUCKET,
+    Bucket: process.env.MAP_BUCKET,
     Key: id,
     Body: fileContent,
     ContentType: "image/png",

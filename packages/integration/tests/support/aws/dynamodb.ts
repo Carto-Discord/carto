@@ -50,16 +50,18 @@ export const teardownDynamoDB = async () => {
   const maps = await client.send(scanMapsCommand);
   const channels = await client.send(scanChannelsCommand);
 
-  const mapsRequest: WriteRequest[] = maps.Items.map((item) => ({
-    DeleteRequest: { Key: { id: item.id } },
-  }));
-  const channelsRequest: WriteRequest[] = channels.Items.map((item) => ({
-    DeleteRequest: { Key: { id: item.id } },
-  }));
+  const mapsRequest: WriteRequest[] =
+    maps.Items?.map((item) => ({
+      DeleteRequest: { Key: { id: item.id } },
+    })) ?? [];
+  const channelsRequest: WriteRequest[] =
+    channels.Items?.map((item) => ({
+      DeleteRequest: { Key: { id: item.id } },
+    })) ?? [];
 
   const RequestItems = {
-    [Table.MAPS]: mapsRequest.length ? mapsRequest : undefined,
-    [Table.CHANNELS]: channelsRequest.length ? channelsRequest : undefined,
+    [Table.MAPS]: mapsRequest,
+    [Table.CHANNELS]: channelsRequest,
   };
 
   const deleteCommand =

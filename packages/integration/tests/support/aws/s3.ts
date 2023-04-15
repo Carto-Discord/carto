@@ -12,7 +12,7 @@ const client = new S3Client({ ...AWSConfig, forcePathStyle: true });
 
 export const listObjects = () => {
   const command = new ListObjectsCommand({
-    Bucket: Cypress.env("MAP_BUCKET"),
+    Bucket: process.env.MAP_BUCKET,
   });
 
   return client.send(command);
@@ -20,7 +20,7 @@ export const listObjects = () => {
 
 export const getObject = (Key: string) => {
   const command = new GetObjectCommand({
-    Bucket: Cypress.env("MAP_BUCKET"),
+    Bucket: process.env.MAP_BUCKET,
     Key,
   });
 
@@ -29,7 +29,7 @@ export const getObject = (Key: string) => {
 
 export const putObject = (fileContent: string, id: string) => {
   const command = new PutObjectCommand({
-    Bucket: Cypress.env("MAP_BUCKET"),
+    Bucket: process.env.MAP_BUCKET,
     Key: id,
     Body: fileContent,
     ContentType: "image/png",
@@ -41,7 +41,7 @@ export const putObject = (fileContent: string, id: string) => {
 
 export const putObjects = (fileContent: string, id: string) => {
   const command = new PutObjectCommand({
-    Bucket: Cypress.env("MAP_BUCKET"),
+    Bucket: process.env.MAP_BUCKET,
     Key: id,
     Body: fileContent,
     ContentType: "image/png",
@@ -53,7 +53,7 @@ export const putObjects = (fileContent: string, id: string) => {
 
 export const deleteObject = (id: string) => {
   const command = new DeleteObjectCommand({
-    Bucket: Cypress.env("MAP_BUCKET"),
+    Bucket: process.env.MAP_BUCKET,
     Key: id,
   });
 
@@ -64,7 +64,7 @@ export const deleteObjects = (ids: string[]) => {
   if (!ids.length) return;
 
   const command = new DeleteObjectsCommand({
-    Bucket: Cypress.env("MAP_BUCKET"),
+    Bucket: process.env.MAP_BUCKET,
     Delete: {
       Objects: ids.map((id) => ({ Key: id })),
     },

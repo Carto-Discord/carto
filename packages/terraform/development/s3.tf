@@ -1,5 +1,6 @@
 resource "aws_s3_bucket" "maps_bucket" {
   bucket = "${var.app_name}-maps"
+  force_destroy = true
 }
 
 resource "aws_s3_bucket_acl" "maps_bucket_acl" {

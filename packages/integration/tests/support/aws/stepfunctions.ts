@@ -8,29 +8,48 @@ import {
 } from "@aws-sdk/client-sfn";
 import { AWSConfig } from "./common";
 
+const client = new SFNClient(AWSConfig);
+const listStateMachines = new ListStateMachinesCommand({});
+
+export const getStateMachineName = async () => {
+  const { stateMachines } = await client.send(listStateMachines);
+
+  const prNumber = process.env.PR_NUMBER;
+
+  if (prNumber) {
+    return stateMachines?.find((sm) => sm.name?.includes(prNumber))?.name;
+  } else {
+    return "carto-bot-workflow"; // Default name
+  }
+};
+
 export const getExecutionOutput = async (
   stateMachineName: string,
   timeout = 3000
 ) => {
-  const client = new SFNClient(AWSConfig);
-  const listStateMachines = new ListStateMachinesCommand({});
-
   const { stateMachines } = await client.send(listStateMachines);
 
-  const { stateMachineArn } = stateMachines.find(
-    (sm) => sm.name === stateMachineName
-  );
+  if (!stateMachines) throw new Error("No state machines found");
+
+  const stateMachine = stateMachines.find((sm) => sm.name === stateMachineName);
+
+  if (!stateMachine)
+    throw new Error(`State machine ${stateMachineName} not found`);
 
   const listExecutions = new ListExecutionsCommand({
-    stateMachineArn,
+    stateMachineArn: stateMachine.stateMachineArn,
     maxResults: 1,
   });
 
-  let status: string;
+  let status: string | undefined;
   let executions: ExecutionListItem[] = [];
 
   do {
-    ({ executions } = await client.send(listExecutions));
+    const executionList = await client.send(listExecutions);
+
+    if (!executionList.executions) break;
+
+    executions = executionList.executions;
 
     status = executions[0].status;
 

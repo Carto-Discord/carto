@@ -7,6 +7,9 @@ on:
         default: "18"
         required: false
         type: string
+      public-key:
+        required: true
+        type: string
     secrets:
       aws_access_key_id:
         required: true
@@ -21,10 +24,6 @@ jobs:
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.aws_access_key_id }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.aws_secret_access_key }}
-      # These aren't actually secret, they're just for testing purposes.
-      PUBLIC_KEY: a58293d7fa04d53ab90108be275a87fe890eece595962273a93e1f87d398df74
-      CYPRESS_PRIVATE_KEY: 814d1a8737ba28a2ae72e39cac46468002525a64e4f002d7b52dd06efb9dc4b8a58293d7fa04d53ab90108be275a87fe890eece595962273a93e1f87d398df74
-      CYPRESS_MAP_BUCKET: carto-bot-maps
     steps:
       - uses: actions/checkout@v3
 
@@ -53,7 +52,7 @@ jobs:
             -backend-config="key=pr-${{ github.event.pull_request.number }}.tfstate" \
             -backend-config="region=eu-central-1"
           terraform apply \
-            -var="discord_public_key=${{ env.PUBLIC_KEY }}" \
+            -var="discord_public_key=${{ inputs.public-key }}" \
             -var="discord_token=${{ secrets.discord_token }}" \
             -var="app_name=carto-bot-pr-${{ github.event.pull_request.number }}" \
             -auto-approve

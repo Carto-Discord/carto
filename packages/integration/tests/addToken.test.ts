@@ -1,4 +1,5 @@
 import axios from "axios";
+import type { EmbedData } from "discord.js";
 
 import { baseMapId, currentMapId, previousMapId } from "./fixtures/maps.json";
 import { existingChannel, newExistingChannel } from "./fixtures/channels.json";
@@ -14,6 +15,7 @@ import {
   CartoMap,
   DiscordChannel,
   getExecutionOutput,
+  getStateMachineName,
 } from "./support";
 
 describe("Add Token", () => {
@@ -21,6 +23,7 @@ describe("Add Token", () => {
 
   const token = "mockToken";
   const application_id = "mockApplicationId";
+  let stateMachineName = "";
 
   const channelContents = [
     {
@@ -109,8 +112,16 @@ describe("Add Token", () => {
     },
   };
 
+  beforeAll(async () => {
+    const name = await getStateMachineName();
+
+    if (!name) throw new Error("No state machine found for this run");
+
+    stateMachineName = name;
+  });
+
   beforeEach(async () => {
-    url = await getLambdaInvokeUrl();
+    url = (await getLambdaInvokeUrl()) ?? "";
 
     await teardownDynamoDB();
 
@@ -134,31 +145,29 @@ describe("Add Token", () => {
 
     expect(response.status).toEqual(200);
 
-    const { output } = await getExecutionOutput("carto-bot-pr-479-workflow");
+    const { output } = await getExecutionOutput(stateMachineName);
 
-    console.log(output);
+    if (!output) throw new Error("No output from execution");
 
-    const { params, body } = JSON.parse(output);
-    expect(params).toEqual({
-      applicationId: application_id,
-      token,
-    });
-    const embed = body.embeds[0];
-    const newImageId = embed.image.url.replace(/^.*[\\/]/, "").split(".")[0];
+    const embeds = JSON.parse(output) as EmbedData[];
 
-    expect(embed.image.url).toEqual(
-      `https://s3.us-east-1.amazonaws.com/carto-bot-maps/${existingChannel}/${newImageId}.png`
+    const embed = embeds[0];
+    const newImageId =
+      embed.image?.url.replace(/^.*[\\/]/, "").split(".")[0] ?? "";
+
+    expect(embed.image?.url).toEqual(
+      `https://s3.eu-central-1.amazonaws.com/${process.env.MAP_BUCKET}/${existingChannel}/${newImageId}.png`
     );
     expect(embed.title).toEqual("Token added");
     expect(embed.description).toEqual("Token positions:");
 
     expect(embed.fields).toHaveLength(2);
-    expect(embed.fields[0].inline).toBe(true);
-    expect(embed.fields[0].name).toEqual("Alvyn");
-    expect(embed.fields[0].value).toEqual("C7");
-    expect(embed.fields[1].inline).toBe(true);
-    expect(embed.fields[1].name).toEqual("Sam");
-    expect(embed.fields[1].value).toEqual("E4");
+    expect(embed.fields?.[0].inline).toBe(true);
+    expect(embed.fields?.[0].name).toEqual("Alvyn");
+    expect(embed.fields?.[0].value).toEqual("C7");
+    expect(embed.fields?.[1].inline).toBe(true);
+    expect(embed.fields?.[1].name).toEqual("Sam");
+    expect(embed.fields?.[1].value).toEqual("E4");
 
     expect(embed.type).toEqual("rich");
 
@@ -200,385 +209,350 @@ describe("Add Token", () => {
     expect(tokens[0].row).toEqual(7);
     expect(tokens[0].size).toEqual(1);
 
-    expect(tokens[1].color).toBe(expect.any(String));
+    expect(tokens[1].color).toEqual(expect.any(String));
     expect(tokens[1].column).toEqual("E");
     expect(tokens[1].name).toEqual("Sam");
     expect(tokens[1].row).toEqual(4);
     expect(tokens[1].size).toEqual(1);
   }, 30_000);
 
-  //   it("should add a new map with new tokens and no optional properties", () => {
-  //     let newImageId: string;
+  it("should add a new map with new tokens and no optional properties", async () => {
+    const optionalBody = {
+      ...addBody,
+      data: {
+        options: [
+          {
+            name: "add",
+            options: [
+              {
+                name: "name",
+                value: "Sam",
+              },
+              {
+                name: "row",
+                value: 4,
+              },
+              {
+                name: "column",
+                value: "E",
+              },
+            ],
+          },
+        ],
+        name: "token",
+        id: "token-id",
+      },
+    };
 
-  //     const optionalBody = {
-  //       ...addBody,
-  //       data: {
-  //         options: [
-  //           {
-  //             name: "add",
-  //             options: [
-  //               {
-  //                 name: "name",
-  //                 value: "Sam",
-  //               },
-  //               {
-  //                 name: "row",
-  //                 value: 4,
-  //               },
-  //               {
-  //                 name: "column",
-  //                 value: "E",
-  //               },
-  //             ],
-  //           },
-  //         ],
-  //         name: "token",
-  //         id: "token-id",
-  //       },
-  //     };
+    const headers = generateHeaders(optionalBody);
 
-  //     const headers = generateHeaders(optionalBody);
+    const response = await axios.post(url, optionalBody, {
+      headers,
+    });
 
-  //     cy.request({
-  //       method: "POST",
-  //       url,
-  //       body: optionalBody,
-  //       headers,
-  //     })
-  //       .its("status")
-  //       .should("eq", 200);
+    expect(response.status).toBe(200);
 
-  //     cy.get("ul li", { timeout: 30000 })
-  //       .then((item) => {
-  //         const { params, body } = JSON.parse(item.text());
-  //         expect(params).to.deep.equal({
-  //           applicationId: application_id,
-  //           token,
-  //         });
-  //         const embed = body.embeds[0];
-  //         newImageId = embed.image.url.replace(/^.*[\\/]/, "").split(".")[0];
+    const { output } = await getExecutionOutput(stateMachineName);
 
-  //         expect(embed.image.url).toEqual(
-  //           `https://s3.us-east-1.amazonaws.com/carto-bot-maps/${existingChannel}/${newImageId}.png`
-  //         );
-  //         expect(embed.title).toEqual("Token added");
-  //         expect(embed.description).toEqual("Token positions:");
+    if (!output) throw new Error("No output from execution");
 
-  //         expect(embed.fields).to.have.length(2);
-  //         expect(embed.fields[0].inline).toBe(true);
-  //         expect(embed.fields[0].name).toEqual("Alvyn");
-  //         expect(embed.fields[0].value).toEqual("C7");
-  //         expect(embed.fields[1].inline).toBe(true);
-  //         expect(embed.fields[1].name).toEqual("Sam");
-  //         expect(embed.fields[1].value).toEqual("E4");
+    const embeds = JSON.parse(output) as EmbedData[];
 
-  //         expect(embed.type).toEqual("rich");
-  //       })
-  //       // Inspect S3 bucket
-  //       .then(() => getObject(`${existingChannel}/${newImageId}.png`))
-  //       .then((obj) => {
-  //         expect(obj).to.have.property("Body");
-  //       })
-  //       // Inspect Channel document
-  //       .then(() =>
-  //         getDocument({
-  //           table: Table.CHANNELS,
-  //           key: {
-  //             id: existingChannel,
-  //           },
-  //         })
-  //       )
-  //       .then(({ Item }) => {
-  //         const { baseMap, currentMap, history } = Item as DiscordChannel;
+    const embed = embeds[0];
+    const newImageId =
+      embed.image?.url.replace(/^.*[\\/]/, "").split(".")[0] ?? "";
 
-  //         expect(baseMap).toEqual(baseMapId);
-  //         expect(currentMap).toEqual(newImageId);
-  //         expect(history).to.have.length(2);
-  //       })
-  //       // Inspect Map document
-  //       .then(() =>
-  //         getDocument({
-  //           table: Table.MAPS,
-  //           key: {
-  //             id: newImageId,
-  //           },
-  //         })
-  //       )
-  //       .then(({ Item }) => {
-  //         const { tokens } = Item as CartoMap;
+    expect(embed.image?.url).toEqual(
+      `https://s3.eu-central-1.amazonaws.com/${process.env.MAP_BUCKET}/${existingChannel}/${newImageId}.png`
+    );
+    expect(embed.title).toEqual("Token added");
+    expect(embed.description).toEqual("Token positions:");
 
-  //         expect(tokens).to.have.length(2);
-  //         expect(tokens[0].color).toEqual("Blue");
-  //         expect(tokens[0].column).toEqual("C");
-  //         expect(tokens[0].name).toEqual("Alvyn");
-  //         expect(tokens[0].row).toEqual(7);
-  //         expect(tokens[0].size).toEqual(1);
+    expect(embed.fields).toHaveLength(2);
+    expect(embed.fields?.[0].inline).toBe(true);
+    expect(embed.fields?.[0].name).toEqual("Alvyn");
+    expect(embed.fields?.[0].value).toEqual("C7");
+    expect(embed.fields?.[1].inline).toBe(true);
+    expect(embed.fields?.[1].name).toEqual("Sam");
+    expect(embed.fields?.[1].value).toEqual("E4");
 
-  //         expect(tokens[1].color).to.be.a("string");
-  //         expect(tokens[1].column).toEqual("E");
-  //         expect(tokens[1].name).toEqual("Sam");
-  //         expect(tokens[1].row).toEqual(4);
-  //         expect(tokens[1].size).toEqual(1);
-  //       });
-  //   });
+    expect(embed.type).toEqual("rich");
 
-  //   it("should add a new map with new tokens and no existing tokens", () => {
-  //     let newImageId: string;
+    const s3Object = await getObject(`${existingChannel}/${newImageId}.png`);
 
-  //     const noTokensBody = {
-  //       ...addBody,
-  //       channel_id: newExistingChannel,
-  //       data: {
-  //         options: [
-  //           {
-  //             name: "add",
-  //             options: [
-  //               {
-  //                 name: "name",
-  //                 value: "Sam",
-  //               },
-  //               {
-  //                 name: "row",
-  //                 value: 4,
-  //               },
-  //               {
-  //                 name: "column",
-  //                 value: "E",
-  //               },
-  //             ],
-  //           },
-  //         ],
-  //         name: "token",
-  //         id: "token-id",
-  //       },
-  //     };
+    expect(s3Object.Body).toBeDefined();
 
-  //     const headers = generateHeaders(noTokensBody);
+    // Inspect Channel document
 
-  //     cy.request({
-  //       method: "POST",
-  //       url,
-  //       body: noTokensBody,
-  //       headers,
-  //     })
-  //       .its("status")
-  //       .should("eq", 200);
+    const channelDocument = await getDocument({
+      table: Table.CHANNELS,
+      key: {
+        id: existingChannel,
+      },
+    });
 
-  //     cy.get("ul li", { timeout: 30000 })
-  //       .then((item) => {
-  //         const { params, body } = JSON.parse(item.text());
-  //         expect(params).to.deep.equal({
-  //           applicationId: application_id,
-  //           token,
-  //         });
-  //         const embed = body.embeds[0];
-  //         newImageId = embed.image.url.replace(/^.*[\\/]/, "").split(".")[0];
+    const { baseMap, currentMap, history } =
+      channelDocument.Item as DiscordChannel;
 
-  //         expect(embed.image.url).toEqual(
-  //           `https://s3.us-east-1.amazonaws.com/carto-bot-maps/${newExistingChannel}/${newImageId}.png`
-  //         );
-  //         expect(embed.title).toEqual("Token added");
-  //         expect(embed.description).toEqual("Token positions:");
+    expect(baseMap).toEqual(baseMapId);
+    expect(currentMap).toEqual(newImageId);
+    expect(history).toHaveLength(2);
 
-  //         expect(embed.fields).to.have.length(1);
-  //         expect(embed.fields[0].inline).toBe(true);
-  //         expect(embed.fields[0].name).toEqual("Sam");
-  //         expect(embed.fields[0].value).toEqual("E4");
+    // Inspect Map document
 
-  //         expect(embed.type).toEqual("rich");
-  //       })
-  //       // Inspect S3 bucket
-  //       .then(() => getObject(`${newExistingChannel}/${newImageId}.png`))
-  //       .then((obj) => {
-  //         expect(obj).to.have.property("Body");
-  //       })
-  //       // Inspect Channel document
-  //       .then(() =>
-  //         getDocument({
-  //           table: Table.CHANNELS,
-  //           key: {
-  //             id: newExistingChannel,
-  //           },
-  //         })
-  //       )
-  //       .then(({ Item }) => {
-  //         const { baseMap, currentMap, history } = Item as DiscordChannel;
+    const mapDocument = await getDocument({
+      table: Table.MAPS,
+      key: {
+        id: newImageId,
+      },
+    });
 
-  //         expect(baseMap).toEqual(baseMapId);
-  //         expect(currentMap).toEqual(newImageId);
-  //         expect(history).to.have.length(1);
-  //       })
-  //       // Inspect Map document
-  //       .then(() =>
-  //         getDocument({
-  //           table: Table.MAPS,
-  //           key: {
-  //             id: newImageId,
-  //           },
-  //         })
-  //       )
-  //       .then(({ Item }) => {
-  //         const { tokens } = Item as CartoMap;
+    const { tokens } = mapDocument.Item as CartoMap;
 
-  //         expect(tokens).to.have.length(1);
+    expect(tokens).toHaveLength(2);
+    expect(tokens[0].color).toEqual("Blue");
+    expect(tokens[0].column).toEqual("C");
+    expect(tokens[0].name).toEqual("Alvyn");
+    expect(tokens[0].row).toEqual(7);
+    expect(tokens[0].size).toEqual(1);
 
-  //         expect(tokens[0].color).to.be.a("string");
-  //         expect(tokens[0].column).toEqual("E");
-  //         expect(tokens[0].name).toEqual("Sam");
-  //         expect(tokens[0].row).toEqual(4);
-  //         expect(tokens[0].size).toEqual(1);
-  //       });
-  //   });
+    expect(tokens[1].color).toEqual(expect.any(String));
+    expect(tokens[1].column).toEqual("E");
+    expect(tokens[1].name).toEqual("Sam");
+    expect(tokens[1].row).toEqual(4);
+    expect(tokens[1].size).toEqual(1);
+  }, 30_000);
 
-  //   describe("given an invalid location is provided", () => {
-  //     it("should not add a new map and return an error", () => {
-  //       const body = {
-  //         ...addBody,
-  //         data: {
-  //           options: [
-  //             {
-  //               name: "add",
-  //               options: [
-  //                 {
-  //                   name: "name",
-  //                   value: "New Token",
-  //                 },
-  //                 {
-  //                   name: "row",
-  //                   value: 41,
-  //                 },
-  //                 {
-  //                   name: "column",
-  //                   value: "A",
-  //                 },
-  //               ],
-  //             },
-  //           ],
-  //           name: "token",
-  //           id: "token-id",
-  //         },
-  //       };
+  it("should add a new map with new tokens and no existing tokens", async () => {
+    const noTokensBody = {
+      ...addBody,
+      channel_id: newExistingChannel,
+      data: {
+        options: [
+          {
+            name: "add",
+            options: [
+              {
+                name: "name",
+                value: "Sam",
+              },
+              {
+                name: "row",
+                value: 4,
+              },
+              {
+                name: "column",
+                value: "E",
+              },
+            ],
+          },
+        ],
+        name: "token",
+        id: "token-id",
+      },
+    };
 
-  //       const headers = generateHeaders(body);
+    const headers = generateHeaders(noTokensBody);
 
-  //       cy.request({
-  //         method: "POST",
-  //         url,
-  //         body,
-  //         headers,
-  //       })
-  //         .its("status")
-  //         .should("eq", 200);
+    const response = await axios.post(url, noTokensBody, {
+      headers,
+    });
 
-  //       cy.get("ul li", { timeout: 30000 })
-  //         .then((item) => {
-  //           const { params, body } = JSON.parse(item.text());
-  //           expect(params).to.deep.equal({
-  //             applicationId: application_id,
-  //             token,
-  //           });
-  //           const embed = body.embeds[0];
+    expect(response.status).toBe(200);
 
-  //           expect(embed.title).toEqual("Token Add error");
-  //           expect(embed.description).toEqual(
-  //             "The row or column you entered is out of bounds.\nThis map's bounds are 40 rows by 40 columns"
-  //           );
+    const { output } = await getExecutionOutput(stateMachineName);
 
-  //           expect(embed).not.to.have.property("fields");
+    if (!output) throw new Error("No output from execution");
 
-  //           expect(embed.type).toEqual("rich");
-  //         })
-  //         // Inspect Channel document
-  //         .then(() =>
-  //           getDocument({
-  //             table: Table.CHANNELS,
-  //             key: {
-  //               id: existingChannel,
-  //             },
-  //           })
-  //         )
-  //         .then(({ Item }) => {
-  //           const { history } = Item as DiscordChannel;
+    const embeds = JSON.parse(output) as EmbedData[];
 
-  //           // Check length is still the same
-  //           expect(history).to.have.length(1);
-  //         });
-  //     });
-  //   });
+    const embed = embeds[0];
+    const newImageId =
+      embed.image?.url.replace(/^.*[\\/]/, "").split(".")[0] ?? "";
 
-  //   describe("given a token with the same name as an existing one is added", () => {
-  //     it("should not add a new map and return an error", () => {
-  //       const body = {
-  //         ...addBody,
-  //         data: {
-  //           options: [
-  //             {
-  //               name: "add",
-  //               options: [
-  //                 {
-  //                   name: "name",
-  //                   value: "Alvyn",
-  //                 },
-  //                 {
-  //                   name: "row",
-  //                   value: 1,
-  //                 },
-  //                 {
-  //                   name: "column",
-  //                   value: "A",
-  //                 },
-  //               ],
-  //             },
-  //           ],
-  //           name: "token",
-  //           id: "token-id",
-  //         },
-  //       };
+    expect(embed.image?.url).toEqual(
+      `https://s3.eu-central-1.amazonaws.com/${process.env.MAP_BUCKET}/${newExistingChannel}/${newImageId}.png`
+    );
+    expect(embed.title).toEqual("Token added");
+    expect(embed.description).toEqual("Token positions:");
 
-  //       const headers = generateHeaders(body);
+    expect(embed.fields).toHaveLength(1);
+    expect(embed.fields?.[0].inline).toBe(true);
+    expect(embed.fields?.[0].name).toEqual("Sam");
+    expect(embed.fields?.[0].value).toEqual("E4");
 
-  //       cy.request({
-  //         method: "POST",
-  //         url,
-  //         body,
-  //         headers,
-  //       })
-  //         .its("status")
-  //         .should("eq", 200);
+    expect(embed.type).toEqual("rich");
 
-  //       cy.get("ul li", { timeout: 30000 })
-  //         .then((item) => {
-  //           const { params, body } = JSON.parse(item.text());
-  //           expect(params).to.deep.equal({
-  //             applicationId: application_id,
-  //             token,
-  //           });
-  //           const embed = body.embeds[0];
+    // Inspect S3 bucket
+    const s3Object = await getObject(`${newExistingChannel}/${newImageId}.png`);
 
-  //           expect(embed.title).toEqual("Token Add error");
-  //           expect(embed.description).toEqual(
-  //             "A token called Alvyn already exists on the map. \nMove it with `/token move` or remove it with `/token delete`"
-  //           );
+    expect(s3Object.Body).toBeDefined();
 
-  //           expect(embed).not.to.have.property("fields");
+    // Inspect Channel document
+    const channelDocument = await getDocument({
+      table: Table.CHANNELS,
+      key: {
+        id: newExistingChannel,
+      },
+    });
+    const { baseMap, currentMap, history } =
+      channelDocument.Item as DiscordChannel;
 
-  //           expect(embed.type).toEqual("rich");
-  //         })
-  //         // Inspect Channel document
-  //         .then(() =>
-  //           getDocument({
-  //             table: Table.CHANNELS,
-  //             key: {
-  //               id: existingChannel,
-  //             },
-  //           })
-  //         )
-  //         .then(({ Item }) => {
-  //           const { history } = Item as DiscordChannel;
+    expect(baseMap).toEqual(baseMapId);
+    expect(currentMap).toEqual(newImageId);
+    expect(history).toHaveLength(1);
 
-  //           // Check length is still the same
-  //           expect(history).to.have.length(1);
-  //         });
-  //     });
-  //   });
+    // Inspect Map document
+    const mapDocument = await getDocument({
+      table: Table.MAPS,
+      key: {
+        id: newImageId,
+      },
+    });
+    const { tokens } = mapDocument.Item as CartoMap;
+
+    expect(tokens).toHaveLength(1);
+
+    expect(tokens[0].color).toEqual(expect.any(String));
+    expect(tokens[0].column).toEqual("E");
+    expect(tokens[0].name).toEqual("Sam");
+    expect(tokens[0].row).toEqual(4);
+    expect(tokens[0].size).toEqual(1);
+  }, 30_000);
+
+  describe("given an invalid location is provided", () => {
+    it("should not add a new map and return an error", async () => {
+      const body = {
+        ...addBody,
+        data: {
+          options: [
+            {
+              name: "add",
+              options: [
+                {
+                  name: "name",
+                  value: "New Token",
+                },
+                {
+                  name: "row",
+                  value: 41,
+                },
+                {
+                  name: "column",
+                  value: "A",
+                },
+              ],
+            },
+          ],
+          name: "token",
+          id: "token-id",
+        },
+      };
+
+      const headers = generateHeaders(body);
+
+      const response = await axios.post(url, body, {
+        headers,
+      });
+
+      expect(response.status).toBe(200);
+
+      const { output } = await getExecutionOutput(stateMachineName);
+
+      if (!output) throw new Error("No output from execution");
+
+      const embeds = JSON.parse(output) as EmbedData[];
+
+      const embed = embeds[0];
+
+      expect(embed.title).toEqual("Token Add error");
+      expect(embed.description).toEqual(
+        "The row or column you entered is out of bounds.\nThis map's bounds are 40 rows by 40 columns"
+      );
+
+      expect(embed.fields).toBeUndefined();
+
+      expect(embed.type).toEqual("rich");
+
+      // Inspect Channel document
+      const channelDocument = await getDocument({
+        table: Table.CHANNELS,
+        key: {
+          id: existingChannel,
+        },
+      });
+
+      const { history } = channelDocument.Item as DiscordChannel;
+
+      // Check length is still the same
+      expect(history).toHaveLength(1);
+    }, 30_000);
+  });
+
+  describe("given a token with the same name as an existing one is added", () => {
+    it("should not add a new map and return an error", async () => {
+      const body = {
+        ...addBody,
+        data: {
+          options: [
+            {
+              name: "add",
+              options: [
+                {
+                  name: "name",
+                  value: "Alvyn",
+                },
+                {
+                  name: "row",
+                  value: 1,
+                },
+                {
+                  name: "column",
+                  value: "A",
+                },
+              ],
+            },
+          ],
+          name: "token",
+          id: "token-id",
+        },
+      };
+
+      const headers = generateHeaders(body);
+
+      const response = await axios.post(url, body, {
+        headers,
+      });
+
+      expect(response.status).toBe(200);
+
+      const { output } = await getExecutionOutput(stateMachineName);
+
+      if (!output) throw new Error("No output from execution");
+
+      const embeds = JSON.parse(output) as EmbedData[];
+
+      const embed = embeds[0];
+
+      expect(embed.title).toEqual("Token Add error");
+      expect(embed.description).toEqual(
+        "A token called Alvyn already exists on the map. \nMove it with `/token move` or remove it with `/token delete`"
+      );
+
+      expect(embed.fields).toBeUndefined();
+
+      expect(embed.type).toEqual("rich");
+      // Inspect Channel document
+      const channelDocument = await getDocument({
+        table: Table.CHANNELS,
+        key: {
+          id: existingChannel,
+        },
+      });
+      const { history } = channelDocument.Item as DiscordChannel;
+
+      // Check length is still the same
+      expect(history).toHaveLength(1);
+    }, 30_000);
+  });
 });
