@@ -20,8 +20,8 @@
     "test": "jest"
   },
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.297.0",
-    "@aws-sdk/client-s3": "^3.297.0",
+    "@aws-sdk/client-dynamodb": "^3.433.0",
+    "@aws-sdk/client-s3": "^3.433.0",
     "@carto/map-utils": "*",
     "canvas": "^2.10.2"
   },
